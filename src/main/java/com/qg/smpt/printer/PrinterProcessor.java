@@ -20,7 +20,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
     private int id;
 
     // TODO 关于字节数组分配过下,而导致需要两次调用的问题
-    private ByteBuffer byteBuffer;
+    private ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
 
     private boolean available;
 

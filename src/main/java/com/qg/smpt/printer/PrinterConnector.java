@@ -154,9 +154,11 @@ public class PrinterConnector implements Runnable, Lifecycle{
     private PrinterProcessor newProcessor() {
 
         PrinterProcessor processor = new PrinterProcessor(curProcessors++);
+        try {
+            processor.start();
+        } catch (LifecycleException e) {
 
-        processor.start();
-
+        }
         createdProcessor.add(processor);
 
         return processor;

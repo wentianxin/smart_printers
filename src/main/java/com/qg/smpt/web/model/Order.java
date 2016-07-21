@@ -6,5 +6,5 @@ package com.qg.smpt.web.model;
  */
 public final class Order {
 
-
+    
 }
