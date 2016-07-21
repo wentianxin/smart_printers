@@ -1,7 +1,7 @@
 package com.qg.smpt.printer.model;
 
 /**
- * Created by tisong on 7/21/16.
+ * 请求
  */
 public final class BRequest {
 

@@ -8,11 +8,13 @@ import java.util.Map;
 import java.util.Queue;
 
 /**
- * Created by tisong on 7/20/16.
+ * 全局生命周期的共享对象
  */
 public final class ShareMem {
 
-    public static Map<User, List<Printer>>   userListMap = null;         // 用户-打印机-打印机
+    public static Map<Integer, User> userIdMap = null;                    // 用户id-用户
+
+    public static Map<Integer, List<Printer>> userListMap = null;         // 用户-打印机-打印机
 
     public static Map<Printer, Queue<Order>> priBufferQueueMap = null;   // 打印机-缓存队列
 

@@ -1,11 +1,11 @@
 package com.qg.smpt.printer.model;
 
 /**
- * Created by tisong on 7/21/16.
+ * 订单
  */
 public final class BOrder {
 
-    public short start;
+    public short start = BConstants.start;
 
     public short length;
 
@@ -28,4 +28,8 @@ public final class BOrder {
     public short padding1;
 
     public short end;
+
+    public static byte[] bOrderToBytes(BOrder bOrder){
+
+    }
 }
