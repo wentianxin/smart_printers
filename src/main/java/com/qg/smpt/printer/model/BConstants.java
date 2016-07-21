@@ -9,9 +9,13 @@ public final class BConstants {
 
     public static final short orderEnd = (short)0x3E11;
 
-    public static final short start = (short)0xFCCF;
+    public static final short bulkOrderStart = (short)0x55aa;
 
-    public static final short end   = (short)0xCFFC;
+    public static final short bulkOrderEnd = (short)0xaa55;
+
+    public static final short statusStart = (short)0xFCCF;
+
+    public static final short statusEnd   = (short)0xCFFC;
 
     public static final short textStart = (short)0xFF7E;
 

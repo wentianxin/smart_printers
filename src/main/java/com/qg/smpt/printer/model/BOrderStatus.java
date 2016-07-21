@@ -1,23 +1,34 @@
 package com.qg.smpt.printer.model;
 
+import com.qg.smpt.util.BytesConvert;
+
+import java.util.Arrays;
+
 /**
- * 订单状态
+ * 订单状态(打印机-服务器)
  */
-public final class BOrderStatus {
+public final class BOrderStatus extends AbstactStatus{
 
-    public short start;
+    // line1
+    public int printerId;   // 主控板id
+    // line2
+    public int seconds;
+    // line3
+    public short bulkId;    // 批次id ; 低16bit
+    public short inNumber;  // 批次内序号; 高16bit
 
-    public short flag; // 3bit:type; 12bit:padding; 1bit: STA(0-打印成功; 1-打印失败)
+    public static BOrderStatus bytesToOrderStatus(byte[] bytes) {
 
-    public short id;
+        BOrderStatus bos = (BOrderStatus)BOrderStatus.bytesToAbstractStatus(bytes);
 
-    public short bulkId; // 批次id
+        bos.printerId = bos.line1;
 
-    public short inNumber;
+        bos.seconds = bos.line2;
 
-    public short checkSum;
+        bos.bulkId = (short)(bos.line3 & 0xFFFF);
 
-    public short end;
+        bos.inNumber = (short)((bos.line3 >> 16) & 0xFFFF);
 
-
+        return bos;
+    }
 }

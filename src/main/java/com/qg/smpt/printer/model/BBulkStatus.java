@@ -1,48 +1,33 @@
 package com.qg.smpt.printer.model;
 
-import com.qg.smpt.util.BytesConvert;
-
-import java.util.Arrays;
-
 /**
- * 批量订单状态
+ * 批量订单状态（打印机-订单）
  */
-public final class BBulkStatus {
+public final class BBulkStatus extends AbstactStatus{
 
-    public final short start = BConstants.start;
-
-    public short flag; // 3bit:type; 12bit:padding; 1bit:0, 1
-
-    public short id;
-
-    public short padding;
-
+    // line1
+    public short bulkId;  // 低16bit
+    public short padding; // 高16bit
+    // line2
     public int   seconds;
-
+    // line3
     public int   retention;
 
-    public short checkSum;
-
-    public final short end = BConstants.end;
 
     public static BBulkStatus bytesToBulkStatus(byte[] bytes) {
         if (bytes.length != 20) {
             return null;
         }
 
-        BBulkStatus bbs = new BBulkStatus();
+        BBulkStatus bbs = (BBulkStatus)(BBulkStatus.bytesToAbstractStatus(bytes));
 
-        bbs.flag = BytesConvert.bytesToShort(Arrays.copyOfRange(bytes, 2, 3));
+        bbs.bulkId = (short)(bbs.line1 & 0xFFFF);
 
-        bbs.id = BytesConvert.bytesToShort(Arrays.copyOfRange(bytes, 3, 4));
+        bbs.padding = (short)((bbs.line1 >> 16) & 0xFFFF);
 
-        bbs.padding = BytesConvert.bytesToShort(Arrays.copyOfRange(bytes, 4, 5));
+        bbs.seconds = bbs.line2;
 
-        bbs.seconds = BytesConvert.bytesToInt(Arrays.copyOfRange(bytes, 5, 8));
-
-        bbs.retention = BytesConvert.bytesToInt(Arrays.copyOfRange(bytes, 8, 9));
-
-        bbs.checkSum = BytesConvert.bytesToShort(Arrays.copyOfRange(bytes, 9, 10));
+        bbs.retention = bbs.line3;
 
         return bbs;
     }

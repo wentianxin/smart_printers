@@ -1,21 +1,30 @@
 package com.qg.smpt.printer.model;
 
 /**
- * 请求
+ * 请求数据包, 建立连接时
+ * 100-阈值请求
+ * 011-请求建立连接
  */
-public final class BRequest {
+public final class BRequest extends AbstactStatus{
 
-    public short start;
+    // line1
+    public int printerId; // 主控板id
+    // line2
+    public int seconds;   // 主控板发送给服务器的时间戳
+    // line3
+    public int padding;   // 填充位
 
-    public short flag;  // 100: 阈值； 011: 请求建立连接
+    public static BRequest bytesToRequest(byte[] bytes) {
 
-    public short id;
+        BRequest br = (BRequest) BRequest.bytesToAbstractStatus(bytes);
 
-    public int   seconds;
+        br.printerId = br.line1;
 
-    public int   padding;
+        br.seconds = br.line2;
 
-    public short checkSum;
+        br.padding = br.line3;
 
-    public short end;
+        return br;
+    }
+
 }
