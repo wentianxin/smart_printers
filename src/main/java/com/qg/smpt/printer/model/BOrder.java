@@ -33,6 +33,86 @@ public final class BOrder {
 
     public int size;        // BOrder 字节数
 
+    public short getLength() {
+        return length;
+    }
+
+    public void setLength(short length) {
+        this.length = length;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getSeconds() {
+        return seconds;
+    }
+
+    public void setSeconds(int seconds) {
+        this.seconds = seconds;
+    }
+
+    public int getOrderNumber() {
+        return orderNumber;
+    }
+
+    public void setOrderNumber(int orderNumber) {
+        this.orderNumber = orderNumber;
+    }
+
+    public short getBulkId() {
+        return bulkId;
+    }
+
+    public void setBulkId(short bulkId) {
+        this.bulkId = bulkId;
+    }
+
+    public short getInNumber() {
+        return inNumber;
+    }
+
+    public void setInNumber(short inNumber) {
+        this.inNumber = inNumber;
+    }
+
+    public short getCheckNum() {
+        return checkNum;
+    }
+
+    public void setCheckNum(short checkNum) {
+        this.checkNum = checkNum;
+    }
+
+    public short getPadding0() {
+        return padding0;
+    }
+
+    public void setPadding0(short padding0) {
+        this.padding0 = padding0;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
+    }
+
+    public short getPadding1() {
+        return padding1;
+    }
+
+    public void setPadding1(short padding1) {
+        this.padding1 = padding1;
+    }
+
     public static byte[] bOrderToBytes(BOrder bOrder){
 
         byte[] bytes = new byte[bOrder.size];
