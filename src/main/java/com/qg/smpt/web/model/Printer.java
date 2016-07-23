@@ -39,7 +39,7 @@ public final class Printer {
     }
 
     public int getCurrentBulk() {
-        return ++currentBulk;
+        return currentBulk;
     }
 
     public void setCurrentBulk(int currentBulk) {
