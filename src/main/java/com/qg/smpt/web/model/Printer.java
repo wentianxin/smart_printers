@@ -14,6 +14,10 @@ public final class Printer {
     private boolean isBusy;         //true-忙时，false-闲时
     private long lastSendTime;      //上一次发送批次的时间
 
+    public Printer() {}
+
+    public Printer(int id){this.id = id;}
+
     public int getId() {
         return id;
     }
