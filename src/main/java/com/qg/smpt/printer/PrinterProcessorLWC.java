@@ -1,11 +1,11 @@
 package com.qg.smpt.printer;
 
-import com.qg.smpt.printer.model.BBulkOrder;
-import com.qg.smpt.printer.model.BOrder;
+import com.qg.smpt.printer.model.*;
 import com.qg.smpt.share.ShareMem;
 import com.qg.smpt.web.model.BulkOrder;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
+import com.sun.org.apache.xml.internal.serializer.utils.SystemIDResolver;
 import com.sun.org.apache.xpath.internal.operations.Or;
 
 import java.io.IOException;
@@ -46,6 +46,7 @@ public class PrinterProcessorLWC implements Runnable, Lifecycle{
         }
 
         started = true;
+
         threadStart();
     }
 
@@ -137,76 +138,104 @@ public class PrinterProcessorLWC implements Runnable, Lifecycle{
             byteBuffer.flip();
 
             // 将byteBuffer 中的字节数组进行提取
+            byte[] bytes = byteBuffer.array();
+
+            if (bytes[0] == (byte)0xCF && bytes[1] == (byte)0xFC) {
+                switch (bytes[2]) {
+                    case BConstants.connectStatus :
+
+                    case BConstants.okStatus:
+
+                    case BConstants.orderStatus:
+
+                    case BConstants.bulkStatus:
+
+                    case BConstants.printStatus:
+
+                    default:
+                }
+            }
         } catch (IOException e) {
 
         }
 
     }
 
-    /**
-     * 建立用户打印机-关系
-     */
-    private void buildUserPrintRelation() {
+    private void parseConnectStatus(byte[] bytes) {
+        BRequest bRequest = BRequest.bytesToRequest(bytes);
 
+        int printerId = bRequest.printerId;
+
+        // 建立用户-printer 关系
+
+
+        if (ShareMem.printerIdMap.get(printerId) == null) {
+            synchronized (ShareMem.printerIdMap) {
+                ShareMem.printerIdMap.put(printerId, new Printer(printerId));
+            }
+        }
     }
 
-    /**
-     * 发送批次订单
-     */
-    private void sendBatchOrder() throws Exception{
-        //获取打印机与他的订单集合
+    private void parseOkStatus() {
+        // 解析OK请求
+        byte[] requestB = byteBuffer.array();
+        BRequest request = BRequest.bytesToRequest(requestB);
+
+        // 获取打印机主控板id,获取打印机
+        int printerId = request.printerId;
         Printer p = ShareMem.printerIdMap.get(id);
-        Queue<Order> os = ShareMem.priBufferQueueMap.get(p);
+        p.setCanAccpet(true);
 
-        //判断 闲时/忙时
-        if((os != null && os.size() <= 0) || !p.isCanAccpet()) {
-            return;
-        }
-
-
-        doSend(p,os);
-
-    }
-
-    private void doSend(Printer printer, Queue<Order> orders) {
+        //执行发送数据
         try {
-            //准备批次
-            prepareBulk(printer.getCurrentBulk(), orders);
 
-            //检验批次是否有错
+            OrderService orderService = new OrderService();
+            orderService.sendBatchOrder(p);
 
-            //通过 socketChenal 发送数据
-        }catch(Exception e) {
-            e.printStackTrace();
+        }catch(Exception e){
+            //异常暂不处理,之后填上
         }
     }
 
-    /**
-     * 准备批次订单,遍历订单集合取出订单组装成批次
-     * @param bulkId    批次id
-     * @param orders    订单集合
-     * @throws Exception    暂定异常全抛,之后逻辑设计后再根据具体情况在里面抓获具体的异常
-     */
-    private void prepareBulk(int bulkId, Queue<Order> orders) throws Exception{
-        //创建批次
-        BulkOrder bulk = new BulkOrder(bulkId);
-        BBulkOrder bulkB = new BBulkOrder();
-        int currSize = 0;
+    private void parseOrderStatus(byte[] bytes) {
+        BOrderStatus bOrderStatus = BOrderStatus.bytesToOrderStatus(bytes);
 
-        //遍历订单缓存队列,组装批次,发送窗口大小不能超过最大值MAX_TRANSFER_SIZE
-        List<Order> os = new ArrayList<Order>();
-        Iterator<Order> it = orders.iterator();
-        short i = 0;
-        while(it.hasNext()){
-            Order o = it.next();
-            BOrder oB = o.orderToBOrder((short)bulkId, ++i);
-            byte[] orderB = BOrder.bOrderToBytes(oB);
-            o.setData(orderB);
+        if ( (byte)((bOrderStatus.flag >> 8) & 0xFF ) == (byte) BConstants.orderSucc) {
+
+
+        }else if((byte)((bOrderStatus.flag >> 8) & 0xFF ) == (byte) BConstants.orderFail) {
+            // 订单异常 需要重新发送订单
+            OrderService orderService = new OrderService();
+            orderService.handleFailOrder(bOrderStatus.printerId, bOrderStatus.bulkId, bOrderStatus.inNumber);
 
         }
 
 
     }
+
+    private void parseBulkStatus(byte[] bytes) {
+        BBulkStatus bBulkStatus = BBulkStatus.bytesToBulkStatus(bytes);
+        OrderService orderService = new OrderService();
+
+        if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
+            // 批次订单成功
+            // 将已发队列中数据装填到数据库中，并清除已发队列
+            orderService.handleSuccessfulBulk(bBulkStatus.printerId, bBulkStatus.bulkId);
+
+        } else  if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
+            // 批次订单失败 忽略失败信息-bug
+            orderService.handleFailBulk(bBulkStatus.printerId,bBulkStatus.bulkId);
+        }
+    }
+
+    private void parsePrintStatus(byte[] bytes) {
+        BPrinterStatus bPrinterStatus = BPrinterStatus.bytesToPrinterStatus(bytes);
+
+        //TODO 状态待分析
+    }
+
+
+
 
     /**
      * 更新订单状态

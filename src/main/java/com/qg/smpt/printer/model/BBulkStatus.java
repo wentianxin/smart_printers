@@ -11,7 +11,7 @@ public final class BBulkStatus extends AbstactStatus{
     // line2
     public int   seconds;
     // line3
-    public int   retention;
+    public int   printerId;
 
 
     public static BBulkStatus bytesToBulkStatus(byte[] bytes) {
@@ -27,7 +27,7 @@ public final class BBulkStatus extends AbstactStatus{
 
         bbs.seconds = bbs.line2;
 
-        bbs.retention = bbs.line3;
+        bbs.printerId = bbs.line3;
 
         return bbs;
     }
