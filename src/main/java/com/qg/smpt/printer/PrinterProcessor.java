@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.List;
 
 /**
  * 打印机的线程调度：将缓存队列中数据组装并发送到给打印机，将缓存队列转发到已发队列
@@ -150,11 +151,14 @@ public class PrinterProcessor implements Runnable, Lifecycle{
      */
     private void sendBatchOrder() {
 
-        // 进行条件判断, 适当睡眠
+        //判断条件适当睡眠
+
 
         // 唤醒时，唤醒全局线程-所有线程再进行条件判断。
 
     }
+
+
 
     /**
      * 更新订单状态
