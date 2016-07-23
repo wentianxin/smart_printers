@@ -1,5 +1,9 @@
 package com.qg.smpt.printer;
 
+import com.qg.smpt.printer.model.*;
+import com.qg.smpt.share.ShareMem;
+import com.qg.smpt.web.model.Printer;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -133,10 +137,75 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             byteBuffer.flip();
 
             // 将byteBuffer 中的字节数组进行提取
+            byte[] bytes = byteBuffer.array();
+
+            if (bytes[0] == (byte)0xCF && bytes[1] == (byte)0xFC) {
+                switch (bytes[2]) {
+                    case BConstants.connectStatus :
+
+                    case BConstants.okStatus:
+
+                    case BConstants.orderStatus:
+
+                    case BConstants.bulkStatus:
+
+                    case BConstants.printStatus:
+
+                    default:
+                }
+            }
         } catch (IOException e) {
 
         }
 
+    }
+
+    private void parseConnectStatus(byte[] bytes) {
+        BRequest bRequest = BRequest.bytesToRequest(bytes);
+
+        int printerId = bRequest.printerId;
+
+        // 建立用户-printer 关系
+
+
+        if (ShareMem.printerIdMap.get(printerId) == null) {
+            synchronized (ShareMem.printerIdMap) {
+                ShareMem.printerIdMap.put(printerId, new Printer(printerId));
+            }
+        }
+    }
+
+    private void parseOkStatus() {
+
+    }
+
+    private void parseOrderStatus(byte[] bytes) {
+        BOrderStatus bOrderStatus = BOrderStatus.bytesToOrderStatus(bytes);
+
+        if ( (byte)((bOrderStatus.flag >> 8) & 0xFF ) == (byte) BConstants.orderSucc) {
+            // 订单成功
+        }else if((byte)((bOrderStatus.flag >> 8) & 0xFF ) == (byte) BConstants.orderFail) {
+            // 订单异常 需要重新发送订单
+        }
+
+
+    }
+
+    private void parseBulkStatus(byte[] bytes) {
+        BBulkStatus bBulkStatus = BBulkStatus.bytesToBulkStatus(bytes);
+
+        if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
+            // 批次订单成功
+            // 将已发队列中数据装填到数据库中，并清除已发队列
+        } else  if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
+            // 批次订单失败 忽略失败信息-bug
+        }
+    }
+
+    private void parsePrintStatus(byte[] bytes) {
+        BPrinterStatus bPrinterStatus = BPrinterStatus.bytesToPrinterStatus(bytes);
+
+        //TODO 状态待分析
     }
 
     /**

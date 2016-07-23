@@ -22,7 +22,7 @@ public class AbstactStatus {
 
     public final short end = BConstants.statusEnd;
 
-    public static AbstactStatus bytesToAbstractStatus(byte[] bytes) {
+    protected static AbstactStatus bytesToAbstractStatus(byte[] bytes) {
         AbstactStatus as = new AbstactStatus();
 
         as.flag = BytesConvert.bytesToShort(Arrays.copyOfRange(bytes, 2, 4));
