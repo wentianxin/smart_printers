@@ -80,7 +80,6 @@ public class OrderService {
         //遍历订单缓存队列,组装批次,发送窗口大小不能超过最大值MAX_TRANSFER_SIZE
         List<Order> os = new ArrayList<Order>();
 
-
         short i = 1;        //用于保存当前已经存储了多少个订单到批次中
         int currSize = 0;   //用于记录当前已经解析的订单有多少容量
         long lastSendTime = printer.getLastSendTime();   //获取上一次批次的发送时间，是用于基于时间的发送批次使用

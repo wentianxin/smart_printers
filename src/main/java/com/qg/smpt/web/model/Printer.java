@@ -8,11 +8,11 @@ public final class Printer {
     private int id;                 //打印机id
     private int userId;             //用户id
     private String status;          //打印机状态
-    private int currentBulk;        //当前已发送批次的最大id
-    private int currentOrder;       //当前已接受订单的最大id
-    private boolean canAccpet;      //能否接收数据
-    private boolean isBusy;         //true-忙时，false-闲时
-    private long lastSendTime;      //上一次发送批次的时间
+    private volatile int currentBulk;        //当前已发送批次的最大id
+    private volatile int currentOrder;       //当前已接受订单的最大id
+    private volatile boolean canAccpet;      //能否接收数据
+    private volatile boolean isBusy;         //true-忙时，false-闲时
+    private volatile long lastSendTime;      //上一次发送批次的时间
 
     public Printer() {}
 

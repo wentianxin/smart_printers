@@ -1,5 +1,6 @@
 package com.qg.smpt.receive;
 
+import com.qg.smpt.printer.OrderService;
 import com.qg.smpt.share.ShareMem;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
@@ -34,12 +35,15 @@ public class ReceOrderServlet extends HttpServlet {
         if (printers != null && printers.size() > 0) {
             if (ShareMem.priBufferQueueMap != null) {
                 Order order = parseOrder(request);
+                Printer printer = printers.get(0);
 
                 synchronized (ShareMem.priBufferQueueMap) {
-                    Queue<Order> orders = ShareMem.priBufferQueueMap.get(printers.get(0));
+                    Queue<Order> orders = ShareMem.priBufferQueueMap.get(printer);
 
                     orders.add(order);
                 }
+                OrderService orderService = new OrderService();
+                orderService.sendBatchOrder(printer);
             }
         }
 
@@ -49,6 +53,7 @@ public class ReceOrderServlet extends HttpServlet {
     private Order parseOrder(HttpServletRequest request) {
 
         return new Order();
+
     }
 }
 

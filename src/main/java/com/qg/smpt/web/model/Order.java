@@ -41,7 +41,7 @@ public final class Order {
     private String comContact; //顾客联系方式
 
     private byte[] data;
-
+    private boolean isConvert = false;
 
 
     public String getShopName() {
@@ -158,6 +158,9 @@ public final class Order {
     }
 
     public byte[] getData() {
+        if(!isConvert){
+
+        }
         return data;
     }
 
@@ -271,4 +274,6 @@ public final class Order {
 
         return data;
     }
+
+
 }
