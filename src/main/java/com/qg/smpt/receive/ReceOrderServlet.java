@@ -2,6 +2,7 @@ package com.qg.smpt.receive;
 
 import com.qg.smpt.printer.OrderService;
 import com.qg.smpt.share.ShareMem;
+import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
 
 import javax.servlet.ServletException;
