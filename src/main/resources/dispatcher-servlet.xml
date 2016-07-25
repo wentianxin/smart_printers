@@ -9,19 +9,13 @@ http://www.springframework.org/schema/context/spring-context-3.0.xsd http://www.
 
 
     <!-- scan the package and the sub package -->
-    <context:component-scan base-package="com"/>
+    <context:component-scan base-package="com.qg.smpt"/>
 
     <!-- don't handle the static resource -->
     <mvc:default-servlet-handler />
 
     <!-- if you use annotation you must configure following setting -->
     <mvc:annotation-driven />
-
-    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="annotationClass" value="org.springframework.stereotype.Repository"/>
-        <property name="basePackage" value="com.liming.manager"/>
-        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
-    </bean>
 
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"
           id="internalResourceViewResolver">

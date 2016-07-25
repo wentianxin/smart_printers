@@ -55,7 +55,7 @@
             targetPackage：生成的类要放的包，真实的包受enableSubPackages属性控制；
             targetProject：目标项目，指定一个存在的目录下，生成的内容会放到指定目录中，如果目录不存在，MBG不会自动建目录
         -->
-        <javaModelGenerator targetPackage="com.qg.smpt.web.model/test"
+        <javaModelGenerator targetPackage="com.qg.smpt.web.model.test"
                             targetProject="/home/tisong/CodeWorld/J2EE/smart_printers/src/main/java">
             <!--  自动为每一个生成的类创建一个构造方法，构造方法包含了所有的field；而不是使用setter-->
             <property name="constructorBased" value="false"/>
@@ -68,7 +68,7 @@
         </javaModelGenerator>
 
         <!--配置实体map接口（dao）-->
-        <sqlMapGenerator targetPackage="mybatis" targetProject="/home/tisong/CodeWorld/J2EE/smart_printers/src/main/resources">
+        <sqlMapGenerator targetPackage="/" targetProject="/home/tisong/CodeWorld/J2EE/smart_printers/src/main/resources">
             <property name="enableSubPackages" value="false" />
         </sqlMapGenerator>
 
@@ -88,7 +88,7 @@
         </javaClientGenerator>
 
         <!--配置实体-->
-        <table tableName="order" domainObjectName="Order"
+        <table tableName="orders" domainObjectName="Order"
             enableCountByExample="false" enableUpdateByExample="false"
             enableDeleteByExample="false" enableSelectByExample="false"
             selectByExampleQueryId="false">
@@ -105,5 +105,42 @@
             -->
             <!--<ignoreColumn column=""/> -->
         </table>
+
+        <table tableName="printer" domainObjectName="Printer"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               selectByExampleQueryId="false">
+            <!-- 用于生成主键的方法 ，MBG会在生成的insert元素中生成一条正确的 selectKey 元素，该元素可选 -->
+            <!-- Mysql : 相当于 selectKey 的SQL为 ： SELECT LAST_INSERT_ID() -->
+            <generatedKey column="id" sqlStatement="Mysql"/>
+
+            <!--
+            <columnOverride column="user_name">
+                <property name="property" value="userName"/>
+                <property name="javaType" value="java.lang.String"/>
+                <property name="jdbcType" value=""/>
+            </columnOverride>
+            -->
+            <!--<ignoreColumn column=""/> -->
+        </table>
+
+        <table tableName="user" domainObjectName="User"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               selectByExampleQueryId="false">
+            <!-- 用于生成主键的方法 ，MBG会在生成的insert元素中生成一条正确的 selectKey 元素，该元素可选 -->
+            <!-- Mysql : 相当于 selectKey 的SQL为 ： SELECT LAST_INSERT_ID() -->
+            <generatedKey column="id" sqlStatement="Mysql"/>
+
+            <!--
+            <columnOverride column="user_name">
+                <property name="property" value="userName"/>
+                <property name="javaType" value="java.lang.String"/>
+                <property name="jdbcType" value=""/>
+            </columnOverride>
+            -->
+            <!--<ignoreColumn column=""/> -->
+        </table>
+
     </context>
 </generatorConfiguration>

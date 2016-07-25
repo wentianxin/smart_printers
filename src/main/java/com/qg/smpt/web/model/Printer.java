@@ -1,13 +1,10 @@
 package com.qg.smpt.web.model;
 
-/**
- * 打印机
- * Created by tisong on 7/20/16.
- */
-public final class Printer {
-    private int id;                 //打印机id
-    private int userId;             //用户id
-    private String status;          //打印机状态
+public class Printer {
+
+    private Integer id;
+    private String printerStatus;
+    private int userId;                      //用户id
     private volatile int currentBulk;        //当前已发送批次的最大id
     private volatile int currentOrder;       //当前已接受订单的最大id
     private volatile boolean canAccpet;      //能否接收数据
@@ -15,16 +12,22 @@ public final class Printer {
     private volatile long lastSendTime;      //上一次发送批次的时间
 
     public Printer() {}
-
     public Printer(int id){this.id = id;}
 
-    public int getId() {
-        return id;
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == this)
+            return true;
+
+        if(!(obj instanceof com.qg.smpt.web.model.Printer))
+            return false;
+
+        if(((Printer)obj).id == this.id)
+            return true;
+        else
+            return false;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getUserId() {
         return userId;
@@ -32,14 +35,6 @@ public final class Printer {
 
     public void setUserId(int userId) {
         this.userId = userId;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public int getCurrentBulk() {
@@ -82,23 +77,19 @@ public final class Printer {
         this.lastSendTime = lastSendTime;
     }
 
-    @Override
-    public int hashCode() {
+    public Integer getId() {
         return id;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if(obj == this)
-            return true;
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-        if(!(obj instanceof  Printer))
-            return false;
+    public String getPrinterStatus() {
+        return printerStatus;
+    }
 
-        Printer printer = (Printer)obj;
-        if(printer.id == this.id)
-            return true;
-        else
-            return false;
+    public void setPrinterStatus(String printerStatus) {
+        this.printerStatus = printerStatus == null ? null : printerStatus.trim();
     }
 }

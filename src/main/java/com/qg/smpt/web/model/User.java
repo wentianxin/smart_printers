@@ -1,47 +1,106 @@
 package com.qg.smpt.web.model;
 
-import java.util.List;
+public class User {
 
-/**
- * 商家用户
- * Created by tisong on 7/20/16.
- */
-public final class User {
-    private int id;
-    private String name;
-    private int mpu;
-    private List<Printer> printers;
+    private Integer id;
 
-    public int getId() {
+    private String userName;
+
+    private String userAccount;
+
+    private String userPassword;
+
+    private Integer userPrinters;
+
+    private String userLogo;
+
+    private String userQrcode;
+
+    private String userStore;
+
+    private String userAddress;
+
+    private String userPhone;
+
+
+
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUserName(String userName) {
+        this.userName = userName == null ? null : userName.trim();
     }
 
-    public int getMpu() {
-        return mpu;
+    public String getUserAccount() {
+        return userAccount;
     }
 
-    public void setMpu(int mpu) {
-        this.mpu = mpu;
+    public void setUserAccount(String userAccount) {
+        this.userAccount = userAccount == null ? null : userAccount.trim();
     }
 
-    public List<Printer> getPrinters() {
-        return printers;
+    public String getUserPassword() {
+        return userPassword;
     }
 
-    public void setPrinters(List<Printer> printers) {
-        this.printers = printers;
+    public void setUserPassword(String userPassword) {
+        this.userPassword = userPassword == null ? null : userPassword.trim();
     }
 
+    public Integer getUserPrinters() {
+        return userPrinters;
+    }
+
+    public void setUserPrinters(Integer userPrinters) {
+        this.userPrinters = userPrinters;
+    }
+
+    public String getUserLogo() {
+        return userLogo;
+    }
+
+    public void setUserLogo(String userLogo) {
+        this.userLogo = userLogo == null ? null : userLogo.trim();
+    }
+
+    public String getUserQrcode() {
+        return userQrcode;
+    }
+
+    public void setUserQrcode(String userQrcode) {
+        this.userQrcode = userQrcode == null ? null : userQrcode.trim();
+    }
+
+    public String getUserStore() {
+        return userStore;
+    }
+
+    public void setUserStore(String userStore) {
+        this.userStore = userStore == null ? null : userStore.trim();
+    }
+
+    public String getUserAddress() {
+        return userAddress;
+    }
+
+    public void setUserAddress(String userAddress) {
+        this.userAddress = userAddress == null ? null : userAddress.trim();
+    }
+
+    public String getUserPhone() {
+        return userPhone;
+    }
+
+    public void setUserPhone(String userPhone) {
+        this.userPhone = userPhone == null ? null : userPhone.trim();
+    }
 }

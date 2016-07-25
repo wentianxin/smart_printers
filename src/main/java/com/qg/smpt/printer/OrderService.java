@@ -5,15 +5,12 @@ import com.qg.smpt.share.ShareMem;
 import com.qg.smpt.web.model.BulkOrder;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
-import com.sun.org.apache.xpath.internal.operations.Or;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 
@@ -85,13 +82,13 @@ public class OrderService {
         short i = 1;        //用于保存当前已经存储了多少个订单到批次中
         int currSize = 0;   //用于记录当前已经解析的订单有多少容量
         long lastSendTime = printer.getLastSendTime();   //获取上一次批次的发送时间，是用于基于时间的发送批次使用
-       
+
 
         //基于批次定量的检测
         while(currSize < Constants.MAX_TRANSFER_SIZE){
 
             synchronized (orders) {
-                
+
 
                 while (orders.size() > 0) {
 
@@ -132,27 +129,27 @@ public class OrderService {
 
         bulk.setOrders(os);
         bulk.setDataSize(currSize);
-        
+
     }
 
     private void send(byte[] data, Printer printer) {
-       try {
-           //建立并转化批次数据
-           ByteBuffer buff = ByteBuffer.wrap(data);
-
-           //通过 socketChenal 发送数据
-           printer.setLastSendTime(System.currentTimeMillis());
-//           SocketChannel socketChannel = ShareMem.priLinkSocketMap.get(printer);
-//           socketChannel.write(buff);
-           Socket socket = ShareMem.printerSocket.get(printer);
-           BufferedOutputStream buffer = new BufferedOutputStream(socket.getOutputStream());
-           buffer.write(data);
-           buffer.flush();
-           System.out.println("发送数据成功");
-           
-       }catch (IOException e) {
-           e.printStackTrace();
-       }
+//       try {
+//           //建立并转化批次数据
+//           ByteBuffer buff = ByteBuffer.wrap(data);
+//
+//           //通过 socketChenal 发送数据
+//           printer.setLastSendTime(System.currentTimeMillis());
+////           SocketChannel socketChannel = ShareMem.priLinkSocketMap.get(printer);
+////           socketChannel.write(buff);
+//           Socket socket = ShareMem.printerSocket.get(printer);
+//           BufferedOutputStream buffer = new BufferedOutputStream(socket.getOutputStream());
+//           buffer.write(data);
+//           buffer.flush();
+//           System.out.println("发送数据成功");
+//
+//       }catch (IOException e) {
+//           e.printStackTrace();
+//       }
 
     }
 
@@ -195,7 +192,7 @@ public class OrderService {
 
     private BulkOrder findBulk(Queue<BulkOrder> bulks, int bulkId ) {
         int i = 0;
-    	
+
         BulkOrder bulk = null;
         while(i < bulks.size()) {
             bulk = bulks.peek();
