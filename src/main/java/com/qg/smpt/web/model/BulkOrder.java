@@ -96,7 +96,8 @@ public final class BulkOrder {
         bBulk.setBulkId((short)id);
 
         //设置批次报文长度
-        bBulk.setPadding0((short)(dataSize + 20));
+        bBulk.setSize((short)(dataSize + 20));
+        
 
         //设置时间戳
         bBulk.setSeconds((int)System.currentTimeMillis());

@@ -238,6 +238,7 @@ public final class Order {
 
         //设置填充
         bo.setPadding1((short)0);
+        bo.size = 28 + length;
         return bo;
     }
 

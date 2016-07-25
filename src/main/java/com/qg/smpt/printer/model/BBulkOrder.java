@@ -100,6 +100,8 @@ public class BBulkOrder {
     public void setSize(int size) {
         this.size = size;
     }
+    
+    
 
     public static byte[] bBulkOrderToBytes(BBulkOrder bBulkOrder) {
         byte[] bytes = new byte[bBulkOrder.size];
@@ -112,7 +114,7 @@ public class BBulkOrder {
 
         position = BytesConvert.fillShort(bBulkOrder.bulkId, bytes, position);
 
-        position = BytesConvert.fillShort(bBulkOrder.padding0, bytes, position);
+        position = BytesConvert.fillShort((short)bBulkOrder.size, bytes, position);
 
         position = BytesConvert.fillInt(bBulkOrder.seconds, bytes, position);
 

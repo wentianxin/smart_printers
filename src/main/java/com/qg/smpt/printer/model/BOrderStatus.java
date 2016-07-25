@@ -21,6 +21,7 @@ public final class BOrderStatus extends AbstactStatus{
 
         BOrderStatus bos = (BOrderStatus)BOrderStatus.bytesToAbstractStatus(bytes);
 
+        
         bos.printerId = bos.line1;
 
         bos.seconds = bos.line2;
@@ -28,6 +29,25 @@ public final class BOrderStatus extends AbstactStatus{
         bos.bulkId = (short)(bos.line3 & 0xFFFF);
 
         bos.inNumber = (short)((bos.line3 >> 16) & 0xFFFF);
+
+        return bos;
+    }
+    
+    public static BOrderStatus bytesToOrderStatusLWC(byte[] bytes) {
+
+        AbstactStatus status = AbstactStatus.bytesToAbstractStatus(bytes);
+
+        BOrderStatus bos = new BOrderStatus();
+        
+        bos.flag = status.flag;
+        
+        bos.printerId = status.line1;
+
+        bos.seconds = status.line2;
+
+        bos.bulkId = (short)(status.line3 & 0xFFFF);
+
+        bos.inNumber = (short)((status.line3 >> 16) & 0xFFFF);
 
         return bos;
     }

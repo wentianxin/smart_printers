@@ -7,7 +7,9 @@ import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
 import com.sun.org.apache.xpath.internal.operations.Or;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
@@ -83,18 +85,18 @@ public class OrderService {
         short i = 1;        //用于保存当前已经存储了多少个订单到批次中
         int currSize = 0;   //用于记录当前已经解析的订单有多少容量
         long lastSendTime = printer.getLastSendTime();   //获取上一次批次的发送时间，是用于基于时间的发送批次使用
-        List<Order> ordes = new ArrayList<Order>(); //用于存放要放到批次的订单
+       
 
         //基于批次定量的检测
         while(currSize < Constants.MAX_TRANSFER_SIZE){
 
             synchronized (orders) {
-                Iterator<Order> it = orders.iterator();
+                
 
-                while (it.hasNext()) {
+                while (orders.size() > 0) {
 
                     //解析订单，转换成字节数组
-                    Order o = it.next();
+                    Order o = orders.peek();
                     BOrder oB = o.orderToBOrder((short) bulkId, i);
                     byte[] orderB = BOrder.bOrderToBytes(oB);
                     o.setData(orderB);
@@ -105,8 +107,8 @@ public class OrderService {
                         break;
 
                     currSize += length;
-                    it.remove();
-                    orders.add(o);
+                    orders.poll();
+                    os.add(o);
 
                 }
             }
@@ -128,8 +130,9 @@ public class OrderService {
 
         }
 
-        bulk.setOrders(ordes);
+        bulk.setOrders(os);
         bulk.setDataSize(currSize);
+        
     }
 
     private void send(byte[] data, Printer printer) {
@@ -139,8 +142,14 @@ public class OrderService {
 
            //通过 socketChenal 发送数据
            printer.setLastSendTime(System.currentTimeMillis());
-           SocketChannel socketChannel = ShareMem.priLinkSocketMap.get(printer);
-           socketChannel.write(buff);
+//           SocketChannel socketChannel = ShareMem.priLinkSocketMap.get(printer);
+//           socketChannel.write(buff);
+           Socket socket = ShareMem.printerSocket.get(printer);
+           BufferedOutputStream buffer = new BufferedOutputStream(socket.getOutputStream());
+           buffer.write(data);
+           buffer.flush();
+           System.out.println("发送数据成功");
+           
        }catch (IOException e) {
            e.printStackTrace();
        }
@@ -185,13 +194,16 @@ public class OrderService {
 
 
     private BulkOrder findBulk(Queue<BulkOrder> bulks, int bulkId ) {
-        Iterator<BulkOrder> it = bulks.iterator();
+        int i = 0;
+    	
         BulkOrder bulk = null;
-        while(it.hasNext()) {
-            bulk = it.next();
+        while(i < bulks.size()) {
+            bulk = bulks.peek();
             if(bulk.getId() == bulkId) {
                 return bulk;
             }
+            bulks.remove(bulk);
+            bulks.add(bulk);
         }
 
         return null;
