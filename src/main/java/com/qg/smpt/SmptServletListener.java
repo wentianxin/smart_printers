@@ -2,6 +2,9 @@ package com.qg.smpt; /**
  * Created by tisong on 7/20/16.
  */
 
+import com.qg.smpt.printer.LifecycleException;
+import com.qg.smpt.printer.PrinterConnector;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -28,6 +31,16 @@ public final class SmptServletListener implements ServletContextListener,
          You can initialize servlet context related data here.
       */
         // 项目初始化, ServletSocket 线程池
+
+        PrinterConnector printerConnector = new PrinterConnector();
+
+        printerConnector.initialize();
+
+        try {
+            printerConnector.start();
+        } catch (LifecycleException e) {
+            e.printStackTrace();
+        }
 
     }
 
