@@ -29,7 +29,7 @@ public final class BConstants {
     /* 请求类型 */
     public static final byte bulkStatus = (byte)0x0;   // 批次请求
 
-    public static final byte okStatus = (byte)0x1;     // 阈值请求
+    public static final byte okStatus = (byte)0x80;     // 阈值请求
 
     public static final byte printStatus = (byte)0x2;  // 打印机状态
 

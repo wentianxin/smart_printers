@@ -15,14 +15,18 @@ public final class BRequest extends AbstactStatus{
     public int padding;   // 填充位
 
     public static BRequest bytesToRequest(byte[] bytes) {
+    	
+    	AbstactStatus status = AbstactStatus.bytesToAbstractStatus(bytes);
 
-        BRequest br = (BRequest) BRequest.bytesToAbstractStatus(bytes);
+        BRequest br = new BRequest();
+        
+        br.flag = status.flag;
 
-        br.printerId = br.line1;
+        br.printerId = status.line1;
 
-        br.seconds = br.line2;
+        br.seconds = status.line2;
 
-        br.padding = br.line3;
+        br.padding = status.line3;
 
         return br;
     }

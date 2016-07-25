@@ -2,6 +2,7 @@ package com.qg.smpt.printer;
 
 import com.qg.smpt.printer.model.BOrder;
 import com.qg.smpt.share.ShareMem;
+import com.qg.smpt.util.Logger;
 import com.qg.smpt.web.model.BulkOrder;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
@@ -22,7 +23,7 @@ import java.util.Queue;
  * <pre>该类用于定义组装订单传输数据给打印机</pre>
  */
 public class OrderService {
-
+	private static final Logger LOGGER = Logger.getLogger(PrinterConnector.class.getName());
 
 
 
@@ -48,7 +49,7 @@ public class OrderService {
      * @param orders    订单缓存队列
      */
     private void doSend(Printer printer, Queue<Order> orders) {
-        try {
+        
             //准备新的一个批次
             int bulkId = printer.getCurrentBulk() + 1;
             printer.setCurrentBulk(bulkId);
@@ -63,9 +64,9 @@ public class OrderService {
             Queue<BulkOrder> bulks = ShareMem.priSentQueueMap.get(printer);
             bulks.add(bulk);
 
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
+        
+            
+   
     }
 
     /**
@@ -75,7 +76,7 @@ public class OrderService {
      * @return 当前为批次准备了多少份订单
      * @throws Exception    暂定异常全抛,之后逻辑设计后再根据具体情况在里面抓获具体的异常
      */
-    private void prepareOrder(Printer printer, Queue<Order> orders, BulkOrder bulk) throws Exception{
+    private void prepareOrder(Printer printer, Queue<Order> orders, BulkOrder bulk) {
         //创建批次
         int bulkId = printer.getCurrentBulk();
 
@@ -99,6 +100,18 @@ public class OrderService {
                     Order o = orders.peek();
                     BOrder oB = o.orderToBOrder((short) bulkId, i);
                     byte[] orderB = BOrder.bOrderToBytes(oB);
+                    System.out.println("订单的数据头");
+                    for (int j = 0; j < 20; j++)
+    		        {
+    		            String hex = Integer.toHexString(orderB[j] & 0xFF);
+    		            if (hex.length() == 1)
+    		            {
+    		                hex = '0' + hex;
+    		            }
+    		            System.out.print(hex.toUpperCase() + " ");
+    		        }
+                    System.out.println();
+                    
                     o.setData(orderB);
                     int length = orderB.length;
 
@@ -142,12 +155,13 @@ public class OrderService {
 
            //通过 socketChenal 发送数据
            printer.setLastSendTime(System.currentTimeMillis());
-//           SocketChannel socketChannel = ShareMem.priLinkSocketMap.get(printer);
-//           socketChannel.write(buff);
-           Socket socket = ShareMem.printerSocket.get(printer);
-           BufferedOutputStream buffer = new BufferedOutputStream(socket.getOutputStream());
-           buffer.write(data);
-           buffer.flush();
+           SocketChannel socketChannel = ShareMem.priLinkSocketMap.get(printer);
+           socketChannel.write(buff);
+//           Socket socket = ShareMem.printerSocket.get(printer);
+//           BufferedOutputStream buffer = new BufferedOutputStream(socket.getOutputStream());
+//           buffer.write(data);
+           
+           
            System.out.println("发送数据成功");
            
        }catch (IOException e) {

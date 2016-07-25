@@ -1,9 +1,14 @@
 package com.qg.smpt.web.model;
 
+import com.mysql.jdbc.log.Log;
+import com.qg.smpt.printer.PrinterConnector;
 import com.qg.smpt.printer.model.BConstants;
 import com.qg.smpt.printer.model.BOrder;
 import com.qg.smpt.util.BytesConvert;
+import com.qg.smpt.util.Level;
+import com.qg.smpt.util.Logger;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 
@@ -12,6 +17,8 @@ import java.util.concurrent.SynchronousQueue;
  * Created by tisong on 7/20/16.
  */
 public final class Order {
+	private static final Logger LOGGER = Logger.getLogger(Order.class.getName());
+	
     private int mpu;             //主控板id
     private int orderId;        //打印订单序号
     private String status;      //订单状态
@@ -210,7 +217,7 @@ public final class Order {
     }
 
     //Order对象转换为BOrder
-    public BOrder orderToBOrder(short bulkId, short index) throws Exception{
+    public BOrder orderToBOrder(short bulkId, short index) {
         BOrder bo = new BOrder();
 
         //设置主控板id
@@ -243,37 +250,49 @@ public final class Order {
     }
 
     //将订单内容转化为字节数组
-    private byte[] convertOrder() throws Exception{
+    private byte[] convertOrder(){
         //通过GB2312编码获取订单内容的字节数组
-        byte[] orderB = this.toString().getBytes("gb2312");
+    	
+    		byte[] orderB;
+			try {
+				orderB = this.toString().getBytes("gb2312");
+				
+				//获取订单内容的长度
+		        int length = orderB.length;
 
-        //获取订单内容的长度
-        int length = orderB.length;
+		        //因为要字节对齐,以4字节为为单位,所以计算要填充多少位字节
+		        int fillLength = 4 - (length % 4);
 
-        //因为要字节对齐,以4字节为为单位,所以计算要填充多少位字节
-        int fillLength = 4 - (length % 4);
+		        //创建字节数组,大小为订单数据长度  8主要是文本内容前后要各加4字节的头尾部信息
+		        byte[] data = new byte[length + 8 + fillLength];
 
-        //创建字节数组,大小为订单数据长度  8主要是文本内容前后要各加4字节的头尾部信息
-        byte[] data = new byte[length + 8 + fillLength];
+		        int pos = 0;
 
-        int pos = 0;
+		        //填充文本开始字符
+		        pos = BytesConvert.fillShort(BConstants.textStart,data,pos);
 
-        //填充文本开始字符
-        pos = BytesConvert.fillShort(BConstants.textStart,data,pos);
+		        //填充文本长度
+		        pos = BytesConvert.fillShort((short)(length + fillLength),data,pos);
 
-        //填充文本长度
-        pos = BytesConvert.fillShort((short)(length + fillLength),data,pos);
+		        //填充文本数据
+		        pos = BytesConvert.fillByte(orderB, data, pos);
 
-        //填充文本数据
-        pos = BytesConvert.fillByte(orderB, data, pos);
+		        //填充填充位
+		        pos  += (fillLength + 2);
 
-        //填充填充位
-        pos  += (fillLength + 2);
+		        //填充文本结束字符
+		        pos = BytesConvert.fillShort(BConstants.textEnd, data, pos);
 
-        //填充文本结束字符
-        pos = BytesConvert.fillShort(BConstants.textEnd, data, pos);
+		        return data;
+		        
+			} catch (UnsupportedEncodingException e) {
+				LOGGER.log(Level.ERROR, "in class Order,convert order error", e);
+				e.printStackTrace();
+				return new byte[4];
+			}
+    	
 
-        return data;
+        
     }
 
 

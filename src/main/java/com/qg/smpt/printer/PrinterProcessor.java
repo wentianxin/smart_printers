@@ -144,10 +144,19 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                     case BConstants.connectStatus :
 
                     case BConstants.okStatus:
+                    	System.out.println("客户端发送过来可以请求数据");
+                    	parseOkStatus(bytes);
+                    	break;
 
                     case BConstants.orderStatus:
+                    	System.out.println("客户端发送过来订单状态数据");
+                    	parseOrderStatus(bytes);
+                    	break;
 
                     case BConstants.bulkStatus:
+                    	System.out.println("客户端发送过来批次状态数据");
+                    	parseBulkStatus(bytes);
+                    	break;
 
                     case BConstants.printStatus:
 
@@ -175,8 +184,24 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         }
     }
 
-    private void parseOkStatus() {
+    private void parseOkStatus(byte[] bytes) {
+    	// 解析OK请求
+        BRequest request = BRequest.bytesToRequest(bytes);
 
+        // 获取打印机主控板id,获取打印机
+        int printerId = request.printerId;
+        Printer p = ShareMem.printerIdMap.get(printerId);
+        p.setCanAccpet(true);
+
+        //执行发送数据
+        try {
+
+            OrderService orderService = new OrderService();
+            orderService.sendBatchOrder(p);
+
+        }catch(Exception e){
+            //异常暂不处理,之后填上
+        }
     }
 
     private void parseOrderStatus(byte[] bytes) {
@@ -185,7 +210,9 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         if ( (byte)((bOrderStatus.flag >> 8) & 0xFF ) == (byte) BConstants.orderSucc) {
             // 订单成功
         }else if((byte)((bOrderStatus.flag >> 8) & 0xFF ) == (byte) BConstants.orderFail) {
-            // 订单异常 需要重新发送订单
+        	 // 订单异常 需要重新发送订单
+            OrderService orderService = new OrderService();
+            orderService.handleFailOrder(bOrderStatus.printerId, bOrderStatus.bulkId, bOrderStatus.inNumber);
         }
 
 
@@ -193,12 +220,17 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
     private void parseBulkStatus(byte[] bytes) {
         BBulkStatus bBulkStatus = BBulkStatus.bytesToBulkStatus(bytes);
-
+        OrderService orderService = new OrderService();
+        
         if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
-            // 批次订单成功
+        	// 批次订单成功
             // 将已发队列中数据装填到数据库中，并清除已发队列
+            orderService.handleSuccessfulBulk(bBulkStatus.printerId, bBulkStatus.bulkId);
+            
         } else  if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
-            // 批次订单失败 忽略失败信息-bug
+        	// 批次订单失败 忽略失败信息-bug
+            orderService.handleFailBulk(bBulkStatus.printerId,bBulkStatus.bulkId);
+            
         }
     }
 
@@ -215,17 +247,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
     }
 
-    /**
-     * 发送批次订单
-     */
-    private void sendBatchOrder() {
-
-        //判断条件适当睡眠
-
-
-        // 唤醒时，唤醒全局线程-所有线程再进行条件判断。
-
-    }
+    
 
 
 
