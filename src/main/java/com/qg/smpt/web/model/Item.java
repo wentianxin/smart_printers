@@ -1,7 +1,7 @@
 package com.qg.smpt.web.model;
 
 /**
- * Created by asus2015 on 2016/7/22.
+ * 订单内容
  */
 public class Item {
     private String name;

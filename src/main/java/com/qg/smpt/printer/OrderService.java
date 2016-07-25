@@ -5,11 +5,6 @@ import com.qg.smpt.share.ShareMem;
 import com.qg.smpt.web.model.BulkOrder;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
-
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -18,13 +13,11 @@ import java.util.Queue;
  * @author lee_cong
  * <pre>该类用于定义组装订单传输数据给打印机</pre>
  */
-public class OrderService {
-
-
+public final class OrderService {
 
 
     /**
-     * 发送批次订单
+     * 发送批次订单, synchronized
      */
     public void sendBatchOrder(Printer p) {
         //获取打印机与他的订单集合
@@ -34,6 +27,7 @@ public class OrderService {
         if((os != null && os.size() <= 0) || !p.isCanAccpet()) {
             return;
         }
+
 
         doSend(p,os);
 
