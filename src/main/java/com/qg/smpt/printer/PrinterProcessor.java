@@ -2,6 +2,8 @@ package com.qg.smpt.printer;
 
 import com.qg.smpt.printer.model.*;
 import com.qg.smpt.share.ShareMem;
+import com.qg.smpt.util.Level;
+import com.qg.smpt.util.Logger;
 import com.qg.smpt.web.model.Printer;
 
 import java.io.IOException;
@@ -15,6 +17,8 @@ import java.util.List;
  * Created by tisong on 7/21/16.
  */
 public class PrinterProcessor implements Runnable, Lifecycle{
+
+    private final Logger LOGGER = Logger.getLogger(PrinterConnector.class);
 
     private Thread thread = null;
 
@@ -35,13 +39,14 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
     private SocketChannel socketChannel;
 
-    public PrinterProcessor(int id) {
+    public PrinterProcessor(int id, PrinterConnector printerConnector) {
         this.id = id;
+        this.threadName = "PrinterProcessor[" + printerConnector.getPort() + "][" + id + "}";
     }
 
     public void start() throws LifecycleException{
         if (started) {
-
+            throw new LifecycleException("printerProcessor already started");
         }
 
         started = true;
@@ -57,7 +62,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
      * 开启后台线程
      */
     private void threadStart() {
-
+        LOGGER.log(Level.DEBUG, "printerProcessor starting");
         thread = new Thread(this, threadName);
         thread.setDaemon(true);
         thread.start();
@@ -79,7 +84,8 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         }
     }
 
-    private SocketChannel await() {
+    // TODO Java 关于 wait仅仅可以被调用 当
+    private synchronized SocketChannel await() {
 
         while (!available) {
             try {

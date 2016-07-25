@@ -28,7 +28,7 @@ public class PrinterConnector implements Runnable, Lifecycle{
 
     private int maxProcessors = 20;
 
-    private int port = 8080;
+    private int port = 8086;
 
     private String threadName;
 
@@ -131,11 +131,13 @@ public class PrinterConnector implements Runnable, Lifecycle{
                     SelectionKey key = it.next();
                     switch (key.readyOps()) {
                         case SelectionKey.OP_ACCEPT:
+                            LOGGER.debug("ServerSocket accpet connection");
                             acceptSocket(key);
                             break;
                         case SelectionKey.OP_READ:
                             // 当有多个 SocketChannel时, 会自动筛选哪一个SocketChannel 触发了事件
                             // 1. 连接后的一个请求：将打印机id-主控板（用户）id绑定，将打印机id-SocketChannel绑定
+                            LOGGER.debug("ServerSocket accpet read requestion");
                             PrinterProcessor processor = createProcessor();
                             processor.assign((SocketChannel) key.channel());
                             break;
@@ -151,9 +153,13 @@ public class PrinterConnector implements Runnable, Lifecycle{
         }
     }
 
+    /**
+     * 创建processor实例（线程），并启动该线程，添加到已经创建的线程栈中
+     * @return
+     */
     private PrinterProcessor newProcessor() {
 
-        PrinterProcessor processor = new PrinterProcessor(curProcessors++);
+        PrinterProcessor processor = new PrinterProcessor(curProcessors++, this);
         try {
             processor.start();
         } catch (LifecycleException e) {
@@ -164,6 +170,10 @@ public class PrinterConnector implements Runnable, Lifecycle{
         return processor;
     }
 
+    /**
+     * 将该线程添加到线程池中
+     * @param processor
+     */
     private void recycle(PrinterProcessor processor) {
 
         processors.push(processor);
@@ -196,5 +206,10 @@ public class PrinterConnector implements Runnable, Lifecycle{
 
         }
 
+    }
+
+
+    public int getPort() {
+        return port;
     }
 }

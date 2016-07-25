@@ -2,16 +2,11 @@ package com.qg.smpt.printer;
 
 import com.qg.smpt.printer.model.*;
 import com.qg.smpt.share.ShareMem;
-import com.qg.smpt.web.model.BulkOrder;
-import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
-import com.sun.org.apache.xml.internal.serializer.utils.SystemIDResolver;
-import com.sun.org.apache.xpath.internal.operations.Or;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.*;
 
 /**
  * Created by asus2015 on 2016/7/22.
