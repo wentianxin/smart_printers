@@ -29,5 +29,4 @@ public final class ShareMem {
     public static Map<Printer, SocketChannel> priLinkSocketMap = null; // 打印机-Socket连接
 
 
-    public static Map<Printer, Socket> printerSocket = null;
 }
