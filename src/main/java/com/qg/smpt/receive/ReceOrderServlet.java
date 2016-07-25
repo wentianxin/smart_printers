@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.List;
 import java.util.Queue;
 
@@ -43,6 +44,7 @@ public class ReceOrderServlet extends HttpServlet {
                     orders.add(order);
                 }
                 OrderService orderService = new OrderService();
+                
                 orderService.sendBatchOrder(printer);
             }
         }

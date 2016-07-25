@@ -47,7 +47,7 @@ public class PrinterProcessorLWC implements Runnable, Lifecycle{
 
         started = true;
 
-        threadStart();
+        threadStart(id);
     }
 
     public void stop() {
@@ -57,8 +57,8 @@ public class PrinterProcessorLWC implements Runnable, Lifecycle{
     /**
      * 开启后台线程
      */
-    private void threadStart() {
-
+    private void threadStart(int i) {
+        threadName = "Processor" + id;
         thread = new Thread(this, threadName);
         thread.setDaemon(true);
         thread.start();
@@ -176,14 +176,13 @@ public class PrinterProcessorLWC implements Runnable, Lifecycle{
         }
     }
 
-    private void parseOkStatus() {
+    private void parseOkStatus(byte[] bytes) {
         // 解析OK请求
-        byte[] requestB = byteBuffer.array();
-        BRequest request = BRequest.bytesToRequest(requestB);
+        BRequest request = BRequest.bytesToRequest(bytes);
 
         // 获取打印机主控板id,获取打印机
         int printerId = request.printerId;
-        Printer p = ShareMem.printerIdMap.get(id);
+        Printer p = ShareMem.printerIdMap.get(printerId);
         p.setCanAccpet(true);
 
         //执行发送数据
