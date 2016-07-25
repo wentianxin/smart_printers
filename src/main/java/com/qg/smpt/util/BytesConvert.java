@@ -24,7 +24,7 @@ public final class BytesConvert {
 
     private static short getShort(byte[] bytes) {
         ByteBuffer bb = ByteBuffer.allocate(2);
-        bb.order(ByteOrder.LITTLE_ENDIAN);
+        bb.order(ByteOrder.BIG_ENDIAN);
         bb.put(bytes[0]);
         bb.put(bytes[1]);
         return bb.getShort(0);
@@ -32,7 +32,7 @@ public final class BytesConvert {
 
     private static int getInt(byte[] bytes) {
         ByteBuffer bb = ByteBuffer.allocate(4);
-        bb.order(ByteOrder.LITTLE_ENDIAN);
+        bb.order(ByteOrder.BIG_ENDIAN);
         bb.put(bytes[0]);
         bb.put(bytes[1]);
         bb.put(bytes[2]);
