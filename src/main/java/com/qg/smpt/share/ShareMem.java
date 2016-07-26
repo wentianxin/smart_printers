@@ -22,7 +22,7 @@ public final class ShareMem {
 
  //   public static volatile Map<Printer, Queue<Order>> priBufferQueueMap = null;   // 打印机-缓存队列
 
-    public static Map<Integer, BulkOrder> priSentQueueMap = null;     // 打印机-已发批次队列
+    public static Map<Printer, List<BulkOrder>> priSentQueueMap = null;     // 批次id-已发批次队列
 
     public static Map<Printer, List<Order>> priExceQueueMap = null;         // 打印机-异常队列
 
