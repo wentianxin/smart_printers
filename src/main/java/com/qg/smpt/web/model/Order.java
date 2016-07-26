@@ -57,6 +57,9 @@ public final class Order {
 
     private String clientTelephone;
 
+
+
+
     public void setItems(List<Item> items) {
         this.items = items;
     }
@@ -246,6 +249,8 @@ public final class Order {
 
         return c;
     }
+
+
 
     @Override
     public String toString() {

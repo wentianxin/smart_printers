@@ -1,7 +1,7 @@
 package com.qg.smpt.printer;
 
 /**
- * Created by tisong on 7/21/16.
+ * 生命周期
  */
 public interface Lifecycle {
 

@@ -24,7 +24,7 @@ public final class ShareMem {
 
     public static Map<Printer, List<BulkOrder>> priSentQueueMap = null;     // 批次id-已发批次队列
 
-    public static Map<Printer, List<Order>> priExceQueueMap = null;         // 打印机-异常队列
+    public static Map<Printer, List<BulkOrder>> priExceQueueMap = null;         // 打印机-异常队列
 
     public static Map<Printer, List<BulkOrder>> priBufferMapList = null;
 
@@ -41,7 +41,7 @@ public final class ShareMem {
 
         priSentQueueMap = new HashMap<Printer, List<BulkOrder>>();
 
-        priExceQueueMap = new HashMap<Printer, List<Order>>();
+        priExceQueueMap = new HashMap<Printer, List<BulkOrder>>();
 
         priBufferMapList = new HashMap<Printer, List<BulkOrder>>();
 

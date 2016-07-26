@@ -25,21 +25,22 @@ import java.util.List;
 public class ReceOrderServlet extends HttpServlet {
     private static final Logger LOGGER =  Logger.getLogger(ReceOrderServlet.class);
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // 获取商家id
-        Integer userId = null;
-        try {
-            userId = Integer.valueOf(request.getParameter("userId"));
-        } catch (NumberFormatException e) {
 
-        }
+    protected void doGet(Integer userId, Order order) throws ServletException, IOException {
+        // 获取商家id
+//        Integer userId = null;
+//        try {
+//            userId = Integer.valueOf(request.getParameter("userId"));
+//        } catch (NumberFormatException e) {
+//
+//        }
         // 根据商家id获取商家的打印机信息
         List<Printer> printers =  ShareMem.userListMap.get(userId);
 
         if (printers != null && printers.size() > 0) {
             if (ShareMem.priBufferMapList != null) {
                 // TODO 关于如何获取Order数据
-                Order order = parseOrder(request);
+                //Order order = parseOrder(request);
                 // TODO 缺少智能分发算法
                 Printer printer = printers.get(0);
 

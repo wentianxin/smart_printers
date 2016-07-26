@@ -108,7 +108,7 @@ public class PrinterConnector implements Runnable, Lifecycle{
      */
     private void threadStart() {
 
-        LOGGER.log(Level.DEBUG, "printerConnector starting");
+        LOGGER.log(Level.DEBUG, "printerConnector daemon thread starting");
 
         Thread thread = new Thread(this, threadName);
 
@@ -140,12 +140,12 @@ public class PrinterConnector implements Runnable, Lifecycle{
                         case SelectionKey.OP_READ:
                             // 当有多个 SocketChannel时, 会自动筛选哪一个SocketChannel 触发了事件
                             // 1. 连接后的一个请求：将打印机id-主控板（用户）id绑定，将打印机id-SocketChannel绑定
-                            LOGGER.debug("ServerSocket accpet read requestion");
-                            // TODO
                             PrinterProcessor processor = createProcessor();
+                            LOGGER.log(Level.DEBUG, "ServerSocket accpet read requestion， alloate a printerProcessor thread {[0]}", processor);
                             processor.assign((SocketChannel) key.channel());
                             break;
                         default: // something was wrong
+                            LOGGER.log(Level.ERROR, "ServerSocket 出现未知情况");
                             break;
                     }
 
@@ -203,8 +203,6 @@ public class PrinterConnector implements Runnable, Lifecycle{
             sc.configureBlocking(false);
 
             sc.register(selector, SelectionKey.OP_READ);
-
-
 
         } catch (final IOException e) {
 

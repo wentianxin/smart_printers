@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static com.qg.smpt.share.ShareMem.priSentQueueMap;
 import static java.lang.System.currentTimeMillis;
 
 /**
@@ -101,7 +102,10 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         }
     }
 
-    // TODO Java 关于 wait仅仅可以被调用 当
+    /**
+     * 线程池中的线程进入睡眠状态
+     * @return
+     */
     private synchronized SocketChannel await() {
 
         while (!available) {
@@ -112,6 +116,8 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             }
         }
 
+        LOGGER.log(Level.DEBUG, "printerProcessor thread is notified");
+
         SocketChannel socketChannel = this.socketChannel;
 
         available = false;
@@ -121,6 +127,10 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         return socketChannel;
     }
 
+    /**
+     * 唤醒线程池中睡眠的线程
+     * @param sc
+     */
     public synchronized void assign(SocketChannel sc) {
 
         // 根据不同的请求数据进行不同的处理
@@ -151,6 +161,9 @@ public class PrinterProcessor implements Runnable, Lifecycle{
      * 解析数据
      */
     private void parseData(SocketChannel socketChannel){
+
+        LOGGER.log(Level.DEBUG, "printerProcessor [{0}] parse data", this);
+
         try {
             byteBuffer.clear();
 
@@ -161,12 +174,12 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             // 将byteBuffer 中的字节数组进行提取
             byte[] bytes = byteBuffer.array();
 
-            LOGGER.log(Level.DEBUG, "打印机发送数据[{0}}", bytes);
+            LOGGER.log(Level.DEBUG, "printerProcessor receive bytes is: [{0}] ", bytes.toString());
 
             if (bytes[0] == (byte)0xCF && bytes[1] == (byte)0xFC) {
                 switch (bytes[2]) {
                     case BConstants.connectStatus :
-                        LOGGER.log(Level.INFO, "打印机发送连接数据，初始化打印机对象和打印机对象所拥有的缓存批次订单队列，异常订单队列，打印机处理线程");
+                        LOGGER.log(Level.DEBUG, "打印机发送连接数据，初始化打印机对象和打印机对象所拥有的缓存批次订单队列，异常订单队列，打印机处理线程");
                         parseConnectStatus(bytes);
                         break;
                     case BConstants.okStatus:
@@ -175,7 +188,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                     	break;
                     case BConstants.orderStatus:
                         LOGGER.log(Level.DEBUG, "接收订单状态数据");
-                    	parseOrderStatus(bytes);
+                    	parseOrderStatus(bytes, socketChannel);
                     	break;
                     case BConstants.bulkStatus:
                         LOGGER.log(Level.DEBUG, "接收打印机状态数据");
@@ -206,8 +219,11 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         synchronized (ShareMem.printerIdMap) {
             printer = ShareMem.printerIdMap.get(printerId);
             if (printer == null) {
-                LOGGER.log(Level.DEBUG, "将打印机[{0}]与打印机对象添加到共享对象中", printerId);
-                ShareMem.printerIdMap.put(printerId, printer);
+                // id - printer 建立在商家注册时 进行建立
+
+                // TODO 
+                LOGGER.log(Level.ERROR, "将打印机[{0}]并为建立打印对象", printerId);
+                return ;
             }
             else {
                 LOGGER.log(Level.DEBUG, "共享对象中已存在打印机[{0}]与打印机对象", printerId);
@@ -216,12 +232,12 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
         synchronized (printer) {
             if (ShareMem.priExceQueueMap.get(printer) == null) {
-                ShareMem.priExceQueueMap.put(printer, new ArrayList<Order>());
+                ShareMem.priExceQueueMap.put(printer, new ArrayList<BulkOrder>());
             }
             if (ShareMem.priBufferMapList.get(printer) == null) {
                 ShareMem.priBufferMapList.put(printer, new ArrayList<BulkOrder>());
             }
-            if (ShareMem.priSentQueueMap.get(printer) == null) {
+            if (priSentQueueMap.get(printer) == null) {
                 //ShareMem.priSentQueueMap.put(printer, new HashMap<Integer, BulkOrder>());
             }
         }
@@ -276,7 +292,15 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
             ShareMem.priBufferMapList.get(p).remove(0);
 
-           // ShareMem.priSentQueueMap.get(p)(bOrders.getId(), bOrders);
+            int bulkId = bOrders.getId();
+
+            List<BulkOrder> bulkOrderList = ShareMem.priSentQueueMap.get(p);
+            if (bulkOrderList == null) {
+                bulkOrderList = new ArrayList<BulkOrder>();
+                ShareMem.priSentQueueMap.put(p, bulkOrderList);
+            }
+
+            bulkOrderList.add(bOrders);
         }
 
 
@@ -310,28 +334,91 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         notifyAll();
     }
 
-    private void parseOrderStatus(byte[] bytes) {
+    private void parseOrderStatus(byte[] bytes, SocketChannel socketChannel) {
         BOrderStatus bOrderStatus = BOrderStatus.bytesToOrderStatus(bytes);
 
         if ( (byte)(bOrderStatus.flag & 0xFF) == BConstants.bulkStatus) {
             if ( (byte)((bOrderStatus.flag >> 8) & 0xFF ) == (byte) BConstants.bulkSucc) {
                 // 将已发队列中数据删除并放到数据库中
 
-                BulkOrder bulkOrder = null;
-                synchronized (ShareMem.priSentQueueMap) {
+                Printer printer = ShareMem.printerIdMap.get(bOrderStatus.printerId);
 
-                    // TODO bulkOrder = ShareMem.priSentQueueMap.get((p);
-                    if (bulkOrder != null)
-                        ShareMem.priBufferMapList.remove((int)bOrderStatus.bulkId);
+                List<BulkOrder> bulkOrderList = ShareMem.priSentQueueMap.get(printer);
+
+                if (bulkOrderList == null || bulkOrderList.size() <= 0) {
+                    LOGGER.log(Level.ERROR, "已发队列数据异常: [{0}]", bOrderStatus.printerId);
+                }
+
+
+                BulkOrder bulkOrder = null;
+                synchronized (bulkOrderList) {
+                    // 锁住打印机所对应的已发队列
+                    for (int i = 0; i < bulkOrderList.size(); i++) {
+                        if (bulkOrderList.get(i).getId() == bOrderStatus.bulkId) {
+                            bulkOrder = bulkOrderList.get(i);
+                            bulkOrderList.remove(i);
+                        }
+                    }
+
+
                 }
 
                 if (bulkOrder != null) {
                     // TODO 放入数据库中
                 }
 
+
             }
         } else if ( (byte)((bOrderStatus.flag >> 8) & 0xFF) == BConstants.orderFail ) {
                 // TODO 如何获取打印机发来的异常订单被更新后的数据
+            Printer printer = ShareMem.printerIdMap.get(bOrderStatus.printerId);
+
+            List<BulkOrder> bulkOrderList = ShareMem.priBufferMapList.get(printer);
+
+            for (int i = 0; i < bulkOrderList.size(); i++) {
+                BulkOrder bulkOrderF = bulkOrderList.get(i);
+                if ( bulkOrderF.getId() == bOrderStatus.bulkId) {
+
+
+                    Order order = bulkOrderF.getOrders().get(bOrderStatus.inNumber);
+
+                    BOrder bOrder = bulkOrderF.getbOrders().get(bOrderStatus.inNumber);
+
+                    order.setOrderStatus(String.valueOf(bOrderStatus.flag & 0xFF));
+
+
+                    BulkOrder bulkOrder = new BulkOrder(new ArrayList<BOrder>());
+
+                    bulkOrder.getOrders().add(order);
+
+                    bulkOrder.setbOrders(new ArrayList<BOrder>());
+
+                    bulkOrder.getbOrders().add(bOrder);
+
+                    bulkOrder.setBulkType((short)1);
+
+                    bulkOrder.setDataSize(bOrder.size + 160);
+
+                    bulkOrder.setId(bulkOrderF.getId());
+
+                    bulkOrder.getbOrders().add(order.orderToBOrder((short)(bulkOrder.getId()), (short)0));
+
+                    bulkOrder.setUserId(bulkOrderF.getUserId());
+
+                    ShareMem.priExceQueueMap.get(printer).add(bulkOrder);
+
+                    // 发送订单数据
+
+                    byte[] bBulkOrderByters = BBulkOrder.bBulkOrderToBytes(BulkOrder.convertBBulkOrder(bulkOrder));
+                    try {
+                        socketChannel.write(ByteBuffer.wrap(bBulkOrderByters));
+                    } catch (IOException e) {
+
+                    }
+                }
+            }
+        } else if ( (byte)((bOrderStatus.flag >> 8) & 0xFF) == BConstants.orderSucc ) {
+            // 订单成功
         }
 
 
@@ -340,18 +427,19 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
     private void parseBulkStatus(byte[] bytes) {
         BBulkStatus bBulkStatus = BBulkStatus.bytesToBulkStatus(bytes);
-//        OrderService orderService = new OrderService();
-//
-//        if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
-//        	// 批次订单成功
-//            // 将已发队列中数据装填到数据库中，并清除已发队列
-//            orderService.handleSuccessfulBulk(bBulkStatus.printerId, bBulkStatus.bulkId);
-//
-//        } else  if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
-//        	// 批次订单失败 忽略失败信息-bug
-//            orderService.handleFailBulk(bBulkStatus.printerId,bBulkStatus.bulkId);
-//
-//        }
+
+
+        if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
+        	// 批次订单成功
+            // 将已发队列中数据装填到数据库中，并清除已发队列
+
+
+
+        } else  if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
+        	// 批次订单失败 忽略失败信息-bug
+
+
+        }
     }
 
 }
