@@ -30,7 +30,7 @@ public class ReceOrderServlet extends HttpServlet {
         Integer userId = null;
         try {
             userId = Integer.valueOf(request.getParameter("userId"));
-        } catch (ClassCastException e) {
+        } catch (NumberFormatException e) {
 
         }
         // 根据商家id获取商家的打印机信息

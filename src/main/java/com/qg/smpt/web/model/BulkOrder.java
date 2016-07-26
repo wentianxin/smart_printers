@@ -18,6 +18,9 @@ public final class BulkOrder {
 
     private List<BOrder> bOrders = null;
 
+
+    private List<Order> orders = null;
+
     private int dataSize;       //批次订单数据的总大小
 
     private short bulkType;    //0-普通 1-加急
@@ -118,4 +121,11 @@ public final class BulkOrder {
         this.bulkType = bulkType;
     }
 
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
 }

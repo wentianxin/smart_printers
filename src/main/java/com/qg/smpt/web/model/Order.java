@@ -27,7 +27,7 @@ public final class Order {
     private String orderRemark;
 
 
-    private String orderMealFee;
+    private Integer orderMealFee;
 
     private String orderPayStatus;
 
@@ -50,6 +50,12 @@ public final class Order {
     private String company;
 
     private String expectTime;
+
+    private String clientName;
+
+    private String clientAddress;
+
+    private String clientTelephone;
 
     public void setItems(List<Item> items) {
         this.items = items;
@@ -111,12 +117,12 @@ public final class Order {
         this.orderRemark = orderRemark == null ? null : orderRemark.trim();
     }
 
-    public String getOrderMealFee() {
+    public Integer getOrderMealFee() {
         return orderMealFee;
     }
 
-    public void setOrderMealFee(String orderMealFee) {
-        this.orderMealFee = orderMealFee == null ? null : orderMealFee.trim();
+    public void setOrderMealFee(Integer orderMealFee) {
+        this.orderMealFee = orderMealFee;
     }
 
     public String getOrderPayStatus() {
@@ -192,6 +198,29 @@ public final class Order {
     }
 
 
+    public void setClientAddress(String clientAddress) {
+        this.clientAddress = clientAddress;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
+
+    public void setClientTelephone(String clientTelephone) {
+        this.clientTelephone = clientTelephone;
+    }
+
+    public String getClientAddress() {
+        return clientAddress;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public String getClientTelephone() {
+        return clientTelephone;
+    }
 
     public byte[] getData() {
         if(!isConvert){
@@ -211,7 +240,7 @@ public final class Order {
         }
 
         c += orderDisFee;
-        c += Integer.getInteger(orderMealFee);
+        c += orderMealFee;
         setOrderPreAmount(c);
         c -= getOrderPreAmount();
 
@@ -236,11 +265,11 @@ public final class Order {
         buffer.append("优惠额: " + getOrderPreAmount() + "\n");
         buffer.append("合 计: " + getOrderSum() + "\n");
         buffer.append("已付款" + "\n");
-        buffer.append("顾客姓名: " + getUserName() + "\n");
-        buffer.append("送餐地址: " + getUserAddress() + "\n");
-        buffer.append("电话: " + getUserTelephone() + "\n");
-//        buffer.append("商家地址: " + getFrom() + "\n");
-//        buffer.append("联系方式: " + getShopContact() + "\n");
+        buffer.append("顾客姓名: " + getClientName() + "\n");
+        buffer.append("送餐地址: " + getClientAddress() + "\n");
+        buffer.append("电话: " + getClientTelephone() + "\n");
+        buffer.append("商家地址: " + getUserAddress() + "\n");
+        buffer.append("联系方式: " + getUserAddress() + "\n");
         return buffer.toString();
 
     }
