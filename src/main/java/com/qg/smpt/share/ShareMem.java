@@ -33,6 +33,8 @@ public final class ShareMem {
 
 
     static {
+    	System.out.println("初始化ShareMen信息");
+    	
         userIdMap = new HashMap<Integer, User>();
 
         printerIdMap = new HashMap<Integer, Printer>();

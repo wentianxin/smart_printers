@@ -1,5 +1,9 @@
 package com.qg.smpt.web.model;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
+@JsonIgnoreProperties({"userId", "userName", "currentBulk", "currentOrder",
+		"canAccept","isBusy", "lastSendTime"})
 public final class Printer {
 
     private Integer id;

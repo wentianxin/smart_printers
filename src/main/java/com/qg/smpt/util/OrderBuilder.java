@@ -117,8 +117,8 @@ public class OrderBuilder {
 	}
 	
 	
-	private static String getMealCost() {
-		return String.valueOf(getRandom(3));
+	private static int getMealCost() {
+		return getRandom(3);
 	}
 	
 	private static int getdeliveryCost() {
