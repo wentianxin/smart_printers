@@ -1,0 +1,100 @@
+package com.qg.smpt.util;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;  
+import org.codehaus.jackson.map.SerializationConfig;  
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;  
+import org.codehaus.jackson.type.TypeReference;
+
+import com.qg.smpt.printer.PrinterConnector;  
+
+/**
+ * Json格式转化工具
+ * @author asus2015
+ *
+ */
+public class JsonUtil<T> {
+	private static final Logger LOGGER = Logger.getLogger(JsonUtil.class);
+	private static ObjectMapper mapper = null;
+	
+	static {
+		mapper = new ObjectMapper();  
+		
+        //设置将对象转换成JSON字符串时候:包含的属性不能为空或"";    
+        //Include.Include.ALWAYS 默认    
+        //Include.NON_DEFAULT 属性为默认值不序列化    
+        //Include.NON_EMPTY 属性为 空（""）  或者为 NULL 都不序列化    
+        //Include.NON_NULL 属性为NULL 不序列化    
+        mapper.setSerializationInclusion(Inclusion.NON_EMPTY);  
+        
+        //设置将MAP转换为JSON时候只转换值不等于NULL的  
+        mapper.configure(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES, false);  
+        mapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);  
+        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")); 
+        
+        //设置有属性不能映射成PO时不报错  
+        mapper.disable(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);  
+
+	}
+	
+	public static String objectToJson(Object object) {
+		LOGGER.log(Level.INFO,  "JsonUtil正在进行对象转化为JSON操作");
+		try {
+			
+			String json = mapper.writeValueAsString(object);
+			return json;
+		
+		
+		} catch (JsonGenerationException e) {
+			LOGGER.log(Level.ERROR, "Jsonutil调用objectToJson方法出现异常", e);
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			LOGGER.log(Level.ERROR, "Jsonutil调用objectToJson方法出现异常", e);
+			e.printStackTrace();
+		} catch (IOException e) {
+			LOGGER.log(Level.ERROR, "Jsonutil调用objectToJson方法出现异常", e);
+			e.printStackTrace();
+		}
+		
+		return "";
+		
+	}
+	
+	public T jsonToObject(String json, Class<T> clazz) {
+		LOGGER.log(Level.INFO,  "JsonUtil正在进行JSON转化对象操作");
+			
+			try {
+				
+				T object = (T)mapper.readValue(json, clazz);
+				return object;
+				
+			} catch (JsonParseException e) {
+				LOGGER.log(Level.ERROR, "Jsonutil调用jsonToObject方法出现异常", e);
+				e.printStackTrace();
+			} catch (JsonMappingException e) {
+				LOGGER.log(Level.ERROR, "Jsonutil调用jsonToObject方法出现异常", e);
+				e.printStackTrace();
+			} catch (IOException e) {
+				LOGGER.log(Level.ERROR, "Jsonutil调用jsonToObject方法出现异常", e);
+				e.printStackTrace();
+			}
+			
+			return null;
+		
+		
+		
+		
+	}
+	
+	
+    
+
+}

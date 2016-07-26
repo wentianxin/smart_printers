@@ -1,7 +1,10 @@
 package com.qg.smpt.web.repository;
 
-import com.qg.smpt.web.model.Order;
+import java.util.List;
+
 import org.springframework.stereotype.Repository;
+import com.qg.smpt.web.model.Order;
+
 
 @Repository
 public interface OrderMapper {
@@ -12,11 +15,19 @@ public interface OrderMapper {
 
     int insertSelective(Order record);
 
+
     Order selectByPrimaryKey(Integer id);
+
+    List<Order> selectByUser(Integer userId);
+
 
     int updateByPrimaryKeySelective(Order record);
 
     int updateByPrimaryKeyWithBLOBs(Order record);
+
+
+
+//    int updateByPrimaryKeyWithBLOBs(Order record);
 
 
     int updateByPrimaryKey(Order record);
