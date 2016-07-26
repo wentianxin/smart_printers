@@ -57,6 +57,9 @@ public class PrinterConnector implements Runnable, Lifecycle{
      *创建 ServerSocketChannel
      */
     public void initialize() {
+        if (initizlized) {
+            LOGGER.log(Level.ERROR, "PrinterConnector already initizlize");
+        }
 
         LOGGER.log(Level.DEBUG, "PrinterConnector initizlize, create serversocketchannel");
         try {
@@ -131,13 +134,14 @@ public class PrinterConnector implements Runnable, Lifecycle{
                     SelectionKey key = it.next();
                     switch (key.readyOps()) {
                         case SelectionKey.OP_ACCEPT:
-                            LOGGER.debug("ServerSocket accpet connection");
+                            LOGGER.debug("ServerSocket accpet printer connection");
                             acceptSocket(key);
                             break;
                         case SelectionKey.OP_READ:
                             // 当有多个 SocketChannel时, 会自动筛选哪一个SocketChannel 触发了事件
                             // 1. 连接后的一个请求：将打印机id-主控板（用户）id绑定，将打印机id-SocketChannel绑定
                             LOGGER.debug("ServerSocket accpet read requestion");
+                            // TODO
                             PrinterProcessor processor = createProcessor();
                             processor.assign((SocketChannel) key.channel());
                             break;
@@ -200,7 +204,7 @@ public class PrinterConnector implements Runnable, Lifecycle{
 
             sc.register(selector, SelectionKey.OP_READ);
 
-            // 根据请求打印机id 进行 printer-socketchannel 匹配
+
 
         } catch (final IOException e) {
 
