@@ -3,12 +3,19 @@ package com.qg.smpt.web.model;
 import com.qg.smpt.printer.model.BConstants;
 import com.qg.smpt.printer.model.BOrder;
 import com.qg.smpt.util.BytesConvert;
+import com.qg.smpt.web.repository.OrderMapper;
+
 import java.util.Date;
 import java.util.List;
+
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 /**
  * 订单
  */
+@JsonIgnoreProperties({"mpu","items","data", "isConvert", "orderTime", "orderRemark", "orderMealFee",
+	"orderPreAmount", "orderPayStatus", "orderDisFee","orderPreAmount","orderSum","userName", 
+	"userAddress", "userTelephone", "orderContent", "company", "expectTime"})
 public final class Order {
     private int mpu;             //主控板id
 
