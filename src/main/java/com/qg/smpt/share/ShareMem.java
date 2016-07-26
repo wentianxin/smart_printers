@@ -39,7 +39,7 @@ public final class ShareMem {
 
         userListMap = new HashMap<Integer, List<Printer>>();
 
-        priSentQueueMap = new HashMap<Integer, BulkOrder>();
+        priSentQueueMap = new HashMap<Printer, List<BulkOrder>>();
 
         priExceQueueMap = new HashMap<Printer, List<Order>>();
 
