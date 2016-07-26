@@ -1,9 +1,10 @@
 package com.qg.smpt.share;
 
+import com.qg.smpt.printer.PrinterProcessor;
 import com.qg.smpt.web.model.*;
 
-import java.net.Socket;
 import java.nio.channels.SocketChannel;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -19,14 +20,32 @@ public final class ShareMem {
 
     public static Map<Integer, List<Printer>> userListMap = null;            // 用户-打印机-打印机
 
+ //   public static volatile Map<Printer, Queue<Order>> priBufferQueueMap = null;   // 打印机-缓存队列
 
-    public static volatile Map<Printer, Queue<Order>> priBufferQueueMap = null;   // 打印机-缓存队列
+    public static Map<Integer, BulkOrder> priSentQueueMap = null;     // 打印机-已发批次队列
 
-    public static Map<Printer, Queue<BulkOrder>> priSentQueueMap = null;     // 打印机-已发批次队列
+    public static Map<Printer, List<Order>> priExceQueueMap = null;         // 打印机-异常队列
 
-    public static Map<Printer, Queue<Order>> priExceQueueMap = null;         // 打印机-异常队列
+    public static Map<Printer, List<BulkOrder>> priBufferMapList = null;
 
-    public static Map<Printer, SocketChannel> priLinkSocketMap = null; // 打印机-Socket连接
+    public static Map<Printer, PrinterProcessor> priPriProcessMap = null;   // 打印机对应的处理线程, 做成动态效果。
+                                                                            // 当触发一个读事件时，进行一次线程绑定，触发完毕，解除绑定
 
 
+    static {
+        userIdMap = new HashMap<Integer, User>();
+
+        printerIdMap = new HashMap<Integer, Printer>();
+
+        userListMap = new HashMap<Integer, List<Printer>>();
+
+        priSentQueueMap = new HashMap<Integer, BulkOrder>();
+
+        priExceQueueMap = new HashMap<Printer, List<Order>>();
+
+        priBufferMapList = new HashMap<Printer, List<BulkOrder>>();
+
+        priPriProcessMap = new HashMap<Printer, PrinterProcessor>();
+
+    }
 }

@@ -3,6 +3,8 @@ package com.qg.smpt.web.model;
 import com.qg.smpt.printer.model.BConstants;
 import com.qg.smpt.printer.model.BOrder;
 import com.qg.smpt.util.BytesConvert;
+
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 
@@ -244,7 +246,7 @@ public final class Order {
     }
 
     //Order对象转换为BOrder
-    public BOrder orderToBOrder(short bulkId, short index) throws Exception{
+    public BOrder orderToBOrder(short bulkId, short index){
         BOrder bo = new BOrder();
 
         //设置主控板id
@@ -277,9 +279,14 @@ public final class Order {
     }
 
     //将订单内容转化为字节数组
-    private byte[] convertOrder() throws Exception{
+    private byte[] convertOrder(){
         //通过GB2312编码获取订单内容的字节数组
-        byte[] orderB = this.toString().getBytes("gb2312");
+        byte[] orderB = new byte[0];
+        try {
+            orderB = this.toString().getBytes("gb2312");
+        } catch (UnsupportedEncodingException e) {
+
+        }
 
         //获取订单内容的长度
         int length = orderB.length;

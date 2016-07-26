@@ -27,7 +27,7 @@ public class BBulkOrder {
 
     public short end = BConstants.bulkOrderEnd;
 
-    public int size;
+    public int size; // 全部大小
 
     public short getOrderNumber() {
         return orderNumber;

@@ -1,6 +1,7 @@
 package com.qg.smpt.web.model;
 
 import com.qg.smpt.printer.model.BBulkOrder;
+import com.qg.smpt.printer.model.BOrder;
 import com.qg.smpt.util.BytesConvert;
 import com.sun.org.apache.xpath.internal.operations.Or;
 
@@ -15,15 +16,61 @@ public final class BulkOrder {
 
     private int UserId;
 
-    private List<Order> orders; //批次的订单集合
+    private List<BOrder> bOrders = null;
 
     private int dataSize;       //批次订单数据的总大小
 
-    private byte[] bulkOrderB;  //批次转化后的字节数组
-
-    private boolean isConvert = false;  //是否已经经过转化
-
     private short bulkType;    //0-普通 1-加急
+
+    public BulkOrder(List<BOrder> bOrders) {
+        this.dataSize = 0;
+        this.bOrders = bOrders;
+    }
+
+    public static BBulkOrder convertBBulkOrder(BulkOrder bulkOrder) {
+        BBulkOrder bBulk = new BBulkOrder();
+
+        bBulk.setOrderNumber((short)bulkOrder.getbOrders().size());
+
+        //设置批次编号
+        bBulk.setBulkId((short)bulkOrder.getId());
+
+        //设置批次报文长度
+        bBulk.setSize((short)(bulkOrder.getDataSize() + 20));
+
+        //设置时间戳
+        bBulk.setSeconds((int)System.currentTimeMillis());
+
+        //设置校验和
+        bBulk.setCheckSum((short)0);
+
+        //设置填充和保留
+        bBulk.setPadding0(bulkOrder.getBulkType());
+
+        //设置填充
+        bBulk.setPadding1((short)0);
+
+        //设置订单数据
+        byte[] data = installOrders(bulkOrder);
+        bBulk.setData(data);
+
+        return bBulk;
+    }
+
+    private static byte[] installOrders(BulkOrder bulkOrder) {
+        byte[] data = new byte[bulkOrder.getDataSize()];
+
+        int pos = 0;
+        for(BOrder o : bulkOrder.getbOrders()) {
+            byte[] orderB = BOrder.bOrderToBytes(o);
+            pos = BytesConvert.fillByte(orderB, data, pos);
+        }
+
+        return data;
+    }
+
+
+
 
     public BulkOrder(int id) {
         this.id = id;
@@ -37,6 +84,14 @@ public final class BulkOrder {
         this.id = id;
     }
 
+    public void setbOrders(List<BOrder> bOrders) {
+        this.bOrders = bOrders;
+    }
+
+    public List<BOrder> getbOrders() {
+        return bOrders;
+    }
+
     public int getUserId() {
         return UserId;
     }
@@ -45,13 +100,6 @@ public final class BulkOrder {
         UserId = userId;
     }
 
-    public List<Order> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
-    }
 
     public int getDataSize() {
         return dataSize;
@@ -61,17 +109,6 @@ public final class BulkOrder {
         this.dataSize = dataSize;
     }
 
-    public byte[] getBulkOrderB() {
-        if(!isConvert) {
-            convert();
-            isConvert = true;
-        }
-        return bulkOrderB;
-    }
-
-    public void setBulkOrderB(byte[] bulkOrderB) {
-        this.bulkOrderB = bulkOrderB;
-    }
 
     public short getBulkType() {
         return bulkType;
@@ -81,52 +118,4 @@ public final class BulkOrder {
         this.bulkType = bulkType;
     }
 
-    private void convert() {
-        BBulkOrder bBulk = convertBBulkOrder();
-        bulkOrderB =  BBulkOrder.bBulkOrderToBytes(bBulk);
-    }
-
-    private BBulkOrder convertBBulkOrder() {
-        BBulkOrder bBulk = new BBulkOrder();
-
-        //设置订单个数
-        bBulk.setOrderNumber((short)orders.size());
-
-        //设置批次编号
-        bBulk.setBulkId((short)id);
-
-        //设置批次报文长度
-        bBulk.setSize((short)(dataSize + 20));
-        
-
-        //设置时间戳
-        bBulk.setSeconds((int)System.currentTimeMillis());
-
-        //设置校验和
-        bBulk.setCheckSum((short)0);
-
-        //设置填充和保留
-        bBulk.setPadding0(bulkType);
-
-        //设置填充
-        bBulk.setPadding1((short)0);
-
-        //设置订单数据
-        byte[] data = installOrders();
-        bBulk.setData(data);
-
-        return bBulk;
-    }
-
-    private byte[] installOrders() {
-        byte[] data = new byte[dataSize];
-
-        int pos = 0;
-        for(Order o : orders) {
-            byte[] orderB = o.getData();
-            pos = BytesConvert.fillByte(orderB, data, pos);
-        }
-
-        return data;
-    }
 }

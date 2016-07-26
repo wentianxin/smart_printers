@@ -1,10 +1,11 @@
 package com.qg.smpt.web.model;
 
-public class Printer {
+public final class Printer {
 
     private Integer id;
     private String printerStatus;
     private int userId;                      //用户id
+    private String userName;                 // 商家名
     private volatile int currentBulk;        //当前已发送批次的最大id
     private volatile int currentOrder;       //当前已接受订单的最大id
     private volatile boolean canAccpet;      //能否接收数据
@@ -91,5 +92,13 @@ public class Printer {
 
     public void setPrinterStatus(String printerStatus) {
         this.printerStatus = printerStatus == null ? null : printerStatus.trim();
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getUserName() {
+        return userName;
     }
 }
