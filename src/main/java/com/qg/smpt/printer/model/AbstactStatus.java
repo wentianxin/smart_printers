@@ -37,4 +37,17 @@ public class AbstactStatus {
 
         return as;
     }
+
+    public static void main(String[] args) {
+
+        byte[] bytes = new byte[4];
+        bytes[0] = (byte)0x0;
+        bytes[1] = (byte)0x0;
+        bytes[2] = (byte)0x0;
+        bytes[3] = (byte)0x1;
+
+        int x = BytesConvert.bytesToInt(bytes);  // x = 1;
+
+        System.out.println(x);
+    }
 }

@@ -222,7 +222,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                 ShareMem.priBufferMapList.put(printer, new ArrayList<BulkOrder>());
             }
             if (ShareMem.priSentQueueMap.get(printer) == null) {
-                ShareMem.priSentQueueMap.put(printer, new HashMap<Integer, BulkOrder>());
+                //ShareMem.priSentQueueMap.put(printer, new HashMap<Integer, BulkOrder>());
             }
         }
 
@@ -276,7 +276,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
             ShareMem.priBufferMapList.get(p).remove(0);
 
-            ShareMem.priSentQueueMap.get(p).put(bOrders.getId(), bOrders);
+           // ShareMem.priSentQueueMap.get(p)(bOrders.getId(), bOrders);
         }
 
 
@@ -293,7 +293,6 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         }
 
     }
-
 
 
 
@@ -321,7 +320,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                 BulkOrder bulkOrder = null;
                 synchronized (ShareMem.priSentQueueMap) {
 
-                    bulkOrder = ShareMem.priSentQueueMap.get((int) bOrderStatus.bulkId);
+                    // TODO bulkOrder = ShareMem.priSentQueueMap.get((p);
                     if (bulkOrder != null)
                         ShareMem.priBufferMapList.remove((int)bOrderStatus.bulkId);
                 }
@@ -341,44 +340,18 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
     private void parseBulkStatus(byte[] bytes) {
         BBulkStatus bBulkStatus = BBulkStatus.bytesToBulkStatus(bytes);
-        OrderService orderService = new OrderService();
-        
-        if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
-        	// 批次订单成功
-            // 将已发队列中数据装填到数据库中，并清除已发队列
-            orderService.handleSuccessfulBulk(bBulkStatus.printerId, bBulkStatus.bulkId);
-            
-        } else  if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
-        	// 批次订单失败 忽略失败信息-bug
-            orderService.handleFailBulk(bBulkStatus.printerId,bBulkStatus.bulkId);
-            
-        }
+//        OrderService orderService = new OrderService();
+//
+//        if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
+//        	// 批次订单成功
+//            // 将已发队列中数据装填到数据库中，并清除已发队列
+//            orderService.handleSuccessfulBulk(bBulkStatus.printerId, bBulkStatus.bulkId);
+//
+//        } else  if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
+//        	// 批次订单失败 忽略失败信息-bug
+//            orderService.handleFailBulk(bBulkStatus.printerId,bBulkStatus.bulkId);
+//
+//        }
     }
 
-    private void parsePrintStatus(byte[] bytes) {
-        BPrinterStatus bPrinterStatus = BPrinterStatus.bytesToPrinterStatus(bytes);
-
-        //TODO 状态待分析
-    }
-
-    /**
-     * 建立用户打印机-关系
-     */
-    private void buildUserPrintRelation() {
-
-    }
-
-    /**
-     * 更新订单状态
-     */
-    private void receiveOrderStatus() {
-
-    }
-
-    /**
-     * 更新打印机状态
-     */
-    private void receivePrinterStatus() {
-
-    }
 }

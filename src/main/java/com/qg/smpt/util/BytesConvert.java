@@ -48,6 +48,7 @@ public final class BytesConvert {
         return  ByteBuffer.allocate(2).putShort(number).array();
     }
 
+
     public static int fillShort(short number, byte[] bytes, int start) {
 
         byte[] b = shortToBytes(number);
@@ -71,7 +72,6 @@ public final class BytesConvert {
 
         return start + srcByte.length;
     }
-
 
     public static byte int0_7ToByte(int number) {
         return (byte)(number & 0xFF);
