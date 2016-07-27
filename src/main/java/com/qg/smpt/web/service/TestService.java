@@ -4,6 +4,7 @@ import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.User;
 import com.qg.smpt.web.repository.OrderMapper;
 import com.qg.smpt.web.repository.UserMapper;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -12,7 +13,7 @@ import javax.annotation.Resource;
  * Created by tisong on 7/24/16.
  */
 
-@Service
+@Component
 public class TestService {
 
 

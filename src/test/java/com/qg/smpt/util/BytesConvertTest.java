@@ -35,6 +35,7 @@ public class BytesConvertTest {
 
         BytesConvert.fillShort((short)0x0001, bytes, 0);
 
+        System.out.println(bytes.toString());
         System.out.println(bytes[0] + "" + bytes[1]);
     }
 

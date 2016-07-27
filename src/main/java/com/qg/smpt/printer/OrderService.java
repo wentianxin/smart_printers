@@ -13,7 +13,7 @@
 // * @author lee_cong
 // * <pre>该类用于定义组装订单传输数据给打印机</pre>
 // */
-//public final class OrderService {
+//public final class OrderServiceImpl {
 //
 //
 //    /**

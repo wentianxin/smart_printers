@@ -183,7 +183,7 @@
 //        //执行发送数据
 //        try {
 //
-//            OrderService orderService = new OrderService();
+//            OrderServiceImpl orderService = new OrderServiceImpl();
 //            orderService.sendBatchOrder(p);
 //
 //        }catch(Exception e){
@@ -199,7 +199,7 @@
 //
 //        }else if((byte)((bOrderStatus.flag >> 8) & 0xFF ) == (byte) BConstants.orderFail) {
 //            // 订单异常 需要重新发送订单
-//            OrderService orderService = new OrderService();
+//            OrderServiceImpl orderService = new OrderServiceImpl();
 //            orderService.handleFailOrder(bOrderStatus.printerId, bOrderStatus.bulkId, bOrderStatus.inNumber);
 //
 //        }
@@ -209,7 +209,7 @@
 //
 //    private void parseBulkStatus(byte[] bytes) {
 //        BBulkStatus bBulkStatus = BBulkStatus.bytesToBulkStatus(bytes);
-//        OrderService orderService = new OrderService();
+//        OrderServiceImpl orderService = new OrderServiceImpl();
 //
 //        if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
 //            // 批次订单成功

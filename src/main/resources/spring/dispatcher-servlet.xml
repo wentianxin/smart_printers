@@ -9,10 +9,14 @@ http://www.springframework.org/schema/context/spring-context-3.0.xsd http://www.
 
 
     <!-- scan the package and the sub package -->
-    <context:component-scan base-package="com.qg.smpt.web"/>
+    <context:component-scan base-package="com.qg.smpt.web.controller"/>
+
 
     <!-- don't handle the static resource -->
     <mvc:default-servlet-handler />
+
+    <!-- 开启注解 -->
+    <mvc:annotation-driven/>
 
 
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"

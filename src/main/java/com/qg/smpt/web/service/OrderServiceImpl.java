@@ -4,16 +4,19 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.repository.OrderMapper;
+import org.springframework.transaction.annotation.Transactional;
 
-@Component("orderService")
-public class OrderServiceImpl {
+@Service("orderService")
+public class OrderServiceImpl implements OrderService{
 
-	@Resource
+	@Autowired
 	private OrderMapper orderMapper;
 	
 	public List<Order> queryByUser(int userId) {
