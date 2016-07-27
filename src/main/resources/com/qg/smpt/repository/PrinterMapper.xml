@@ -10,6 +10,12 @@
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="printer_status" property="printerStatus" jdbcType="VARCHAR" />
   </resultMap>
+
+  <resultMap id="printerUserResultMap" type="com.qg.smpt.web.model.Printer">
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="printer_status" property="printerStatus" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+  </resultMap>
   <sql id="Base_Column_List" >
     <!--
       WARNING - @mbggenerated
@@ -29,6 +35,11 @@
     from printer
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="selectPrinter" parameterType="java.lang.Integer" resultMap="printerUserResultMap" >
+    select p.id, p.printer_status, up.user_id from printer as p ,user_printer as up where p.id = up.printer_id and p.id = #{id}
+  </select>
+
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     <!--
       WARNING - @mbggenerated

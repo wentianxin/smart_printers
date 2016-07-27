@@ -4,13 +4,14 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.repository.OrderMapper;
 
-@Service
-public class OrderService {
+@Component("orderService")
+public class OrderServiceImpl {
 
 	@Resource
 	private OrderMapper orderMapper;
