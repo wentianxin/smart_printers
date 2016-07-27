@@ -5,13 +5,14 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.repository.OrderMapper;
 
-@Service
+
+
+@Service("orderService")
 public class OrderServiceImpl implements OrderService{
 
 	@Autowired
@@ -21,8 +22,11 @@ public class OrderServiceImpl implements OrderService{
 		return orderMapper.selectByUser(userId);
 	}
 	
+	
+	@Override
 	public int insertOrder(Order order) {
-		return orderMapper.insert(order);
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

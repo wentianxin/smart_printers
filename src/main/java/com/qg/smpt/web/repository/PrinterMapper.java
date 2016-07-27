@@ -14,6 +14,8 @@ public interface PrinterMapper {
 
     Printer selectByPrimaryKey(Integer id);
 
+    Printer selectPrinter(Integer id);
+
     int updateByPrimaryKeySelective(Printer record);
 
     int updateByPrimaryKey(Printer record);

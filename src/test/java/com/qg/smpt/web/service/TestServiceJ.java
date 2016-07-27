@@ -5,6 +5,8 @@ package com.qg.smpt.web.service;
  */
 
 
+import com.qg.smpt.web.model.Printer;
+import com.qg.smpt.web.repository.PrinterMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -13,7 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import javax.annotation.Resource;
 
 @RunWith(SpringJUnit4ClassRunner.class)     //表示继承了SpringJUnit4ClassRunner类
-@ContextConfiguration(locations = {"classpath:spring-mybatis.xml"})
+@ContextConfiguration(locations = {"classpath:spring/spring-mybatis.xml"})
 
 public class TestServiceJ {
 
@@ -21,9 +23,12 @@ public class TestServiceJ {
     @Resource
     private TestService testService;
 
+    @Resource
+    private PrinterMapper printerMapper;
+
     @Test
     public void test1() {
-        testService.insertOrder(null);
+        Printer printer = printerMapper.selectPrinter(1);
     }
 
 }

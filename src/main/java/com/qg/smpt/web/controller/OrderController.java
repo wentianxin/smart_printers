@@ -1,18 +1,4 @@
-package com.qg.smpt.web.processor;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
-
-import javax.annotation.Resource;
-import javax.xml.ws.soap.Addressing;
-
-import org.apache.ibatis.javassist.expr.NewArray;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+package com.qg.smpt.web.controller;
 
 import com.qg.smpt.share.ShareMem;
 import com.qg.smpt.util.JsonUtil;
@@ -21,19 +7,30 @@ import com.qg.smpt.util.Logger;
 import com.qg.smpt.web.model.BulkOrder;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
-import com.qg.smpt.web.model.User;
 import com.qg.smpt.web.service.OrderService;
+import com.qg.smpt.web.service.OrderServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/orders")
 public class OrderController {
 	private static final Logger LOGGER = Logger.getLogger(JsonUtil.class);
-	
+
+
 	@Autowired
 	private OrderService orderService;
-	
-	
+
 	/**
 	 * 获取正在打印/未打印的订单状态
 	 * @param userId - 用户id
@@ -81,7 +78,7 @@ public class OrderController {
 	 * @return	未打印/正在打印的订单集合
 	 */
 	private List<Order> installOrders(List<Printer> printers) {
-		List<Order> orderList = new ArrayList<Order>();
+		List<Order> orderList = new ArrayList<>(); 
 		
 		List<BulkOrder> bulkUnsend = null;	//未发送的批次集合
 		List<BulkOrder> bulkHasSend = null;	//已发送的批次集合
@@ -124,16 +121,15 @@ public class OrderController {
 	 * 通过用户id获取商家的已打印的订单
 	 * @return
 	 */
-	@RequestMapping(value="/typed", method=RequestMethod.GET, produces="application/json;charset=UTF-8")
-	@ResponseBody
-	public String queryTypedOrders(int userId) {
-		// 根据用户id获取订单
-		List<Order> orderList = orderService.queryByUser(userId);
-		
-		return JsonUtil.objectToJson(orderList);
-	}
+//	@RequestMapping(value="/typed", method=RequestMethod.GET, produces="application/json;charset=UTF-8")
+//	@ResponseBody
+//	public String queryTypedOrders(int userId) {
+//		// 根据用户id获取订单
+//		List<Order> orderList = ordeerService.queryByUser(userId);
+//
+//		return JsonUtil.objectToJson(orderList);
+//	}
 	
 	
-	
-}
 
+}

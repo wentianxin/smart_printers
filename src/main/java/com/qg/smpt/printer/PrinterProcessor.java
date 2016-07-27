@@ -14,10 +14,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -45,7 +42,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
     private long waitTime;
 
     // TODO 关于字节数组分配过下,而导致需要两次调用的问题
-    private ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+    private ByteBuffer byteBuffer = ByteBuffer.allocate(2048);
 
     private boolean available;   // 唤醒线程池中的线程的标志
 
@@ -108,7 +105,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
     /**
      * 线程池中的线程进入睡眠状态
-     * @return
+     * @return SocketChannel
      */
     private synchronized SocketChannel await() {
 
@@ -220,29 +217,42 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
         // 建立用户-printer 关系
         Printer printer = null;
-        synchronized (ShareMem.printerIdMap) {
-            printer = ShareMem.printerIdMap.get(printerId);
-            if (printer == null) {
-                // id - printer 建立在商家注册时 进行建立
 
-                // TODO
-                LOGGER.log(Level.ERROR, "将打印机[{0}]并为建立打印对象", printerId);
+        printer = ShareMem.printerIdMap.get(printerId);
+        if (printer == null) {
+            // id - printer 建立在商家注册时 进行建立
+            printer = printerMapper.selectPrinter(printerId);
+            if (printer == null) {
+                LOGGER.log(Level.ERROR, "打印机信息并未注册[{0}]", printerId);
                 return ;
             }
-            else {
-                LOGGER.log(Level.DEBUG, "共享对象中已存在打印机[{0}]与打印机对象", printerId);
+
+            // TODO 如果有两个线程同时向 HashMap中添加相同printerId， 是否会出现重复问题
+            synchronized (ShareMem.printerIdMap) {
+                ShareMem.printerIdMap.put(printerId, printer);
             }
+            LOGGER.log(Level.ERROR, "将打印机[{0}]并为建立打印对象；打印机状态:[{1}];用户:[{2}]", printerId,
+                    printer.getPrinterStatus(), printer.getUserId());
+        }
+        else {
+            LOGGER.log(Level.WARN, "共享对象中已存在打印机[{0}]与打印机对象", printerId);
         }
 
+        // TODO printer 锁是否有用
+        /* 锁住 printer 打印机对象，避免出现创建多次队列现象*/
         synchronized (printer) {
             if (ShareMem.priExceQueueMap.get(printer) == null) {
+                // 异常队列
+                LOGGER.log(Level.INFO, "初始化打印机[{0}] 异常队列", printerId);
                 ShareMem.priExceQueueMap.put(printer, new ArrayList<BulkOrder>());
             }
             if (ShareMem.priBufferMapList.get(printer) == null) {
+                LOGGER.log(Level.INFO, "初始化打印机[{0}] 缓存队列", printerId);
                 ShareMem.priBufferMapList.put(printer, new ArrayList<BulkOrder>());
             }
             if (priSentQueueMap.get(printer) == null) {
-                //ShareMem.priSentQueueMap.put(printer, new HashMap<Integer, BulkOrder>());
+                LOGGER.log(Level.INFO, "初始化打印机[{0}] 已发队列", printerId);
+                ShareMem.priSentQueueMap.put(printer, new ArrayList<BulkOrder>());
             }
         }
 
@@ -255,50 +265,64 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         // 获取打印机主控板id,获取打印机
         int printerId = request.printerId;
 
-        LOGGER.log(Level.DEBUG, "打印机请求id: " + printerId);
+        LOGGER.log(Level.DEBUG, "解析请求打印机请求id:[{0}], flag:[{1}]," +
+                "seconds:[{2}];checksum[{3}];" + request.printerId, request.flag, request.seconds,
+                request.checkSum);
 
         Printer p = ShareMem.printerIdMap.get(printerId);
         if (p == null) {
-            LOGGER.log(Level.ERROR, "打印机id错误" + printerId);
+            LOGGER.log(Level.ERROR, "共享内存中并为找到打印机id[{0}]对应printer对象", printerId);
+            return ;
         }
-
         ShareMem.priPriProcessMap.put(p, this);
+
+        LOGGER.log(Level.INFO, "建立打印机对象:[{1}] 与 PrinterConnector 线程之间连接, 处理 OKStatus", p);
 
         p.setCanAccpet(true);
 
         long requestTime = System.currentTimeMillis();
+        LOGGER.log(Level.DEBUG, "当前时间: [{0}]", requestTime);
         try {
             while (!sendAvailable) {
                 if (ShareMem.priBufferMapList.get(p).size() > 1)
                     break;
+                LOGGER.log(Level.DEBUG, "打印机 [{0}] 的 线程printerConnector[{1}]并不满足发送条件，进入睡眠", printerId, this);
                 wait(waitTime + 1 / 10 * waitTime);
-                if (requestTime - System.currentTimeMillis() > waitTime && ShareMem.priBufferMapList.size() > 0)
-                    break;
+                if (requestTime - System.currentTimeMillis() > waitTime) {
+                    LOGGER.log(Level.INFO, "打印机 [{0}] 的 线程printerConnector[{1}]自动睡醒", printerId, this);
+                    if (ShareMem.priBufferMapList.get(p).size() > 0) {
+                        LOGGER.log(Level.INFO, "打印机 [{0}] 的 线程printerConnector[{1}] 发送缓冲区存有批次订单 [{2}] 条, 该批次中有订单数据 [{2}] 条, 容量 [{3}] 字节准备发送",
+                                printerId, this, ShareMem.priBufferMapList.get(p).size(), ShareMem.priBufferMapList.get(p).get(0).getOrders().size(), ShareMem.priBufferMapList.get(p).get(0).getDataSize());
+                        break;
+                    }
+                }
             }
-        } catch (InterruptedException e) {
-
+        } catch (final InterruptedException e) {
+            LOGGER.log(Level.ERROR, "打印机 [{0}] 的 线程printerConnector[{1}] 睡眠被打断", printerId, this, e);
         }
 
-
+        LOGGER.log(Level.DEBUG, "打印机 [{0}] 解除绑定线程 printerConnector[{1}], 取消可发生状态, printer对象设置为不可接收数据状态", printerId, this);
         ShareMem.priPriProcessMap.remove(p);
-
         sendAvailable = false;
-
         p.setCanAccpet(false);
-
 
         notifyAll();
 
         BulkOrder bOrders = null;
 
         synchronized (ShareMem.priBufferMapList.get(p)) {
+            LOGGER.log(Level.DEBUG, "打印机 [{0}] 解除绑定线程 printerConnector[{1}] 锁定打印机缓存队列 [{2}]," +
+                    "从缓存队列中弹出批次订单数据", printerId, this, ShareMem.priBufferMapList.get(p));
             bOrders = ShareMem.priBufferMapList.get(p).get(0);
 
             ShareMem.priBufferMapList.get(p).remove(0);
+        }
 
-            int bulkId = bOrders.getId();
-
+        synchronized (ShareMem.priSentQueueMap.get(p)) {
+            LOGGER.log(Level.DEBUG, "打印机 [{0}] 绑定线程 printerConnector[{1}] 锁定打印机已发队列 [{2}]，" +
+                    "并将批次订单数据加入已发队列中", printerId, this, ShareMem.priSentQueueMap.get(p));
             List<BulkOrder> bulkOrderList = ShareMem.priSentQueueMap.get(p);
+
             if (bulkOrderList == null) {
                 bulkOrderList = new ArrayList<BulkOrder>();
                 ShareMem.priSentQueueMap.put(p, bulkOrderList);
@@ -307,19 +331,33 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             bulkOrderList.add(bOrders);
         }
 
-
+        LOGGER.log(Level.DEBUG, "打印机 [{0}] 线程 printerConnector[{1}] 开始转换批次订单数据",
+                printerId, this);
         BBulkOrder bBulkOrder = BulkOrder.convertBBulkOrder(bOrders);
-
         byte[] bBulkOrderBytes = BBulkOrder.bBulkOrderToBytes(bBulkOrder);
 
+        if (bBulkOrderBytes.length % 32 != 0) {
+            LOGGER.log(Level.ERROR, "打印机 [{0}] 线程 printerConnector[{1}] 字节并未对齐");
+        }
+        // TODO Debug 模式
+        LOGGER.log(Level.DEBUG, "========== 订单数据字节流 start ============");
+        for (int i = 0; i < bBulkOrderBytes.length / 32; i++) {
+            byte[] test = new byte[32];
+            System.arraycopy(bBulkOrderBytes, i * 32, test, 0, 32);
+            LOGGER.log(Level.DEBUG, "[{0}]",Arrays.toString(test));
+        }
+
+        LOGGER.log(Level.DEBUG, "========== 订单数据字节流 end ============");
         ByteBuffer byteBuffer = ByteBuffer.wrap(bBulkOrderBytes);
 
         try {
             socketChannel.write(byteBuffer);
-        } catch (IOException e) {
-
+        } catch (final IOException e) {
+            LOGGER.log(Level.ERROR, "打印机 [{0}] 打印机线程 printerProcessor [{1}] 发送订单数据异常", p.getId(), this);
         }
 
+        LOGGER.log(Level.INFO, "打印机 [{0}] 对应 打印机线程 printerProcessor [{1}] 完成订单发送请求; 时间 [{2}]",
+                printerId, this, System.currentTimeMillis());
     }
 
 
@@ -329,11 +367,13 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             while (sendAvailable) {
                 wait();
             }
-        } catch (InterruptedException e) {
-
+        } catch (final InterruptedException e) {
+            LOGGER.log(Level.ERROR, "线程 printerProcessor [{0}] 被中断", this, e);
         }
 
         sendAvailable = true;
+
+        LOGGER.log(Level.INFO, "线程 printerProcessor [{0}] 设置可发送标志", this);
 
         notifyAll();
     }
@@ -432,12 +472,9 @@ public class PrinterProcessor implements Runnable, Lifecycle{
     private void parseBulkStatus(byte[] bytes) {
         BBulkStatus bBulkStatus = BBulkStatus.bytesToBulkStatus(bytes);
 
-
         if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
         	// 批次订单成功
             // 将已发队列中数据装填到数据库中，并清除已发队列
-
-
 
         } else  if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
         	// 批次订单失败 忽略失败信息-bug
