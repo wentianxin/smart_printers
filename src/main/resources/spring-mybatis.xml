@@ -49,13 +49,8 @@
 
     <!-- Dao接口所在包名 -->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="com.qg.smpt.web"/>
+        <property name="basePackage" value="com.qg.smpt.web.repository"/>
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
     </bean>
 
-    <!-- -->
-    <bean id="studentMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="com.manager.data.StudentMapper" />
-        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
-    </bean>
 </beans>
