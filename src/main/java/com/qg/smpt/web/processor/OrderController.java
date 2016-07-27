@@ -24,13 +24,14 @@ import com.qg.smpt.web.model.Printer;
 import com.qg.smpt.web.model.User;
 import com.qg.smpt.web.service.OrderService;
 
+
 @Controller
 @RequestMapping("/orders")
 public class OrderController {
 	private static final Logger LOGGER = Logger.getLogger(JsonUtil.class);
 	
-	@Resource
-	private OrderService ordeerService;
+	@Autowired
+	private OrderService orderService;
 	
 	
 	/**
@@ -80,7 +81,7 @@ public class OrderController {
 	 * @return	未打印/正在打印的订单集合
 	 */
 	private List<Order> installOrders(List<Printer> printers) {
-		List<Order> orderList = new ArrayList<>(); 
+		List<Order> orderList = new ArrayList<Order>();
 		
 		List<BulkOrder> bulkUnsend = null;	//未发送的批次集合
 		List<BulkOrder> bulkHasSend = null;	//已发送的批次集合
@@ -127,7 +128,7 @@ public class OrderController {
 	@ResponseBody
 	public String queryTypedOrders(int userId) {
 		// 根据用户id获取订单
-		List<Order> orderList = ordeerService.queryByUser(userId);
+		List<Order> orderList = orderService.queryByUser(userId);
 		
 		return JsonUtil.objectToJson(orderList);
 	}
