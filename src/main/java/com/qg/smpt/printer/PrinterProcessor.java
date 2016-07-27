@@ -7,7 +7,9 @@ import com.qg.smpt.util.Logger;
 import com.qg.smpt.web.model.BulkOrder;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
+import com.qg.smpt.web.repository.PrinterMapper;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -27,6 +29,8 @@ import static java.lang.System.currentTimeMillis;
  * Created by tisong on 7/21/16.
  */
 public class PrinterProcessor implements Runnable, Lifecycle{
+    @Resource
+    private PrinterMapper printerMapper;
 
     private final Logger LOGGER = Logger.getLogger(PrinterConnector.class);
 
@@ -221,7 +225,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             if (printer == null) {
                 // id - printer 建立在商家注册时 进行建立
 
-                // TODO 
+                // TODO
                 LOGGER.log(Level.ERROR, "将打印机[{0}]并为建立打印对象", printerId);
                 return ;
             }
