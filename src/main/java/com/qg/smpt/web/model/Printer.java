@@ -3,7 +3,7 @@ package com.qg.smpt.web.model;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @JsonIgnoreProperties({"userId", "userName", "currentBulk", "currentOrder",
-		"canAccept","isBusy", "lastSendTime"})
+		"canAccept","busy", "lastSendTime"})
 public final class Printer {
 
     private Integer id;
@@ -12,7 +12,7 @@ public final class Printer {
     private String userName;                 // 商家名
     private volatile int currentBulk;        //当前已发送批次的最大id
     private volatile int currentOrder;       //当前已接受订单的最大id
-    private volatile boolean canAccpet;      //能否接收数据
+    private volatile boolean canAccept;      //能否接收数据
     private volatile boolean isBusy;         //true-忙时，false-闲时
     private volatile long lastSendTime;      //上一次发送批次的时间
 
@@ -58,12 +58,12 @@ public final class Printer {
         this.currentOrder = currentOrder;
     }
 
-    public boolean isCanAccpet() {
-        return canAccpet;
+    public boolean isCanAccept() {
+        return canAccept;
     }
 
-    public void setCanAccpet(boolean canAccpet) {
-        this.canAccpet = canAccpet;
+    public void setCanAccept(boolean canAccept) {
+        this.canAccept = canAccept;
     }
 
     public boolean isBusy() {

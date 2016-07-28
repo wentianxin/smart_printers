@@ -314,7 +314,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
         LOGGER.log(Level.INFO, "建立打印机对象:[{1}] 与 PrinterConnector 线程之间连接, 处理 OKStatus", p);
 
-        p.setCanAccpet(true);
+        p.setCanAccept(true);
 
         long requestTime = System.currentTimeMillis();
         LOGGER.log(Level.DEBUG, "当前时间: [{0}]", requestTime);
@@ -340,7 +340,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         LOGGER.log(Level.DEBUG, "打印机 [{0}] 解除绑定线程 printerConnector[{1}], 取消可发生状态, printer对象设置为不可接收数据状态", printerId, this);
         ShareMem.priPriProcessMap.remove(p);
         sendAvailable = false;
-        p.setCanAccpet(false);
+        p.setCanAccept(false);
 
         notifyAll();
 

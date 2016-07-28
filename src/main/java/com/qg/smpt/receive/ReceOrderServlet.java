@@ -118,7 +118,7 @@ public class ReceOrderServlet extends HttpServlet {
                         bOrder.inNumber = (short) 0x1;
 
                         // 如果打印机可以接收数据，唤醒线程
-                        if (printer.isCanAccpet()) {
+                        if (printer.isCanAccept()) {
                             PrinterProcessor processor = ShareMem.priPriProcessMap.get(printer);
                             if (processor == null) {
                                 LOGGER.log(Level.ERROR, "printerProcessor is null, send data if failed");
