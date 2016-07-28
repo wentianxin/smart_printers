@@ -115,7 +115,7 @@ public class OrderBuilder {
 		if(userCount > 0){
 			randomNum = getRandom(userCount);
 			User u = users.get(randomNum);
-			order.setClientName(u.getUserName());
+			order.setClientName(u.getUserStore());
 			order.setClientAddress(u.getUserAddress());
 			order.setClientTelephone(u.getUserPhone());
 		}

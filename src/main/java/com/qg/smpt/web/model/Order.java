@@ -15,9 +15,9 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 /**
  * 订单
  */
-@JsonIgnoreProperties({"mpu","items","data", "isConvert", "orderTime", "orderRemark", "orderMealFee",
-	"orderPreAmount", "orderPayStatus", "orderDisFee","orderPreAmount","orderSum","userName", 
-	"userAddress", "userTelephone", "orderContent", "company", "expectTime"})
+//@JsonIgnoreProperties({"mpu","items","data", "isConvert", "orderTime", "orderRemark", "orderMealFee",
+//	"orderPreAmount", "orderPayStatus", "orderDisFee","orderPreAmount","orderSum","userName", 
+//	"userAddress", "userTelephone", "orderContent", "company", "expectTime"})
 public final class Order {
     private int mpu;             //主控板id
 

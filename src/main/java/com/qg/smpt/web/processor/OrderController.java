@@ -117,7 +117,7 @@ public class OrderController {
 	@ResponseBody
 	public String queryTpyingOrders(Integer userId) {
 		// info message
-		LOGGER.log(Level.INFO, "In OrderController, User is requesting see typing orders");
+		LOGGER.log(Level.DEBUG, "正在查询 用户[{0}] 的未打印/正在打印订单", userId);
 		
 		// get printers by userId
 		List<Printer> printers = ShareMem.userListMap.get(userId);

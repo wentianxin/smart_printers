@@ -20,13 +20,23 @@ public class UserServiceImpl implements UserService{
 	
 	@Resource
 	private UserMapper userMapper;	
+	
 	/**
 	 * 根据用户id获取用户
 	 * @param userId
 	 * @return 存在则返回对应用户,不存在则返回空
 	 */
 	public User queryById(int userId) {
-		return userMapper.selectByPrimaryKey(userId);
+		lOGGER.log(Level.DEBUG, "正在通过主键[{0}]来查找用户", userId);
+		
+		User user = null;
+		try{
+			user = userMapper.selectByPrimaryKey(userId);
+		}catch(Exception e) {
+			lOGGER.log(Level.ERROR, "通过主键[{0}]来查找用户出错了", userId,e);
+		} 
+		
+		return user;
 	}
 	
 	/**
@@ -38,11 +48,20 @@ public class UserServiceImpl implements UserService{
 		try{
 			users = userMapper.selectAllUser();
 		}catch(Exception e) {
-			lOGGER.log(Level.ERROR, "UserService.queryAllUser 查询出错 ", e);
+			lOGGER.log(Level.ERROR, "UserService.queryAllUser 查询所有用户出错 ", e);
 		}
 		
 		return users;
 	}
 	
-	
+	public int registerUser(User user) {
+		try{
+			//执行插入用户
+			int userId = userMapper.insert(user);
+			
+			
+		}catch(Exception e) {
+			
+		}
+	}
 }

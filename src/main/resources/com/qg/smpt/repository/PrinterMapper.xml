@@ -107,4 +107,7 @@
   <select id="selectPrinter" parameterType="java.lang.Integer" resultMap="printerUserResultMap" >
     select p.id, p.printer_status, up.user_id from printer as p ,user_printer as up where p.id = up.printer_id and p.id = #{id}
   </select>
+  
+  
+  <insert id="addUserPrinterBatch" useGenerateKeys="true"></insert>
 </mapper>
