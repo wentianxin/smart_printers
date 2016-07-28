@@ -1,19 +1,14 @@
 package com.qg.smpt.util;
 
-import java.io.UnsupportedEncodingException;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.catalina.startup.UserConfig;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.InitBinder;
 
 import com.qg.smpt.web.model.Item;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.User;
-import com.qg.smpt.web.service.OrderService;
 import com.qg.smpt.web.service.UserService;
 
 public class OrderBuilder {

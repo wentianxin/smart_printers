@@ -10,8 +10,8 @@ http://www.springframework.org/schema/context/spring-context-3.0.xsd http://www.
 
     <!-- scan the package and the sub package -->
 
-    <context:component-scan base-package="com.qg.smpt.web.controller"/>
-
+    <context:component-scan base-package="com.qg.smpt.web.processor"/>
+	
 
     <!-- don't handle the static resource -->
     <mvc:default-servlet-handler />

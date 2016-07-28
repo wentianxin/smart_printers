@@ -12,6 +12,7 @@ public final class Logger {
     /**
      *
      */
+	
     private static final String FQCN = Logger.class.getName();
 
     private org.slf4j.Logger proxy;
@@ -30,7 +31,6 @@ public final class Logger {
 
     /**
      * Logs the specified message at the ERROR level.
-     *
      * @param msg the specified message
      */
     public void error(final String msg) {
