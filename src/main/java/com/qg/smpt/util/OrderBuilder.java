@@ -5,19 +5,51 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.catalina.startup.UserConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.InitBinder;
+
 import com.qg.smpt.web.model.Item;
 import com.qg.smpt.web.model.Order;
+import com.qg.smpt.web.model.User;
+import com.qg.smpt.web.service.OrderService;
+import com.qg.smpt.web.service.UserService;
 
 public class OrderBuilder {
+	private static final Logger LOGGER = Logger.getLogger(OrderBuilder.class);
+	
+	
+	private UserService userService;
+	
+	private List<User> users = null;
+	private int userCount = 0;
+	
+	
+	public OrderBuilder(UserService userService) {
+		this.userService = userService;
+		init();
+	}
+	
+	private void init(){
+		LOGGER.log(Level.DEBUG, "订单生成器正在初始化商家信息", OrderBuilder.class);
+		users = userService.queryAllUser();
+		if(users != null)
+			userCount = users.size();
+		else
+			users = new ArrayList<>();
+	}
+	
+	
 	private static int num = 0;
 	
 	//公司名称
 	private static String[] companys = {"美团外卖", "饿了吗", "百度淘米", "百度外卖"};
 	
-	//商家信息
-	private static String shops[] = {"麦当劳", "肯德基", "好难吃的地方", "想不出什么地方了"};
-	private static String address[] = {"gogo新天地一楼25号","广大商业区", "广东工业大学饭堂", "地址未知" };
-	private static String contact[] = {"85241523", "84523651", "15521232546", "15622365842"};
+//	//商家信息
+//	private static String shops[] = {"麦当劳", "肯德基", "好难吃的地方", "想不出什么地方了"};
+//	private static String address[] = {"gogo新天地一楼25号","广大商业区", "广东工业大学饭堂", "地址未知" };
+//	private static String contact[] = {"85241523", "84523651", "15521232546", "15622365842"};
 	
 	//菜单
 	private static String dish[] = {"西红柿炒番茄", "葡萄炒木耳", "西瓜炒香蕉", "榴莲鸡蛋", "童子鸡"};
@@ -74,7 +106,7 @@ public class OrderBuilder {
 //		return order;
 //	}
 	
-	public static Order produceOrder()  {
+	public Order produceOrder()  {
 		Order order = new Order();
 		
 		int randomNum = 0;
@@ -85,9 +117,13 @@ public class OrderBuilder {
 		
 		//生成商家信息
 //		randomNum = getRandom(4);
-//		order.setShopName(shops[randomNum]);
-//		order.setFrom(address[randomNum]);
-//		order.setShopContact(contact[randomNum]);
+		if(userCount > 0){
+			randomNum = getRandom(userCount);
+			User u = users.get(randomNum);
+			order.setClientName(u.getUserName());
+			order.setClientAddress(u.getUserAddress());
+			order.setClientTelephone(u.getUserPhone());
+		}
 		
 		//获取订单信息
 		order.setId(getOrderNum());
@@ -112,7 +148,7 @@ public class OrderBuilder {
 		//生成其他付费信息
 		order.setOrderMealFee(getMealCost());
 		order.setOrderDisFee(getdeliveryCost());
-		
+		order.setOrderPreAmount(getRandom(6));
 		return order;
 	}
 	

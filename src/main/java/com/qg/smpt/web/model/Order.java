@@ -63,6 +63,8 @@ public final class Order {
     private String clientAddress;
 
     private String clientTelephone;
+    
+    private boolean hasCompute = false;	//是否已计算总价
 
 
 
@@ -160,7 +162,12 @@ public final class Order {
     }
 
     public Integer getOrderSum() {
-        return orderSum;
+    	if(!hasCompute){
+			orderSum = getTotalCost();
+			hasCompute = true;
+		}
+		
+		return orderSum;
     }
 
     public void setOrderSum(Integer orderSum) {
@@ -251,7 +258,7 @@ public final class Order {
 
         c += orderDisFee;
         c += orderMealFee;
-        setOrderPreAmount(c);
+        c -= orderPreAmount;
         c -= getOrderPreAmount();
 
         return c;
@@ -267,7 +274,7 @@ public final class Order {
         buffer.append("订单编号: " + getId() + "\n");
         buffer.append("下单时间: " + getOrderTime() + "\n");
         buffer.append("预计下单时间: " + getExpectTime() + "\n");
-        buffer.append("备注: " + getOrderContent() + "\n");
+        buffer.append("备注: " + getOrderRemark() + "\n");
         buffer.append("菜单名                                 数量               小计\n");
         for(Item item : items){
             buffer.append(item.toString() + "\n");
@@ -277,11 +284,11 @@ public final class Order {
         buffer.append("优惠额: " + getOrderPreAmount() + "\n");
         buffer.append("合 计: " + getOrderSum() + "\n");
         buffer.append("已付款" + "\n");
-        buffer.append("顾客姓名: " + getClientName() + "\n");
-        buffer.append("送餐地址: " + getClientAddress() + "\n");
-        buffer.append("电话: " + getClientTelephone() + "\n");
+        buffer.append("顾客姓名: " + getUserName() + "\n");
+        buffer.append("送餐地址: " + getUserAddress() + "\n");
+        buffer.append("电话: " + getUserTelephone() + "\n");
         buffer.append("商家地址: " + getUserAddress() + "\n");
-        buffer.append("联系方式: " + getUserAddress() + "\n");
+        buffer.append("联系方式: " + getClientTelephone() + "\n");
         return buffer.toString();
 
     }

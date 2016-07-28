@@ -1,4 +1,4 @@
-package com.qg.smpt.web.service;
+package com.qg.smpt.web.service.impl;
 
 import java.util.List;
 
@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.repository.OrderMapper;
+import com.qg.smpt.web.service.OrderService;
 
 
 
