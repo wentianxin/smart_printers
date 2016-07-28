@@ -2,15 +2,23 @@ package com.qg.smpt.printer;
 
 import com.qg.smpt.printer.model.*;
 import com.qg.smpt.share.ShareMem;
+import com.qg.smpt.util.DebugUtil;
 import com.qg.smpt.util.Level;
 import com.qg.smpt.util.Logger;
 import com.qg.smpt.web.model.BulkOrder;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
 import com.qg.smpt.web.repository.PrinterMapper;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -25,11 +33,11 @@ import static java.lang.System.currentTimeMillis;
  * 打印机的线程调度：将缓存队列中数据组装并发送到给打印机，将缓存队列转发到已发队列
  * Created by tisong on 7/21/16.
  */
-public class PrinterProcessor implements Runnable, Lifecycle{
-    @Resource
-    private PrinterMapper printerMapper;
 
-    private final Logger LOGGER = Logger.getLogger(PrinterConnector.class);
+
+public class PrinterProcessor implements Runnable, Lifecycle{
+
+    private final Logger LOGGER = Logger.getLogger(PrinterProcessor.class);
 
     private Thread thread = null;
 
@@ -42,7 +50,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
     private long waitTime;
 
     // TODO 关于字节数组分配过下,而导致需要两次调用的问题
-    private ByteBuffer byteBuffer = ByteBuffer.allocate(2048);
+    private ByteBuffer byteBuffer;
 
     private boolean available;   // 唤醒线程池中的线程的标志
 
@@ -54,6 +62,18 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
     private SocketChannel socketChannel;
 
+    private final static SqlSessionFactory sqlSessionFactory;
+    static {
+        String resource = "mybatis/mybatis-config.xml";
+        Reader reader = null;
+        try {
+            reader = Resources.getResourceAsReader(resource);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+
+        }
+        sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
+    }
     public PrinterProcessor(int id, PrinterConnector printerConnector) {
         this.id = id;
         this.threadName = "PrinterProcessor[" + printerConnector.getPort() + "][" + id + "}";
@@ -61,6 +81,8 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         this.sendAvailable = false;
         this.started = false;
         this.started = false;
+
+
     }
 
     public void start() throws LifecycleException{
@@ -99,7 +121,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                 continue;
             }
 
-            parseData(socketChannel);
+            parseData(socketChannel, this.byteBuffer);
         }
     }
 
@@ -132,7 +154,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
      * 唤醒线程池中睡眠的线程
      * @param sc
      */
-    public synchronized void assign(SocketChannel sc) {
+    public synchronized void assign(SocketChannel sc, ByteBuffer byteBuffer) {
 
         // 根据不同的请求数据进行不同的处理
         // 1. 第一次请求：建立用户与打印机关系；
@@ -155,55 +177,53 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
         this.socketChannel = sc;
 
+        this.byteBuffer = byteBuffer;
+
         notifyAll();
     }
 
     /**
      * 解析数据
      */
-    private void parseData(SocketChannel socketChannel){
+    private void parseData(SocketChannel socketChannel, ByteBuffer byteBuffer){
 
         LOGGER.log(Level.DEBUG, "printerProcessor [{0}] parse data", this);
 
-        try {
-            byteBuffer.clear();
+        // 将byteBuffer 中的字节数组进行提取
+        byte[] bytes = byteBuffer.array();
 
-            socketChannel.read(byteBuffer);
+        DebugUtil.printBytes(bytes);
 
-            byteBuffer.flip();
+        if (bytes[0] == (byte)0xCF && bytes[1] == (byte)0xFC) {
+            switch (bytes[2]) {
+                case BConstants.connectStatus :
+                    LOGGER.log(Level.DEBUG, "打印机 发送连接数据，初始化打印机对象和打印机对象所拥有的缓存批次订单队列，异常订单队列，打印机处理线程 thread [{0}]", this.getId());
+                    parseConnectStatus(bytes);
+                    break;
+                case BConstants.okStatus:
+                    LOGGER.log(Level.DEBUG, "打印机 发送过来可以请求数据 thread [{0}] ", this.getId());
+                    parseOkStatus(bytes, socketChannel);
+                    break;
+                case BConstants.orderStatus:
+                    LOGGER.log(Level.DEBUG, "打印机 接收订单状态数据 thread [{0}] ", this.getId());
+                    parseOrderStatus(bytes, socketChannel);
+                    break;
+                case BConstants.bulkStatus:
+                    LOGGER.log(Level.DEBUG, "打印机 接收批次状态数据 thread [{1}] ", this.getId());
+                    parseBulkStatus(bytes);
+                    break;
 
-            // 将byteBuffer 中的字节数组进行提取
-            byte[] bytes = byteBuffer.array();
-
-            LOGGER.log(Level.DEBUG, "printerProcessor receive bytes is: [{0}] ", bytes.toString());
-
-            if (bytes[0] == (byte)0xCF && bytes[1] == (byte)0xFC) {
-                switch (bytes[2]) {
-                    case BConstants.connectStatus :
-                        LOGGER.log(Level.DEBUG, "打印机发送连接数据，初始化打印机对象和打印机对象所拥有的缓存批次订单队列，异常订单队列，打印机处理线程");
-                        parseConnectStatus(bytes);
-                        break;
-                    case BConstants.okStatus:
-                        LOGGER.log(Level.DEBUG, "客户端发送过来可以请求数据");
-                    	parseOkStatus(bytes, socketChannel);
-                    	break;
-                    case BConstants.orderStatus:
-                        LOGGER.log(Level.DEBUG, "接收订单状态数据");
-                    	parseOrderStatus(bytes, socketChannel);
-                    	break;
-                    case BConstants.bulkStatus:
-                        LOGGER.log(Level.DEBUG, "接收打印机状态数据");
-                    	parseBulkStatus(bytes);
-                    	break;
-
-                    case BConstants.printStatus:
-
-                    default:
-                }
+                case BConstants.printStatus:
+                    LOGGER.log(Level.DEBUG, "打印机 [{0}] 接收打印机状态数据 thread [{1}] ", this.getId());
+                    break;
+                default:
+                    LOGGER.log(Level.WARN, "打印机 [{0}] 发送状态数据 thread [{1}] 错误", this.getId());
+                    return ;
             }
-        } catch (IOException e) {
-
+        } else {
+            LOGGER.log(Level.INFO, "收到无效数据");
         }
+
     }
 
     /**
@@ -211,7 +231,12 @@ public class PrinterProcessor implements Runnable, Lifecycle{
      * @param bytes
      */
     private void parseConnectStatus(byte[] bytes) {
+        DebugUtil.printBytes(bytes);
+
         BRequest bRequest = BRequest.bytesToRequest(bytes);
+
+        LOGGER.log(Level.DEBUG, "打印机id [{0}], 发送时间戳 [{1}], 校验和 [{2}], 标志位 [{3}]",
+                bRequest.printerId, bRequest.seconds, bRequest.checkSum, bRequest.flag);
 
         int printerId = bRequest.printerId;
 
@@ -221,7 +246,14 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         printer = ShareMem.printerIdMap.get(printerId);
         if (printer == null) {
             // id - printer 建立在商家注册时 进行建立
-            printer = printerMapper.selectPrinter(printerId);
+
+            SqlSession sqlSession = sqlSessionFactory.openSession();
+            try {
+                PrinterMapper printerMapper = sqlSession.getMapper(PrinterMapper.class);
+                printer = printerMapper.selectPrinter(printerId);
+            } finally {
+                sqlSession.close();
+            }
             if (printer == null) {
                 LOGGER.log(Level.ERROR, "打印机信息并未注册[{0}]", printerId);
                 return ;
@@ -260,13 +292,17 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
     private synchronized void parseOkStatus(byte[] bytes, SocketChannel socketChannel) {
     	// 解析OK请求
+
+        DebugUtil.printBytes(bytes);
+
         BRequest request = BRequest.bytesToRequest(bytes);
+
 
         // 获取打印机主控板id,获取打印机
         int printerId = request.printerId;
 
         LOGGER.log(Level.DEBUG, "解析请求打印机请求id:[{0}], flag:[{1}]," +
-                "seconds:[{2}];checksum[{3}];" + request.printerId, request.flag, request.seconds,
+                "seconds:[{2}];checksum [{3}];" + request.printerId, request.flag, request.seconds,
                 request.checkSum);
 
         Printer p = ShareMem.printerIdMap.get(printerId);
@@ -379,6 +415,8 @@ public class PrinterProcessor implements Runnable, Lifecycle{
     }
 
     private void parseOrderStatus(byte[] bytes, SocketChannel socketChannel) {
+        DebugUtil.printBytes(bytes);
+
         BOrderStatus bOrderStatus = BOrderStatus.bytesToOrderStatus(bytes);
 
         if ( (byte)(bOrderStatus.flag & 0xFF) == BConstants.bulkStatus) {
@@ -470,6 +508,8 @@ public class PrinterProcessor implements Runnable, Lifecycle{
     }
 
     private void parseBulkStatus(byte[] bytes) {
+        DebugUtil.printBytes(bytes);
+
         BBulkStatus bBulkStatus = BBulkStatus.bytesToBulkStatus(bytes);
 
         if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
@@ -483,4 +523,8 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         }
     }
 
+
+    public int getId() {
+        return id;
+    }
 }

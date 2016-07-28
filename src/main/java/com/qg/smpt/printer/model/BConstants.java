@@ -13,9 +13,9 @@ public final class BConstants {
 
     public static final short bulkOrderEnd = (short)0xaa55;
 
-    public static final short statusStart = (short)0xFCCF;
+    public static final short statusStart = (short)0xCFFC;
 
-    public static final short statusEnd   = (short)0xCFFC;
+    public static final short statusEnd   = (short)0xFCCF;
 
     public static final short textStart = (short)0xFF7E;
 
@@ -27,25 +27,25 @@ public final class BConstants {
 
 
     /* 请求类型 */
-    public static final byte bulkStatus = (byte)0x0;   // 批次状态
+    public static final byte bulkStatus = (byte)0x00;   // 批次状态
 
     public static final byte okStatus = (byte)0x80;     // 阈值请求
 
-    public static final byte printStatus = (byte)0x2;  // 打印机状态
+    public static final byte printStatus = (byte)0x40;  // 打印机状态
 
-    public static final byte orderStatus = (byte)0x4;  // 订单状态
+    public static final byte orderStatus = (byte)0x20;  // 订单状态
 
-    public static final byte connectStatus = (byte)0x6;// 连接请求 请求数据报
+    public static final byte connectStatus = (byte)0x60;// 连接请求 请求数据报
 
     /* 订单状态 STA */
-    public static final byte orderFail = (byte)0x8;
+    public static final byte orderFail = (byte)0x01;
 
-    public static final byte orderSucc = (byte)0x0;
+    public static final byte orderSucc = (byte)0x00;
 
     /* 批次订单状态 */
-    public static final byte bulkSucc  = (byte)0x0;
+    public static final byte bulkSucc  = (byte)0x00;
 
-    public static final byte bulkFail = (byte)0x8;
+    public static final byte bulkFail = (byte)0x01;
 
 
 

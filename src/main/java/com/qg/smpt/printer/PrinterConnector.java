@@ -2,9 +2,12 @@ package com.qg.smpt.printer;
 
 import com.qg.smpt.util.Level;
 import com.qg.smpt.util.Logger;
+import com.qg.smpt.web.repository.PrinterMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -79,7 +82,6 @@ public class PrinterConnector implements Runnable, Lifecycle{
         }
     }
 
-
     public void start() throws LifecycleException{
         if (started) {
             throw new LifecycleException("printerConnector alreadyStarted");
@@ -141,8 +143,14 @@ public class PrinterConnector implements Runnable, Lifecycle{
                             // 当有多个 SocketChannel时, 会自动筛选哪一个SocketChannel 触发了事件
                             // 1. 连接后的一个请求：将打印机id-主控板（用户）id绑定，将打印机id-SocketChannel绑定
                             PrinterProcessor processor = createProcessor();
-                            LOGGER.log(Level.DEBUG, "ServerSocket accpet read requestion， alloate a printerProcessor thread {[0]}", processor);
-                            processor.assign((SocketChannel) key.channel());
+                            LOGGER.log(Level.DEBUG, "ServerSocket accpet read requestion， alloate a printerProcessor thread [{0}]", processor.getId());
+                            SocketChannel sc = (SocketChannel) key.channel();
+                            ByteBuffer byteBuffer = ByteBuffer.allocate(20);
+                            byteBuffer.clear();
+                            sc.read(byteBuffer);
+                            byteBuffer.flip();
+
+                            processor.assign((SocketChannel)key.channel(), byteBuffer);
                             break;
                         default: // something was wrong
                             LOGGER.log(Level.ERROR, "ServerSocket 出现未知情况");

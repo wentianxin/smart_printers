@@ -12,11 +12,11 @@ public class AbstactStatus {
 
     public short flag;
 
-    protected int line1;
+    public int line1;
 
-    protected int line2;
+    public int line2;
 
-    protected int line3;
+    public int line3;
 
     public short checkSum;
 
@@ -37,6 +37,34 @@ public class AbstactStatus {
 
         return as;
     }
+
+    /**
+     * 测试使用
+     * @param abstactStatus
+     * @return
+     */
+    public static byte[] abstratcStatusToBytes(AbstactStatus abstactStatus) {
+        byte[] bytes = new byte[20];
+
+        int position = 0;
+
+        position = BytesConvert.fillShort(abstactStatus.start, bytes, 0);
+
+        position = BytesConvert.fillShort(abstactStatus.flag, bytes, position);
+
+        position = BytesConvert.fillInt(abstactStatus.line1, bytes, position);
+
+        position = BytesConvert.fillInt(abstactStatus.line2, bytes, position);
+
+        position = BytesConvert.fillInt(abstactStatus.line3, bytes, position);
+
+        position = BytesConvert.fillShort(abstactStatus.checkSum, bytes, position);
+
+        BytesConvert.fillShort(abstactStatus.end, bytes, position);
+
+        return bytes;
+    }
+
 
     public static void main(String[] args) {
 

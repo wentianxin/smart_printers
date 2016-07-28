@@ -9,6 +9,11 @@ import com.qg.smpt.util.Logger;
 import com.qg.smpt.web.model.BulkOrder;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
+import com.qg.smpt.web.model.User;
+import com.qg.smpt.web.repository.PrinterMapper;
+import com.qg.smpt.web.repository.UserMapper;
+
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -25,7 +30,17 @@ import java.util.List;
 public class ReceOrderServlet extends HttpServlet {
     private static final Logger LOGGER =  Logger.getLogger(ReceOrderServlet.class);
 
+    @Resource
+    private PrinterMapper printerMapper;
+    @Resource
+    private UserMapper userMapper;
 
+    public void start() {
+        Order order = new Order();
+
+        order.setId(1);
+
+    }
     protected void doGet(Integer userId, Order order) throws ServletException, IOException {
         // 获取商家id
 //        Integer userId = null;
@@ -36,6 +51,35 @@ public class ReceOrderServlet extends HttpServlet {
 //        }
         // 根据商家id获取商家的打印机信息
         List<Printer> printers =  ShareMem.userListMap.get(userId);
+        if (printers == null) {
+
+            synchronized (ShareMem.userIdMap) {
+                User user = null;
+                if (ShareMem.userIdMap.get(userId) == null) {
+                    userMapper.selectUserPrinterMap(userId);
+                    if (user == null) {
+                        LOGGER.log(Level.WARN, "无该商家 [{0}]", userId);
+                        return ;
+                    }
+
+                    ShareMem.userIdMap.put(userId, user);
+                }
+
+                if ( user.getPrinters() == null || user.getPrinters().size() < 1) {
+                    LOGGER.log(Level.WARN, "商家暂时未购买打印机 [{0}]", userId);
+                    return;
+                }
+                else {
+                    printers = user.getPrinters();
+
+                    ShareMem.userListMap.put(user.getId(), user.getPrinters());
+
+                    for(Printer p : user.getPrinters()) {
+                        ShareMem.printerIdMap.put(p.getId(), p);
+                    }
+                }
+            }
+        }
 
         if (printers != null && printers.size() > 0) {
             if (ShareMem.priBufferMapList != null) {
@@ -68,7 +112,7 @@ public class ReceOrderServlet extends HttpServlet {
 
                     if (bOrders.getDataSize() + bOrder.size > Constants.MAX_TRANSFER_SIZE) {
                         // 需要将该订单分发给下一个批次订单
-                        LOGGER.log(Level.DEBUG, "批次容量已满足" + bOrders.getId());
+                        LOGGER.log(Level.DEBUG, "打印机[{0}] 批次容量 [{1}]已满足", printer.getId(), bOrders.getId());
                         bOrders = new BulkOrder(new ArrayList<BOrder>());
                         bOrdersList.add(bOrders);
                         bOrder.inNumber = (short) 0x1;
@@ -87,8 +131,6 @@ public class ReceOrderServlet extends HttpServlet {
                     }
                 }
             }
-        } else {
-            LOGGER.log(Level.ERROR, "商家并未购买打印机");
         }
 
     }
