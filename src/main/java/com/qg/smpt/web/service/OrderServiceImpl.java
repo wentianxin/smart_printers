@@ -12,7 +12,7 @@ import com.qg.smpt.web.repository.OrderMapper;
 
 
 
-@Service("orderService")
+@Service
 public class OrderServiceImpl implements OrderService{
 
 	@Autowired

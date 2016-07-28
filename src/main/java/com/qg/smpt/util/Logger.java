@@ -3,6 +3,7 @@ package com.qg.smpt.util;
 import org.slf4j.LoggerFactory;
 import org.slf4j.spi.LocationAwareLogger;
 
+
 /**
  * Created by tisong on 7/20/16.
  */

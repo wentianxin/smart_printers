@@ -103,7 +103,7 @@ public class OrderBuilder {
 		
 		//生成菜
 		randomNum = getRandom(5) + 1;
-		List<Item> items = new ArrayList<>(randomNum);
+		List<Item> items = new ArrayList<Item>(randomNum);
 		for(int i = 0; i < randomNum; i++){
 			items.add(createItem(i));
 		}
