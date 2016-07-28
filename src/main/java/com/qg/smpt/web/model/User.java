@@ -1,5 +1,7 @@
 package com.qg.smpt.web.model;
 
+import java.util.List;
+
 public class User {
 
     private Integer id;
@@ -22,7 +24,15 @@ public class User {
 
     private String userPhone;
 
+    private List<Printer> printers;
 
+    public void setPrinters(List<Printer> printers) {
+        this.printers = printers;
+    }
+
+    public List<Printer> getPrinters() {
+        return printers;
+    }
 
     public Integer getId() {
         return id;

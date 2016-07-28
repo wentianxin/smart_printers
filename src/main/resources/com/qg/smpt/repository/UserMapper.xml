@@ -13,7 +13,7 @@
     <result column="user_address" property="userAddress" jdbcType="VARCHAR" />
     <result column="user_phone" property="userPhone" jdbcType="VARCHAR" />
   </resultMap>
-  <resultMap id="selectUserPrinterMap" type="com.qg.smpt.web.model.User">
+  <resultMap id="UserPrinterMap" type="com.qg.smpt.web.model.User">
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="user_name" property="userName" jdbcType="VARCHAR" />
     <result column="user_account" property="userAccount" jdbcType="VARCHAR" />
