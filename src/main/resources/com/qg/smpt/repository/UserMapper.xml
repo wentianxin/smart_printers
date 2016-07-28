@@ -24,6 +24,9 @@
   </select>
 
 
+	<select id="selectAllUser" resultMap="BaseReusltMap" parameterType="java.lang.Integer" >
+		select * from user
+	</select>
 
 
 

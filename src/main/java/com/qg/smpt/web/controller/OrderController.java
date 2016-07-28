@@ -8,7 +8,8 @@ import com.qg.smpt.web.model.BulkOrder;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
 import com.qg.smpt.web.service.OrderService;
-import com.qg.smpt.web.service.OrderServiceImpl;
+import com.qg.smpt.web.service.impl.OrderServiceImpl;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
