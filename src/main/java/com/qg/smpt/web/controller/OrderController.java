@@ -23,8 +23,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-@Controller
-@RequestMapping("/orders")
+@Controller@RequestMapping("/orders")
 public class OrderController {
 	private static final Logger LOGGER = Logger.getLogger(JsonUtil.class);
 

@@ -2,12 +2,7 @@ package com.qg.smpt.web.processor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 
-import javax.annotation.Resource;
-import javax.xml.ws.soap.Addressing;
-
-import org.apache.ibatis.javassist.expr.NewArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +28,7 @@ public class OrderController {
 	@Autowired
 	private OrderService orderService;
 	
-	
+
 	/**
 	 * 获取正在打印/未打印的订单状态
 	 * @param userId - 用户id
@@ -47,7 +42,7 @@ public class OrderController {
 		
 		// get printers by userId
 		List<Printer> printers = ShareMem.userListMap.get(userId);
-		
+
 		// check the printers
 		// if has no object, return ""
 		// if has object, install orderList
@@ -58,11 +53,12 @@ public class OrderController {
 		// install orderList
 		List<Order> orderList = installOrders(printers);
 		
-		//编程
+		//convert object to json
 		return JsonUtil.objectToJson(orderList);
 		
 	}
 	
+
 	/**
 	 * 检查打印机集合是否为空
 	 * @param printers 打印机集合
@@ -74,7 +70,7 @@ public class OrderController {
 		
 		return true;
 	}
-	
+
 	/**
 	 * 获取打印机集合中未打印订单和正在打印订单,全部组装到一个订单集合中
 	 * @param printers 打印机集合
@@ -82,12 +78,12 @@ public class OrderController {
 	 */
 	private List<Order> installOrders(List<Printer> printers) {
 		List<Order> orderList = new ArrayList<Order>();
-		
+
 		List<BulkOrder> bulkUnsend = null;	//未发送的批次集合
 		List<BulkOrder> bulkHasSend = null;	//已发送的批次集合
 		List<Order> orderNotTyping = null;
 		List<Order> ordersTyping = null;	//正在打印的订单集合
-		
+
 		// foreach printers to install orderList
 		for(Printer p : printers) {
 			bulkUnsend = ShareMem.priBufferMapList.get(p);
@@ -98,7 +94,7 @@ public class OrderController {
 				orderNotTyping = bulk.getOrders();
 				fillOrders(orderNotTyping, orderList);
 			}
-			
+
 			// filling typing orders
 			for(BulkOrder bulk : bulkHasSend) {
 				ordersTyping = bulk.getOrders();
@@ -109,7 +105,8 @@ public class OrderController {
 		
 		return orderList;
 	}
-	
+
+
 	/**
 	 * 将源集合的元素添加到目的集合中
 	 * @param srcList	源订单集合
@@ -118,12 +115,12 @@ public class OrderController {
 	private void fillOrders(List<Order> srcList, List<Order> descList) {
 		descList.addAll(srcList);
 	}
-	
-	
+
 	/**
 	 * 通过用户id获取商家的已打印的订单
 	 * @return
 	 */
+
 	@RequestMapping(value="/typed", method=RequestMethod.GET, produces="application/json;charset=UTF-8")
 	@ResponseBody
 	public String queryTypedOrders(int userId) {
@@ -136,4 +133,5 @@ public class OrderController {
 	
 	
 }
+
 
