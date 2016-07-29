@@ -109,5 +109,5 @@
   </select>
   
   
-  <insert id="addUserPrinterBatch" useGenerateKeys="true"></insert>
+  <!-- <insert id="addUserPrinterBatch" useGenerateKeys="true"></insert> -->
 </mapper>
