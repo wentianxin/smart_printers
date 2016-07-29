@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  * 订单
@@ -18,6 +19,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 //@JsonIgnoreProperties({"mpu","items","data", "isConvert", "orderTime", "orderRemark", "orderMealFee",
 //	"orderPreAmount", "orderPayStatus", "orderDisFee","orderPreAmount","orderSum","userName", 
 //	"userAddress", "userTelephone", "orderContent", "company", "expectTime"})
+@JsonSerialize(using=OrderSerializer.class)
 public final class Order {
     private int mpu;             //主控板id
 

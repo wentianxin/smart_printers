@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService{
 	
 
 	@Transactional(rollbackFor=Exception.class)
-	public String registerUser(User user) {
+	public String registerUser(User user) throws RuntimeException {
 		try{
 			//执行插入用户
 			int userId = userMapper.insert(user);
@@ -82,12 +82,21 @@ public class UserServiceImpl implements UserService{
 		}catch(Exception e) {
 			lOGGER.log(Level.ERROR, "注册用户失败了", e);
 			
-			return Constant.ERROR;
+			throw(new RuntimeException("注册用户时出现了错误"));
 		}
 	}
 	
-	public int login() {
-		return 0;
+	public User login(User user) {
+		User loginUser = null;
+		try{
+			
+			loginUser = userMapper.selectByLogin(user);
+			
+		}catch(Exception e) {
+			lOGGER.log(Level.ERROR, "userService.login(),用户登录时出现错误", e);
+		}
+		
+		return loginUser;
 	}
 
 }

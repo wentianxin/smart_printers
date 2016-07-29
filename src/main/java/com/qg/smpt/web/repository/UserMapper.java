@@ -18,6 +18,8 @@ public interface UserMapper {
     User selectByPrimaryKey(Integer id);
     
     List<User> selectAllUser();
+    
+    User selectByLogin(User user);
 
     int updateByPrimaryKeySelective(User record);
 

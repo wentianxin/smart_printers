@@ -29,5 +29,5 @@ public interface UserService {
 	 * 用户登录
 	 * @return 
 	 */
-	public int login() ;
+	public User login(User user) ;
 }

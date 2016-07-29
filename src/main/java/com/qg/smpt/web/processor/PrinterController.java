@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,6 +18,7 @@ import com.qg.smpt.util.Level;
 import com.qg.smpt.util.Logger;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
+import com.qg.smpt.web.model.User;
 
 @Controller
 public class PrinterController {
@@ -22,7 +26,13 @@ public class PrinterController {
 	
 	@RequestMapping(value="/printer", method=RequestMethod.GET, produces="application/json;charset=UTF-8")
 	@ResponseBody
-	public String seePrinterStatus(Integer userId) {
+	public String seePrinterStatus(HttpServletRequest request) {
+		
+		// 从session中获取用户
+		HttpSession session = request.getSession();
+		User user = (User) session.getAttribute("user");
+		int userId = ((user != null) ? user.getId() : 0);
+		
 		// 根据用户id获取打印机
 		List<Printer> printers = ShareMem.userListMap.get(userId);
 		
@@ -32,7 +42,7 @@ public class PrinterController {
 		
 		String json = JsonUtil.objectToJson(map);
 		
-		LOGGER.log(Level.DEBUG, "转化后的json数据为[{0}]", json);
+		LOGGER.log(Level.DEBUG, "查看打印机状态 转化后的json数据为[{0}]", json);
 		
 		return json;
 	}
