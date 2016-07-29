@@ -54,14 +54,14 @@ public class UserServiceImpl implements UserService{
 		return users;
 	}
 	
-	public int registerUser(User user) {
-		try{
-			//执行插入用户
-			int userId = userMapper.insert(user);
-			
-			
-		}catch(Exception e) {
-			
-		}
-	}
+//	public int registerUser(User user) {
+//		try{
+//			//执行插入用户
+//			int userId = userMapper.insert(user);
+//
+//
+//		}catch(Exception e) {
+//
+//		}
+//	}
 }
