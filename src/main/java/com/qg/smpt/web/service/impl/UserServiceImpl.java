@@ -62,6 +62,7 @@ public class UserServiceImpl implements UserService{
 		return users;
 	}
 	
+
 	@Transactional(rollbackFor=Exception.class)
 	public String registerUser(User user) {
 		try{
@@ -88,4 +89,5 @@ public class UserServiceImpl implements UserService{
 	public int login() {
 		return 0;
 	}
+
 }

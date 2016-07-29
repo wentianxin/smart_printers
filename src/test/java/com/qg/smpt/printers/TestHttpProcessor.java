@@ -1,9 +1,11 @@
 package com.qg.smpt.printers;
 
 import com.qg.smpt.printer.model.AbstactStatus;
+import com.qg.smpt.printer.model.BBulkOrder;
 import com.qg.smpt.printer.model.BConstants;
 import com.qg.smpt.util.BytesConvert;
 import com.qg.smpt.util.DebugUtil;
+import com.qg.smpt.web.model.BulkOrder;
 
 import java.io.*;
 import java.net.Socket;
@@ -32,14 +34,33 @@ public class TestHttpProcessor {
                 outputStream.write(bytes);
                 outputStream.flush();
             }
-            if (s.equals("ok")) {
+            else if (s.equals("ok")) {
                 bytes = buildAbstractStatus( (short) ( (BConstants.okStatus << 8) & 0xFFFF) );
                 outputStream.write(bytes);
                 outputStream.flush();
+
+
             }
+            else if (s.equals("bulk")) {
+                bytes = buildAbstractStatus( (short) ( ( (BConstants.bulkStatus << 8) & 0xFFFF) | 0x1 ));
+                outputStream.write(bytes);
+                outputStream.flush();
 
-            DataInputStream input = new DataInputStream(socket.getInputStream());
+            }
+            else {
 
+                byte[] byte4 = new byte[4];
+                int i = 0;
+                while (inputStream.read(byte4) != -1) {
+                    StringBuffer stringBuffer = new StringBuffer();
+                    for (int j = 0; j < 4; j++)
+                        stringBuffer.append(Integer.toHexString(byte4[j] & 0xFF) + " | ");
+                    System.out.println("第" + i + "字节 ： " + stringBuffer.toString());
+                    i++;
+                }
+                i = 0;
+                //DebugUtil.printBytes(byte4);
+            }
 
         }
     }

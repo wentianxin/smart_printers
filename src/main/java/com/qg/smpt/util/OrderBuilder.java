@@ -1,6 +1,8 @@
 package com.qg.smpt.util;
 
 
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,18 +11,29 @@ import java.util.List;
 import com.qg.smpt.web.model.Item;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.User;
+import com.qg.smpt.web.repository.UserMapper;
 import com.qg.smpt.web.service.UserService;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 public class OrderBuilder {
 	private static final Logger LOGGER = Logger.getLogger(OrderBuilder.class);
 	
 	
+
+
 	private UserService userService;
+
 	
 	private List<User> users = null;
 	private int userCount = 0;
 	
-	
+	public OrderBuilder() {
+		init();
+	}
+
 	public OrderBuilder(UserService userService) {
 		this.userService = userService;
 		init();
@@ -28,7 +41,17 @@ public class OrderBuilder {
 	
 	private void init(){
 		LOGGER.log(Level.DEBUG, "订单生成器正在初始化商家信息", OrderBuilder.class);
-		users = userService.queryAllUser();
+
+		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryBuild.getSqlSessionFactory();
+		SqlSession sqlSession = sqlSessionFactory.openSession();
+		try {
+			UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+
+			users = userMapper.selectAllUser();
+		} finally {
+			sqlSession.close();
+		}
+
 		if(users != null)
 			userCount = users.size();
 		else
@@ -144,6 +167,8 @@ public class OrderBuilder {
 		order.setOrderMealFee(getMealCost());
 		order.setOrderDisFee(getdeliveryCost());
 		order.setOrderPreAmount(getRandom(6));
+		order.setOrderPayStatus("1");
+		order.setOrderStatus("1");
 		return order;
 	}
 	
