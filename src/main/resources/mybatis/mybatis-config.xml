@@ -26,5 +26,7 @@
     </environments>
     <mappers>
         <mapper resource="com/qg/smpt/repository/PrinterMapper.xml" />
+        <mapper resource="com/qg/smpt/repository/OrderMapper.xml" />
+        <mapper resource="com/qg/smpt/repository/UserMapper.xml" />
     </mappers>
 </configuration>
