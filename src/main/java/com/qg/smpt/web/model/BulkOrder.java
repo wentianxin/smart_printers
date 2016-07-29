@@ -3,8 +3,12 @@ package com.qg.smpt.web.model;
 import com.qg.smpt.printer.model.BBulkOrder;
 import com.qg.smpt.printer.model.BOrder;
 import com.qg.smpt.util.BytesConvert;
-import com.sun.org.apache.xpath.internal.operations.Or;
+import com.qg.smpt.util.Level;
+import com.qg.smpt.util.Logger;
 
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -12,9 +16,12 @@ import java.util.List;
  * Created by tisong on 7/20/16.
  */
 public final class BulkOrder {
+
+    private final static Logger LOGGER = Logger.getLogger(BulkOrder.class);
+
     private int id;
 
-    private int UserId;
+    private int userId;
 
     private List<BOrder> bOrders = null;
 
@@ -28,11 +35,15 @@ public final class BulkOrder {
     public BulkOrder(List<BOrder> bOrders) {
         this.dataSize = 0;
         this.bOrders = bOrders;
+        this.orders = new ArrayList<Order>();
+        this.bulkType = 0;
+        //this.userId = userId;
     }
 
     public static BBulkOrder convertBBulkOrder(BulkOrder bulkOrder) {
         BBulkOrder bBulk = new BBulkOrder();
 
+        // 设置订单个数
         bBulk.setOrderNumber((short)bulkOrder.getbOrders().size());
 
         //设置批次编号
@@ -73,6 +84,31 @@ public final class BulkOrder {
     }
 
 
+    public static void convertBulkOrder(BBulkOrder bBulkOrder) {
+        BulkOrder bulkOrder = new BulkOrder(new ArrayList<>());
+
+        bulkOrder.id = bBulkOrder.bulkId;
+        bulkOrder.dataSize = bBulkOrder.size - 20;
+        bulkOrder.bulkType = bBulkOrder.padding0;
+
+        byte[] bytes = bBulkOrder.data;
+
+        int start = 2;
+
+        while (start < bBulkOrder.size - 20) {
+            short orderLength = BytesConvert.bytesToShort(Arrays.copyOfRange(bytes, start, start+4));  // 订单总长度
+
+            BOrder bOrder = BOrder.bytesToOrder(Arrays.copyOfRange(bytes, 24, orderLength));
+
+            try {
+                LOGGER.log(Level.DEBUG, "打印机接收订单数据 : [{0}]", new String( bOrder.data, "gb2312" ) );
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
+            start += orderLength;
+        }
+    }
 
 
     public BulkOrder(int id) {
@@ -96,11 +132,11 @@ public final class BulkOrder {
     }
 
     public int getUserId() {
-        return UserId;
+        return userId;
     }
 
     public void setUserId(int userId) {
-        UserId = userId;
+        this.userId = userId;
     }
 
 

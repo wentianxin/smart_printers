@@ -2,6 +2,8 @@ package com.qg.smpt.printer.model;
 
 import com.qg.smpt.util.BytesConvert;
 
+import java.util.Arrays;
+
 /**
  * 批量订单
  */
@@ -110,8 +112,9 @@ public class BBulkOrder {
 
         position = BytesConvert.fillShort(bBulkOrder.start, bytes, position);
 
+        // 订单个数
         position = BytesConvert.fillShort(bBulkOrder.orderNumber, bytes, position);
-
+        // 批次编号
         position = BytesConvert.fillShort(bBulkOrder.bulkId, bytes, position);
 
         position = BytesConvert.fillShort((short)bBulkOrder.size, bytes, position);
@@ -122,12 +125,40 @@ public class BBulkOrder {
 
         position = BytesConvert.fillShort(bBulkOrder.urg, bytes, position);
 
-        position = BytesConvert.fillByte(bBulkOrder.data, bytes, position);
-
         position = BytesConvert.fillShort(bBulkOrder.padding1, bytes, position);
 
-        BytesConvert.fillShort(bBulkOrder.end, bytes, position);
+        position = BytesConvert.fillShort(bBulkOrder.end, bytes, position);
+
+        BytesConvert.fillByte(bBulkOrder.data, bytes, position);
+
+
 
         return bytes;
+    }
+
+    /**
+     * 客户端打印机测试使用
+     * @param bytes
+     * @return
+     */
+    public static BBulkOrder bytesTobBulkOrder(byte[] bytes) {
+
+        BBulkOrder bBulkOrder = new BBulkOrder();
+
+        bBulkOrder.orderNumber = BytesConvert.bytesToShort(Arrays.copyOfRange(bytes, 2, 4));
+
+        bBulkOrder.bulkId = BytesConvert.bytesToShort(Arrays.copyOfRange(bytes, 4, 6));
+
+        bBulkOrder.seconds = BytesConvert.bytesToInt(Arrays.copyOfRange(bytes, 8, 12));
+
+        bBulkOrder.checkSum = BytesConvert.bytesToShort(Arrays.copyOfRange(bytes, 12, 14));
+
+        bBulkOrder.padding0 = BytesConvert.bytesToShort(Arrays.copyOfRange(bytes, 14, 16));
+
+        bBulkOrder.data = Arrays.copyOfRange(bytes, 17, bytes.length -4);
+
+        bBulkOrder.size = bytes.length;
+
+        return bBulkOrder;
     }
 }
