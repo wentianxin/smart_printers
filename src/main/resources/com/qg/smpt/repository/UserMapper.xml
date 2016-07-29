@@ -63,6 +63,10 @@
   </delete>
 
   <insert id="insert" parameterType="com.qg.smpt.web.model.User" useGeneratedKeys="true">
+   	<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">  
+        SELECT  
+        LAST_INSERT_ID()  
+    </selectKey>
     insert into user (user_name, user_account,
     user_password, user_printers, user_logo,
     user_qrcode, user_store, user_address,

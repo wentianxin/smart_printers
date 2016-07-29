@@ -2,7 +2,9 @@ package com.qg.smpt.util;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonGenerator;
@@ -21,7 +23,7 @@ import com.qg.smpt.printer.PrinterConnector;
  * @author asus2015
  *
  */
-public class JsonUtil<T> {
+public class JsonUtil {
 	private static final Logger LOGGER = Logger.getLogger(JsonUtil.class);
 	private static ObjectMapper mapper = null;
 	
@@ -43,6 +45,18 @@ public class JsonUtil<T> {
         //设置有属性不能映射成PO时不报错  
         mapper.disable(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);  
 
+	}
+	
+	
+	/**
+	 * 改方法用于给json
+	 * @return
+	 */
+	public static String jsonToMap(String key, String json) {
+		Map map = new HashMap<>();
+		map.put(key, json);
+		
+		return objectToJson(map);
 	}
 	
 	public static String objectToJson(Object object) {
@@ -68,12 +82,12 @@ public class JsonUtil<T> {
 		
 	}
 	
-	public T jsonToObject(String json, Class<T> clazz) {
+	public static Object jsonToObject(String json, Class clazz) {
 		LOGGER.log(Level.INFO,  "JsonUtil正在进行JSON转化对象操作");
 			
 			try {
 				
-				T object = (T)mapper.readValue(json, clazz);
+				Object object = mapper.readValue(json, clazz);
 				return object;
 				
 			} catch (JsonParseException e) {

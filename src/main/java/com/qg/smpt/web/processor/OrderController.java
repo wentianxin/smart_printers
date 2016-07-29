@@ -20,6 +20,7 @@ import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
 import com.qg.smpt.web.model.User;
 import com.qg.smpt.web.service.OrderService;
+import com.sun.org.apache.xpath.internal.operations.Or;
 
 
 @Controller
@@ -169,24 +170,32 @@ public class OrderController {
 
 		List<BulkOrder> bulkUnsend = null;	//未发送的批次集合
 		List<BulkOrder> bulkHasSend = null;	//已发送的批次集合
-		List<Order> orderNotTyping = null;
+		List<BulkOrder> bulkError = null;
+		List<Order> ordersNotTyping = null;	//未打印订单
 		List<Order> ordersTyping = null;	//正在打印的订单集合
-
+		List<Order> OrdersError = null;		//异常订单
+		
 		// foreach printers to install orderList
 		for(Printer p : printers) {
 			bulkUnsend = ShareMem.priBufferMapList.get(p);
 			bulkHasSend = ShareMem.priSentQueueMap.get(p);
+			bulkError = ShareMem.priExceQueueMap.get(p);
 			
 			// filling not typing orders
 			for(BulkOrder bulk : bulkUnsend) {
-				orderNotTyping = bulk.getOrders();
-				fillOrders(orderNotTyping, orderList);
+				ordersNotTyping = bulk.getOrders();
+				fillOrders(ordersNotTyping, orderList);
 			}
 
 			// filling typing orders
 			for(BulkOrder bulk : bulkHasSend) {
 				ordersTyping = bulk.getOrders();
 				fillOrders(ordersTyping, orderList);
+			}
+			
+			for(BulkOrder bulk : bulkError) {
+				OrdersError = bulk.getOrders();
+				fillOrders(OrdersError, orderList);
 			}
 			
 		}

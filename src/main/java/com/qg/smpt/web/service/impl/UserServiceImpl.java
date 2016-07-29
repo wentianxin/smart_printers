@@ -5,11 +5,16 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.qg.smpt.util.Level;
 import com.qg.smpt.util.Logger;
+import com.qg.smpt.web.model.Constant;
+import com.qg.smpt.web.model.Printer;
 import com.qg.smpt.web.model.User;
+import com.qg.smpt.web.repository.PrinterMapper;
 import com.qg.smpt.web.repository.UserMapper;
 import com.qg.smpt.web.service.UserService;
 
@@ -18,8 +23,11 @@ public class UserServiceImpl implements UserService{
 	private static final Logger lOGGER = Logger.getLogger(UserServiceImpl.class);
 	
 	
-	@Resource
+	@Autowired
 	private UserMapper userMapper;	
+	
+	@Autowired
+	private PrinterMapper printerMapper;
 	
 	/**
 	 * 根据用户id获取用户
@@ -54,14 +62,30 @@ public class UserServiceImpl implements UserService{
 		return users;
 	}
 	
-	public int registerUser(User user) {
+	@Transactional(rollbackFor=Exception.class)
+	public String registerUser(User user) {
 		try{
 			//执行插入用户
 			int userId = userMapper.insert(user);
 			
+			List<Printer> printers = user.getPrinters();
+			for(Printer p : printers) {
+				p.setUserId(userId);
+				p.setPrinterStatus(String.valueOf((int)(Constant.PRINTER_HEATHY)));
+			}
 			
+			printerMapper.insertPrinterBatch(printers);
+			printerMapper.addUserPrinterBatch(printers);
+			
+			return Constant.SUCCESS;
 		}catch(Exception e) {
+			lOGGER.log(Level.ERROR, "注册用户失败了", e);
 			
+			return Constant.ERROR;
 		}
+	}
+	
+	public int login() {
+		return 0;
 	}
 }

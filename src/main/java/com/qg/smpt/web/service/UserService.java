@@ -17,4 +17,17 @@ public interface UserService {
 	 * @return 返回对应的用户集合
 	 */
 	public List<User> queryAllUser();
+	
+	/**
+	 * 用户注册
+	 * @param user	新用户的注册信息
+	 * @return
+	 */
+	public String  registerUser(User user);
+	
+	/**
+	 * 用户登录
+	 * @return 
+	 */
+	public int login() ;
 }

@@ -109,5 +109,38 @@
   </select>
   
   
-  <insert id="addUserPrinterBatch" useGenerateKeys="true"></insert>
+  <insert id="addUserPrinterBatch" parameterType="java.util.List">
+  	<selectKey resultType="long" keyProperty="id" order="AFTER">  
+        SELECT  
+        LAST_INSERT_ID()  
+    </selectKey>  
+    insert into user_printer 
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+    user_id, printer_id
+    </trim>
+    values  
+    <foreach collection="list" item="item" index="index" separator="," >
+    	<trim prefix="(" suffix=")" suffixOverrides="," >  
+        #{item.userId},#{item.id}
+        </trim>
+    </foreach>
+  </insert>
+  
+  <insert id="insertPrinterBatch" parameterType="java.util.List">
+  	<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">  
+        SELECT  
+        LAST_INSERT_ID()  
+    </selectKey>  
+    insert into printer
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+    	id, printer_status
+    </trim>
+    values  
+    <foreach collection="list" item="item" index="index" separator="," >
+    	<trim prefix="(" suffix=")" suffixOverrides="," >  
+        #{item.id},#{item.printerStatus}
+        </trim>
+    </foreach>
+  </insert>
+  
 </mapper>
