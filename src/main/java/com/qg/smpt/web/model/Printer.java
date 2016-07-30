@@ -15,6 +15,7 @@ public final class Printer {
     private volatile boolean canAccept;      //能否接收数据
     private volatile boolean isBusy;         //true-忙时，false-闲时
     private volatile long lastSendTime;      //上一次发送批次的时间
+    private boolean connected = false;               // 是否建立连接
 
     public Printer() {}
     public Printer(int id){this.id = id;}
@@ -33,6 +34,13 @@ public final class Printer {
             return false;
     }
 
+    public void setConnected(boolean connected) {
+        this.connected = connected;
+    }
+
+    public boolean isConnected() {
+        return connected;
+    }
 
     public int getUserId() {
         return userId;

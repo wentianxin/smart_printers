@@ -30,11 +30,9 @@ public final class Order {
 
     private Integer id;
 
-
     private Date orderTime;
 
     private String orderRemark;
-
 
     private Integer orderMealFee;
 
@@ -68,8 +66,20 @@ public final class Order {
     
     private boolean hasCompute = false;	//是否已计算总价
 
+    private char orderType;  // 0-非加急; 1-加急
 
 
+    public Order() {
+        this.orderType = '0';
+    }
+
+    public void setOrderType(char orderType) {
+        this.orderType = orderType;
+    }
+
+    public char getOrderType() {
+        return orderType;
+    }
 
     public void setItems(List<Item> items) {
         this.items = items;

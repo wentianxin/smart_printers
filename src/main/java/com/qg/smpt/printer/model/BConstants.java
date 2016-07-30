@@ -38,17 +38,56 @@ public final class BConstants {
     public static final byte connectStatus = (byte)0x60;// 连接请求 请求数据报
 
     /* 订单状态 STA */
-    public static final byte orderFail = (byte)0x01;
+    public static final byte orderSucc = (byte)0x00;    // 打印成功
 
-    public static final byte orderSucc = (byte)0x00;
+    public static final byte orderFail = (byte)0x01;    // 打印失败
+
+    public static final byte orderInQueue = (byte)0x2;  // 进入打印队列
+
+    public static final byte orderTyping = (byte)0x3;   // 开始打印
+
+    public static final byte orderDataW = (byte)0x4;    // 数据错误
+
+    public static final byte orderExcep = (byte)0x5;    // 打印成功-之前的异常订单
+
 
     /* 批次订单状态 */
-    public static final byte bulkSucc  = (byte)0x00;
+    public static final byte bulkSucc  = (byte)0x00;    // 批次订单成功
 
-    public static final byte bulkFail = (byte)0x01;
+    public static final byte bulkInBuffer =  (byte)0x01;// 批次订单进入缓冲队列
+
+    public static final byte bulkFail =  (byte)0x02;    // 批次订单失败
 
 
+    /* 打印机状态 */
+    public static final byte printer1 = (byte)0x1;      // 切刀错误
 
+    public static final byte printer2 = (byte)0x2;      // 机盒打开
 
+    public static final byte printer3 = (byte)0x3;      // 纸将用尽
+
+    public static final byte printer4 = (byte)0x4;      // 正在进纸
+
+    public static final byte printer5 = (byte)0x5;      // 机芯高温
+
+    public static final byte printer6 = (byte)0x6;      // 正常状态
+
+    public static final byte printer7 = (byte)0x7;      // 待定
+
+    public static final byte printer8 = (byte)0x8;
+
+    public static final byte printer9 = (byte)0x9;
+
+    public static final byte printerA = (byte)0xA;
+
+    public static final byte printerB = (byte)0xB;      // 待定
+
+    public static final byte printerC = (byte)0xC;      // 普通缓冲区满
+
+    public static final byte printerD = (byte)0xD;      // 紧急缓冲区满
+
+    public static final byte printerE = (byte)0xE;      // 健康状态
+
+    public static final byte printerF = (byte)0xF;      // 亚健康状态
 
 }
