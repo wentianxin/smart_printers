@@ -13,6 +13,8 @@ import java.util.Queue;
  * 全局生命周期的共享对象
  */
 public final class ShareMem {
+	
+	public static Integer currentOrderNum = 0;
 
     public static Map<Integer, User> userIdMap = null;                       // 用户id-用户
 
