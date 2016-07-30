@@ -48,27 +48,27 @@ public class TestOrderController {
 	}
 
 	
-	@Test
-	public void testGetTyped() {
-		try{
+//	@Test
+//	public void testGetTyped() {
+//		try{
 //			request.setParameter("userId", "1");
-			String json = orderController.queryTypedOrders(1);
-			System.out.println(json);
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	@Ignore
-	@Test
-	public void testGetTyping() {
-		try{
-			String json = orderController.queryTpyingOrders(1);
-			System.out.println(json);
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
+//			String json = orderController.queryTypedOrders(1);
+//			System.out.println(json);
+//		}catch(Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
+//
+//	@Ignore
+//	@Test
+//	public void testGetTyping() {
+//		try{
+//			String json = orderController.queryTpyingOrders(1);
+//			System.out.println(json);
+//		}catch(Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 	
 	private void init() {
 		int num = 0;

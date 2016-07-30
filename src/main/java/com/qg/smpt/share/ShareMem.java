@@ -28,10 +28,9 @@ public final class ShareMem {
 
     public static Map<Printer, PrinterProcessor> priPriProcessMap = null;   // 打印机对应的处理线程, 做成动态效果。
                                                                             // 当触发一个读事件时，进行一次线程绑定，触发完毕，解除绑定
+    public static Map<Printer, SocketChannel> priSocketMap = null;          // 打印机-socket
 
     static {
-    	System.out.println("初始化ShareMen信息");
-    	
         userIdMap = new HashMap<Integer, User>();
 
         printerIdMap = new HashMap<Integer, Printer>();
@@ -46,5 +45,6 @@ public final class ShareMem {
 
         priPriProcessMap = new HashMap<Printer, PrinterProcessor>();
 
+        priSocketMap = new HashMap<Printer, SocketChannel>();
     }
 }

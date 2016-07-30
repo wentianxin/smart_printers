@@ -83,11 +83,11 @@ public class TestJackson {
 		System.out.println(json);
 	}
 	
-	@Test
-	public void convert() throws JsonParseException, JsonMappingException, IOException {
-		String name="{\"orderStatus\":\"110\"}";
-		Order order = new JsonUtil<Order>().jsonToObject(name, Order.class);
-		System.out.println(order.getOrderStatus());
-	}
+//	@Test
+//	public void convert() throws JsonParseException, JsonMappingException, IOException {
+//		String name="{\"orderStatus\":\"110\"}";
+//		Order order = new JsonUtil<Order>().jsonToObject(name, Order.class);
+//		System.out.println(order.getOrderStatus());
+//	}
 
 }

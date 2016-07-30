@@ -1,13 +1,8 @@
 package com.qg.smpt.web.service.impl;
 
 import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.apache.tomcat.jni.Thread;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.qg.smpt.receive.ReceOrderServlet;
 import com.qg.smpt.util.Level;
 import com.qg.smpt.util.Logger;

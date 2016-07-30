@@ -1,5 +1,6 @@
 package com.qg.smpt.printer;
 
+import com.qg.smpt.share.ShareMem;
 import com.qg.smpt.util.Level;
 import com.qg.smpt.util.Logger;
 import com.qg.smpt.web.repository.PrinterMapper;
@@ -87,6 +88,7 @@ public class PrinterConnector implements Runnable, Lifecycle{
             throw new LifecycleException("printerConnector alreadyStarted");
         }
 
+
         started = true;
 
         threadName = "PrinterConnector[" + port + "]";
@@ -99,6 +101,8 @@ public class PrinterConnector implements Runnable, Lifecycle{
             PrinterProcessor processor = newProcessor();
             recycle(processor);
         }
+
+
     }
 
     public void stop() {
@@ -138,11 +142,14 @@ public class PrinterConnector implements Runnable, Lifecycle{
                         case SelectionKey.OP_ACCEPT:
                             LOGGER.debug("ServerSocket accpet printer connection");
                             acceptSocket(key);
+                            LOGGER.log(Level.DEBUG, "SocketChannel [{0}}",key.channel().toString());
                             break;
                         case SelectionKey.OP_READ:
                             // 当有多个 SocketChannel时, 会自动筛选哪一个SocketChannel 触发了事件
                             // 1. 连接后的一个请求：将打印机id-主控板（用户）id绑定，将打印机id-SocketChannel绑定
+
                             PrinterProcessor processor = createProcessor();
+
                             LOGGER.log(Level.DEBUG, "ServerSocket accpet read requestion， alloate a printerProcessor thread [{0}]", processor.getId());
                             SocketChannel sc = (SocketChannel) key.channel();
                             ByteBuffer byteBuffer = ByteBuffer.allocate(20);
@@ -150,6 +157,7 @@ public class PrinterConnector implements Runnable, Lifecycle{
                             sc.read(byteBuffer);
                             byteBuffer.flip();
 
+                            LOGGER.log(Level.DEBUG, "SocketChannel [{0}}",key.channel().toString());
                             processor.assign((SocketChannel)key.channel(), byteBuffer);
                             break;
                         default: // something was wrong

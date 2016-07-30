@@ -51,13 +51,21 @@ public class TestHttpProcessor {
 
                 byte[] byte4 = new byte[4];
                 int i = 0;
-                while (inputStream.read(byte4) != -1) {
-                    StringBuffer stringBuffer = new StringBuffer();
-                    for (int j = 0; j < 4; j++)
-                        stringBuffer.append(Integer.toHexString(byte4[j] & 0xFF) + " | ");
-                    System.out.println("第" + i + "字节 ： " + stringBuffer.toString());
-                    i++;
-                }
+
+                byte[] t = new byte[1024];
+                inputStream.read(t);
+//
+//                while (inputStream.read(byte4) != -1) {
+//                    StringBuffer stringBuffer = new StringBuffer();
+//                    for (int j = 0; j < 4; j++)
+//                        stringBuffer.append(Integer.toHexString(byte4[j] & 0xFF) + " | ");
+//                    System.out.println("第" + i + "字节 ： " + stringBuffer.toString());
+//                    i++;
+//                }
+
+
+
+                System.out.println("接收数据完成");
                 i = 0;
                 //DebugUtil.printBytes(byte4);
             }
