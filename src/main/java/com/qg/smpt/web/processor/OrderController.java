@@ -5,17 +5,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.druid.support.json.JSONUtils;
 import com.qg.smpt.share.ShareMem;
 import com.qg.smpt.util.JsonUtil;
 import com.qg.smpt.util.Level;
 import com.qg.smpt.util.Logger;
 import com.qg.smpt.web.model.BulkOrder;
+import com.qg.smpt.web.model.Constant;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
 import com.qg.smpt.web.model.User;
@@ -83,7 +88,38 @@ public class OrderController {
 	@Autowired
 	private OrderService orderService;
 	
-
+	@RequestMapping(value="/buy", method=RequestMethod.POST, produces="application/json;charset=utf-8")
+	@ResponseBody
+	public String bookOrder(String data,HttpServletRequest request) {
+		// 从session中获取用户
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int userId = ((user != null) ? user.getId() : 0);
+		
+		// 将订单数据转化为订单对象
+		Order order = (Order)JsonUtil.jsonToObject(data, Order.class);
+		
+		// 检查订单信息，无错则执行下订订单，有则返回错误状态
+		String status = (checkOrder(userId, order) ? orderService.bookOrder(userId, order) : Constant.ERROR);
+		
+		return status;
+	}
+	
+	private boolean checkOrder(int userId, Order order) {
+		// 检查订单内容
+		
+		// 检查商家信息
+		User user = ShareMem.userIdMap.get(userId);
+		if(user != null) {
+			order.setClientName(user.getUserName());
+			order.setClientAddress(user.getUserAddress());
+			order.setClientTelephone(user.getUserPhone());
+			return true;
+		}
+		
+		return false;
+	}
+	
 	
 	/**
 	 * 通过用户id获取商家的已打印的订单
@@ -91,7 +127,12 @@ public class OrderController {
 	 */
 	@RequestMapping(value="/typed", method=RequestMethod.GET, produces="application/json;charset=UTF-8")
 	@ResponseBody
-	public String queryTypedOrders(Integer userId) {
+	public String queryTypedOrders(HttpServletRequest request) {
+		// 从session中获取用户
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int userId = ((user != null) ? user.getId() : 0);
+		
 		LOGGER.log(Level.DEBUG, "正在查询 用户[{0}] 的已打印订单", userId);
 		
 		// 根据用户id获取订单
@@ -116,7 +157,13 @@ public class OrderController {
 	 */
 	@RequestMapping(value = "/typing",produces="application/json;charset=UTF-8",method = RequestMethod.GET)
 	@ResponseBody
-	public String queryTpyingOrders(Integer userId) {
+	public String queryTpyingOrders(HttpServletRequest request) {
+		// 从session中获取用户
+		HttpSession session = request.getSession();
+		User user = (User)session.getAttribute("user");
+		int userId = ((user != null) ? user.getId() : 0);
+		
+		
 		// info message
 		LOGGER.log(Level.DEBUG, "正在查询 用户[{0}] 的未打印/正在打印订单", userId);
 		
@@ -193,10 +240,10 @@ public class OrderController {
 				fillOrders(ordersTyping, orderList);
 			}
 			
-			for(BulkOrder bulk : bulkError) {
-				OrdersError = bulk.getOrders();
-				fillOrders(OrdersError, orderList);
-			}
+//			for(BulkOrder bulk : bulkError) {
+//				OrdersError = bulk.getOrders();
+//				fillOrders(OrdersError, orderList);
+//			}
 			
 		}
 		

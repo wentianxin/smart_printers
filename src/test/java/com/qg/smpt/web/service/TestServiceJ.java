@@ -29,6 +29,7 @@ public class TestServiceJ {
     @Test
     public void test1() {
         Printer printer = printerMapper.selectPrinter(1);
+        
     }
 
 }

@@ -17,5 +17,6 @@ public interface OrderService {
 
     public int insertOrder(Order order);
 
+    public String bookOrder(int userId, Order order);
 
 }

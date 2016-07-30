@@ -1,203 +1,216 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.qg.smpt.web.repository.UserMapper" >
-  <resultMap id="BaseResultMap" type="com.qg.smpt.web.model.User" >
-    <id column="id" property="id" jdbcType="INTEGER" />
-    <result column="user_name" property="userName" jdbcType="VARCHAR" />
-    <result column="user_account" property="userAccount" jdbcType="VARCHAR" />
-    <result column="user_password" property="userPassword" jdbcType="VARCHAR" />
-    <result column="user_printers" property="userPrinters" jdbcType="INTEGER" />
-    <result column="user_logo" property="userLogo" jdbcType="VARCHAR" />
-    <result column="user_qrcode" property="userQrcode" jdbcType="VARCHAR" />
-    <result column="user_store" property="userStore" jdbcType="VARCHAR" />
-    <result column="user_address" property="userAddress" jdbcType="VARCHAR" />
-    <result column="user_phone" property="userPhone" jdbcType="VARCHAR" />
-  </resultMap>
-  
-
-  <resultMap id="UserPrinterMap" type="com.qg.smpt.web.model.User">
-    <id column="id" property="id" jdbcType="INTEGER" />
-    <result column="user_name" property="userName" jdbcType="VARCHAR" />
-    <result column="user_account" property="userAccount" jdbcType="VARCHAR" />
-    <result column="user_password" property="userPassword" jdbcType="VARCHAR" />
-    <result column="user_printers" property="userPrinters" jdbcType="INTEGER" />
-    <result column="user_logo" property="userLogo" jdbcType="VARCHAR" />
-    <result column="user_qrcode" property="userQrcode" jdbcType="VARCHAR" />
-    <result column="user_store" property="userStore" jdbcType="VARCHAR" />
-    <result column="user_address" property="userAddress" jdbcType="VARCHAR" />
-    <result column="user_phone" property="userPhone" jdbcType="VARCHAR" />
-    <collection property="printers" ofType="com.qg.smpt.web.model.Printer">
-      <id property="id" column="printer_id"/>
-      <result property="printerStatus" column="printer_status"/>
-    </collection>
-  </resultMap>
-
-  <sql id="Base_Column_List" >
-    id, user_name, user_account, user_password, user_printers, user_logo, user_qrcode,
-    user_store, user_address, user_phone
-  </sql>
-
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select * from user where
-    id = #{id,jdbcType=INTEGER}
-  </select>
+<mapper namespace="com.qg.smpt.web.repository.UserMapper">
+	<resultMap id="BaseResultMap" type="com.qg.smpt.web.model.User">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="user_name" property="userName" jdbcType="VARCHAR" />
+		<result column="user_account" property="userAccount" jdbcType="VARCHAR" />
+		<result column="user_password" property="userPassword"
+			jdbcType="VARCHAR" />
+		<result column="user_printers" property="userPrinters"
+			jdbcType="INTEGER" />
+		<result column="user_logo" property="userLogo" jdbcType="VARCHAR" />
+		<result column="user_qrcode" property="userQrcode" jdbcType="VARCHAR" />
+		<result column="user_store" property="userStore" jdbcType="VARCHAR" />
+		<result column="user_address" property="userAddress" jdbcType="VARCHAR" />
+		<result column="user_phone" property="userPhone" jdbcType="VARCHAR" />
+	</resultMap>
 
 
-	<select id="selectAllUser" resultMap="BaseResultMap" >
-		select * from user
+	<resultMap id="UserPrinterMap" type="com.qg.smpt.web.model.User">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="user_name" property="userName" jdbcType="VARCHAR" />
+		<result column="user_account" property="userAccount" jdbcType="VARCHAR" />
+		<result column="user_password" property="userPassword"
+			jdbcType="VARCHAR" />
+		<result column="user_printers" property="userPrinters"
+			jdbcType="INTEGER" />
+		<result column="user_logo" property="userLogo" jdbcType="VARCHAR" />
+		<result column="user_qrcode" property="userQrcode" jdbcType="VARCHAR" />
+		<result column="user_store" property="userStore" jdbcType="VARCHAR" />
+		<result column="user_address" property="userAddress" jdbcType="VARCHAR" />
+		<result column="user_phone" property="userPhone" jdbcType="VARCHAR" />
+		<collection property="printers" ofType="com.qg.smpt.web.model.Printer">
+			<id property="id" column="printer_id" />
+			<result property="printerStatus" column="printer_status" />
+		</collection>
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, user_name, user_account, user_password, user_printers, user_logo,
+		user_qrcode,
+		user_store, user_address, user_phone
+	</sql>
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select * from user where
+		id = #{id,jdbcType=INTEGER}
 	</select>
 
-  <select id="selectUserPrinter" resultMap="UserPrinterMap" parameterType="java.lang.Integer">
-    select u.id, u.user_name, u.user_account, u.user_password, u.user_printers, u.user_logo,
-     u.user_qrcode, u.user_store, u.user_address, u.user_phone, p.id as printer_id, p.printer_status
-    from printer as p, user_printer as up, user as u where up.user_id = #{id} and up.printer_id = p.id;
-  </select>
+
+	<select id="selectAllUser" resultMap="BaseResultMap">
+		select *
+		from user
+	</select>
+
+	<select id="selectUserPrinter" resultMap="UserPrinterMap"
+		parameterType="java.lang.Integer">
+		select u.id, u.user_name, u.user_account, u.user_password, u.user_printers,
+		u.user_logo,
+		u.user_qrcode, u.user_store, u.user_address, u.user_phone, p.id as printer_id,
+		p.printer_status
+		from printer as p, user_printer as up, user as u where up.user_id = #{id}
+		and up.printer_id = p.id;
+	</select>
+
+	<select id="selectByLogin" resultMap="BaseResultMap" parameterType="com.qg.smpt.web.model.User">
+		select * from User where user_account = #{userAccount} and user_password = #{userPassword}
+	</select>
 
 
 
 
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from user
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
 
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
-    delete from user
-    where id = #{id,jdbcType=INTEGER}
-  </delete>
+	<insert id="insert" parameterType="com.qg.smpt.web.model.User"
+		useGeneratedKeys="true">
+		<selectKey resultType="java.lang.Integer" keyProperty="id"
+			order="AFTER">
+			SELECT
+			LAST_INSERT_ID()
+		</selectKey>
+		insert into user (user_name, user_account,
+		user_password, user_printers, user_logo,
+		user_qrcode, user_store, user_address,
+		user_phone)
+		values (#{userName,jdbcType=VARCHAR}, #{userAccount,jdbcType=VARCHAR},
+		#{userPassword,jdbcType=VARCHAR}, #{userPrinters,jdbcType=INTEGER},
+		#{userLogo,jdbcType=VARCHAR},
+		#{userQrcode,jdbcType=VARCHAR}, #{userStore,jdbcType=VARCHAR}, #{userAddress,jdbcType=VARCHAR},
+		#{userPhone,jdbcType=VARCHAR})
+	</insert>
 
-  <insert id="insert" parameterType="com.qg.smpt.web.model.User" useGeneratedKeys="true">
-   	<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">  
-        SELECT  
-        LAST_INSERT_ID()  
-    </selectKey>
-    insert into user (user_name, user_account,
-    user_password, user_printers, user_logo,
-    user_qrcode, user_store, user_address,
-    user_phone)
-    values (#{userName,jdbcType=VARCHAR}, #{userAccount,jdbcType=VARCHAR},
-    #{userPassword,jdbcType=VARCHAR}, #{userPrinters,jdbcType=INTEGER}, #{userLogo,jdbcType=VARCHAR},
-    #{userQrcode,jdbcType=VARCHAR}, #{userStore,jdbcType=VARCHAR}, #{userAddress,jdbcType=VARCHAR},
-    #{userPhone,jdbcType=VARCHAR})
-  </insert>
-
-  <insert id="insertSelective" parameterType="com.qg.smpt.web.model.User" >
-    insert into user
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="userName != null" >
-        user_name,
-      </if>
-      <if test="userAccount != null" >
-        user_account,
-      </if>
-      <if test="userPassword != null" >
-        user_password,
-      </if>
-      <if test="userPrinters != null" >
-        user_printers,
-      </if>
-      <if test="userLogo != null" >
-        user_logo,
-      </if>
-      <if test="userQrcode != null" >
-        user_qrcode,
-      </if>
-      <if test="userStore != null" >
-        user_store,
-      </if>
-      <if test="userAddress != null" >
-        user_address,
-      </if>
-      <if test="userPhone != null" >
-        user_phone,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="userName != null" >
-        #{userName,jdbcType=VARCHAR},
-      </if>
-      <if test="userAccount != null" >
-        #{userAccount,jdbcType=VARCHAR},
-      </if>
-      <if test="userPassword != null" >
-        #{userPassword,jdbcType=VARCHAR},
-      </if>
-      <if test="userPrinters != null" >
-        #{userPrinters,jdbcType=INTEGER},
-      </if>
-      <if test="userLogo != null" >
-        #{userLogo,jdbcType=VARCHAR},
-      </if>
-      <if test="userQrcode != null" >
-        #{userQrcode,jdbcType=VARCHAR},
-      </if>
-      <if test="userStore != null" >
-        #{userStore,jdbcType=VARCHAR},
-      </if>
-      <if test="userAddress != null" >
-        #{userAddress,jdbcType=VARCHAR},
-      </if>
-      <if test="userPhone != null" >
-        #{userPhone,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
+	<insert id="insertSelective" parameterType="com.qg.smpt.web.model.User">
+		insert into user
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="userName != null">
+				user_name,
+			</if>
+			<if test="userAccount != null">
+				user_account,
+			</if>
+			<if test="userPassword != null">
+				user_password,
+			</if>
+			<if test="userPrinters != null">
+				user_printers,
+			</if>
+			<if test="userLogo != null">
+				user_logo,
+			</if>
+			<if test="userQrcode != null">
+				user_qrcode,
+			</if>
+			<if test="userStore != null">
+				user_store,
+			</if>
+			<if test="userAddress != null">
+				user_address,
+			</if>
+			<if test="userPhone != null">
+				user_phone,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="userName != null">
+				#{userName,jdbcType=VARCHAR},
+			</if>
+			<if test="userAccount != null">
+				#{userAccount,jdbcType=VARCHAR},
+			</if>
+			<if test="userPassword != null">
+				#{userPassword,jdbcType=VARCHAR},
+			</if>
+			<if test="userPrinters != null">
+				#{userPrinters,jdbcType=INTEGER},
+			</if>
+			<if test="userLogo != null">
+				#{userLogo,jdbcType=VARCHAR},
+			</if>
+			<if test="userQrcode != null">
+				#{userQrcode,jdbcType=VARCHAR},
+			</if>
+			<if test="userStore != null">
+				#{userStore,jdbcType=VARCHAR},
+			</if>
+			<if test="userAddress != null">
+				#{userAddress,jdbcType=VARCHAR},
+			</if>
+			<if test="userPhone != null">
+				#{userPhone,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
 
 
-  <update id="updateByPrimaryKeySelective" parameterType="com.qg.smpt.web.model.User" >
-    <!--
-      WARNING - @mbggenerated
-      This element is automatically generated by MyBatis Generator, do not modify.
-      This element was generated on Mon Jul 25 16:23:12 CST 2016.
-    -->
-    update user
-    <set >
-      <if test="userName != null" >
-        user_name = #{userName,jdbcType=VARCHAR},
-      </if>
-      <if test="userAccount != null" >
-        user_account = #{userAccount,jdbcType=VARCHAR},
-      </if>
-      <if test="userPassword != null" >
-        user_password = #{userPassword,jdbcType=VARCHAR},
-      </if>
-      <if test="userPrinters != null" >
-        user_printers = #{userPrinters,jdbcType=INTEGER},
-      </if>
-      <if test="userLogo != null" >
-        user_logo = #{userLogo,jdbcType=VARCHAR},
-      </if>
-      <if test="userQrcode != null" >
-        user_qrcode = #{userQrcode,jdbcType=VARCHAR},
-      </if>
-      <if test="userStore != null" >
-        user_store = #{userStore,jdbcType=VARCHAR},
-      </if>
-      <if test="userAddress != null" >
-        user_address = #{userAddress,jdbcType=VARCHAR},
-      </if>
-      <if test="userPhone != null" >
-        user_phone = #{userPhone,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where id = #{id,jdbcType=INTEGER}
-  </update>
+	<update id="updateByPrimaryKeySelective" parameterType="com.qg.smpt.web.model.User">
+		<!-- WARNING - @mbggenerated This element is automatically generated by 
+			MyBatis Generator, do not modify. This element was generated on Mon Jul 25 
+			16:23:12 CST 2016. -->
+		update user
+		<set>
+			<if test="userName != null">
+				user_name = #{userName,jdbcType=VARCHAR},
+			</if>
+			<if test="userAccount != null">
+				user_account = #{userAccount,jdbcType=VARCHAR},
+			</if>
+			<if test="userPassword != null">
+				user_password = #{userPassword,jdbcType=VARCHAR},
+			</if>
+			<if test="userPrinters != null">
+				user_printers = #{userPrinters,jdbcType=INTEGER},
+			</if>
+			<if test="userLogo != null">
+				user_logo = #{userLogo,jdbcType=VARCHAR},
+			</if>
+			<if test="userQrcode != null">
+				user_qrcode = #{userQrcode,jdbcType=VARCHAR},
+			</if>
+			<if test="userStore != null">
+				user_store = #{userStore,jdbcType=VARCHAR},
+			</if>
+			<if test="userAddress != null">
+				user_address = #{userAddress,jdbcType=VARCHAR},
+			</if>
+			<if test="userPhone != null">
+				user_phone = #{userPhone,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
 
-  <update id="updateByPrimaryKey" parameterType="com.qg.smpt.web.model.User" >
-    <!--
-      WARNING - @mbggenerated
-      This element is automatically generated by MyBatis Generator, do not modify.
-      This element was generated on Mon Jul 25 16:23:12 CST 2016.
-    -->
-    update user
-    set user_name = #{userName,jdbcType=VARCHAR},
-    user_account = #{userAccount,jdbcType=VARCHAR},
-    user_password = #{userPassword,jdbcType=VARCHAR},
-    user_printers = #{userPrinters,jdbcType=INTEGER},
-    user_logo = #{userLogo,jdbcType=VARCHAR},
-    user_qrcode = #{userQrcode,jdbcType=VARCHAR},
-    user_store = #{userStore,jdbcType=VARCHAR},
-    user_address = #{userAddress,jdbcType=VARCHAR},
-    user_phone = #{userPhone,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=INTEGER}
-  </update>
-  
+	<update id="updateByPrimaryKey" parameterType="com.qg.smpt.web.model.User">
+		<!-- WARNING - @mbggenerated This element is automatically generated by 
+			MyBatis Generator, do not modify. This element was generated on Mon Jul 25 
+			16:23:12 CST 2016. -->
+		update user
+		set user_name = #{userName,jdbcType=VARCHAR},
+		user_account = #{userAccount,jdbcType=VARCHAR},
+		user_password = #{userPassword,jdbcType=VARCHAR},
+		user_printers = #{userPrinters,jdbcType=INTEGER},
+		user_logo = #{userLogo,jdbcType=VARCHAR},
+		user_qrcode = #{userQrcode,jdbcType=VARCHAR},
+		user_store = #{userStore,jdbcType=VARCHAR},
+		user_address = #{userAddress,jdbcType=VARCHAR},
+		user_phone = #{userPhone,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
 
 
 </mapper>

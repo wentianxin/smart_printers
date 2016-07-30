@@ -26,4 +26,6 @@ public interface PrinterMapper {
     int addUserPrinterBatch(List<Printer> printers);
     
     int insertPrinterBatch(List<Printer> printers);
+    
+    
 }
