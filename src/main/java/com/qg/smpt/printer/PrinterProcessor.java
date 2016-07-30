@@ -371,20 +371,20 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             while (!sendAvailable) {
                 if (ShareMem.priBufferMapList.get(p).size() > 1)
                     break;
-                LOGGER.log(Level.DEBUG, "打印机 [{0}] 的 线程printerConnector[{1}]并不满足发送条件，进入睡眠", printerId, this);
+                LOGGER.log(Level.DEBUG, "打印机 [{0}] 的 线程printerConnector[{1}]并不满足发送条件，进入睡眠", printerId, this.id);
                 wait(waitTime + 1 / 10 * waitTime);
                 LOGGER.log(Level.DEBUG, "线程唤醒时间 [{0}}", System.currentTimeMillis());
                 if (System.currentTimeMillis() - requestTime > 35000) {
-                    LOGGER.log(Level.INFO, "打印机 [{0}] 的 线程printerConnector[{1}]自动睡醒", printerId, this);
+                    LOGGER.log(Level.INFO, "打印机 [{0}] 的 线程printerConnector[{1}]自动睡醒", printerId, this.id);
                     if (ShareMem.priBufferMapList.get(p).size() > 0) {
                         LOGGER.log(Level.INFO, "打印机 [{0}] 的 线程printerConnector[{1}] 发送缓冲区存有批次订单 [{2}] 条, 该批次中有订单数据 [{2}] 条, 容量 [{3}] 字节准备发送",
-                                printerId, this, ShareMem.priBufferMapList.get(p).size(), ShareMem.priBufferMapList.get(p).get(0).getOrders().size(), ShareMem.priBufferMapList.get(p).get(0).getDataSize());
+                                printerId, this.id, ShareMem.priBufferMapList.get(p).size(), ShareMem.priBufferMapList.get(p).get(0).getOrders().size(), ShareMem.priBufferMapList.get(p).get(0).getDataSize());
                         break;
                     }
                 }
             }
         } catch (final InterruptedException e) {
-            LOGGER.log(Level.ERROR, "打印机 [{0}] 的 线程printerConnector[{1}] 睡眠被打断", printerId, this, e);
+            LOGGER.log(Level.ERROR, "打印机 [{0}] 的 线程printerConnector[{1}] 睡眠被打断", printerId, this.id, e);
         }
 
         LOGGER.log(Level.DEBUG, "打印机 [{0}] 解除绑定线程 printerConnector[{1}], 取消可发生状态, printer对象设置为不可接收数据状态", printerId, this);
@@ -398,7 +398,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
         synchronized (ShareMem.priBufferMapList.get(p)) {
             LOGGER.log(Level.DEBUG, "打印机 [{0}] printerConnector[{1}] 锁定打印机缓存队列 [{2}]," +
-                    "从缓存队列中弹出批次订单数据", printerId, this, ShareMem.priBufferMapList.get(p));
+                    "从缓存队列中弹出批次订单数据", printerId, this.id, ShareMem.priBufferMapList.get(p));
             bOrders = ShareMem.priBufferMapList.get(p).get(0);
 
             ShareMem.priBufferMapList.get(p).remove(0);
@@ -407,21 +407,21 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             LOGGER.log(Level.WARN, "打印机 [{0}] printerConnector [{1}} 缓存队列无批次订单数据");
         }
 
-        synchronized (ShareMem.priSentQueueMap.get(p)) {
-            LOGGER.log(Level.DEBUG, "打印机 [{0}] 绑定线程 printerConnector[{1}] 锁定打印机已发队列 [{2}]，" +
-                    "并将批次订单数据加入已发队列中", printerId, this, ShareMem.priSentQueueMap.get(p));
-            List<BulkOrder> bulkOrderList = ShareMem.priSentQueueMap.get(p);
 
-            if (bulkOrderList == null) {
-                bulkOrderList = new ArrayList<BulkOrder>();
-                ShareMem.priSentQueueMap.put(p, bulkOrderList);
-            }
+        LOGGER.log(Level.DEBUG, "打印机 [{0}] 绑定线程 printerConnector[{1}] 锁定打印机已发队列 [{2}]，" +
+                "并将批次订单数据加入已发队列中", printerId, this.id, ShareMem.priSentQueueMap.get(p));
+        List<BulkOrder> bulkOrderList = ShareMem.priSentQueueMap.get(p);
 
-            bulkOrderList.add(bOrders);
+        if (bulkOrderList == null) {
+            bulkOrderList = new ArrayList<BulkOrder>();
+            ShareMem.priSentQueueMap.put(p, bulkOrderList);
         }
 
+        bulkOrderList.add(bOrders);
+
+
         LOGGER.log(Level.DEBUG, "打印机 [{0}] 线程 printerConnector[{1}] 开始转换批次订单数据",
-                printerId, this);
+                printerId, this.id);
         BBulkOrder bBulkOrder = BulkOrder.convertBBulkOrder(bOrders);
         byte[] bBulkOrderBytes = BBulkOrder.bBulkOrderToBytes(bBulkOrder);
 
@@ -446,7 +446,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         }
 
         LOGGER.log(Level.INFO, "打印机 [{0}] 对应 打印机线程 printerProcessor [{1}] 完成订单发送请求; 时间 [{2}]",
-                printerId, this, System.currentTimeMillis());
+                printerId, this.id, System.currentTimeMillis());
     }
 
     /**
@@ -585,6 +585,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             try {
                 orderMapper.insertSelective(order);
             } finally {
+                sqlSession.commit();
                 sqlSession.close();
             }
 
@@ -639,6 +640,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                     orderMapper.insert(bulkOrder.getOrders().get(i));
                 }
             } finally {
+                sqlSession.commit();
                 sqlSession.close();
             }
 

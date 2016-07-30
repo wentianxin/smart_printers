@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -33,56 +34,56 @@ import com.sun.org.apache.xpath.internal.operations.Or;
 public class OrderController {
 	private static final Logger LOGGER = Logger.getLogger(OrderController.class);
 	
-	static {
-		int num = 0;
-		
-		List<Printer> printers = new ArrayList<>();
-		
-		for(int i = 0; i < 5; i++) {
-			//生成打印机信息
-			Printer p = new Printer();
-			p.setId(i);
-			p.setPrinterStatus("110");
-			printers.add(p);
-			
-			//生成未打印批次
-			List<BulkOrder> bulks = new ArrayList<>();
-			for(int k = 0; k < 5; k++) {
-				BulkOrder bulk = new BulkOrder(k);
-				List<Order> notTypeOrder = new ArrayList<>();
-				for(int j = 0; j < 10; j++ ) {
-					Order o = new Order();
-					o.setId(num++);
-					o.setOrderStatus("130");
-					notTypeOrder.add(o);
-				}
-				bulk.setOrders(notTypeOrder);
-				bulks.add(bulk);
-			}
-			ShareMem.priBufferMapList.put(p, bulks);
-			
-			
-			//生成正在打印批次
-			List<BulkOrder> bulksT = new ArrayList<>();
-			for(int k = 0; k < 5; k++) {
-				BulkOrder bulk = new BulkOrder(k);
-				List<Order> TypingOrder = new ArrayList<>();
-				for(int j = 0; j < 10; j++ ) {
-					Order o = new Order();
-					o.setId(num++);
-					o.setOrderStatus("120");
-					TypingOrder.add(o);
-				}
-				bulk.setOrders(TypingOrder);
-				bulksT.add(bulk);
-			}
-			ShareMem.priSentQueueMap.put(p, bulksT);
-			
-			
-		}
-		
-		ShareMem.userListMap.put(1, printers);
-	}
+//	static {
+//		int num = 0;
+//		
+//		List<Printer> printers = new ArrayList<>();
+//		
+//		for(int i = 0; i < 5; i++) {
+//			//生成打印机信息
+//			Printer p = new Printer();
+//			p.setId(i);
+//			p.setPrinterStatus("110");
+//			printers.add(p);
+//			
+//			//生成未打印批次
+//			List<BulkOrder> bulks = new ArrayList<>();
+//			for(int k = 0; k < 5; k++) {
+//				BulkOrder bulk = new BulkOrder(k);
+//				List<Order> notTypeOrder = new ArrayList<>();
+//				for(int j = 0; j < 10; j++ ) {
+//					Order o = new Order();
+//					o.setId(num++);
+//					o.setOrderStatus("130");
+//					notTypeOrder.add(o);
+//				}
+//				bulk.setOrders(notTypeOrder);
+//				bulks.add(bulk);
+//			}
+//			ShareMem.priBufferMapList.put(p, bulks);
+//			
+//			
+//			//生成正在打印批次
+//			List<BulkOrder> bulksT = new ArrayList<>();
+//			for(int k = 0; k < 5; k++) {
+//				BulkOrder bulk = new BulkOrder(k);
+//				List<Order> TypingOrder = new ArrayList<>();
+//				for(int j = 0; j < 10; j++ ) {
+//					Order o = new Order();
+//					o.setId(num++);
+//					o.setOrderStatus("120");
+//					TypingOrder.add(o);
+//				}
+//				bulk.setOrders(TypingOrder);
+//				bulksT.add(bulk);
+//			}
+//			ShareMem.priSentQueueMap.put(p, bulksT);
+//			
+//			
+//		}
+//		
+//		ShareMem.userListMap.put(1, printers);
+//	}
 	
 	
 	@Autowired
@@ -90,27 +91,36 @@ public class OrderController {
 	
 	@RequestMapping(value="/buy", method=RequestMethod.POST, produces="application/json;charset=utf-8")
 	@ResponseBody
-	public String bookOrder(String data,HttpServletRequest request) {
-		// 从session中获取用户
-		HttpSession session = request.getSession();
-		User user = (User)session.getAttribute("user");
-		int userId = ((user != null) ? user.getId() : 0);
+	public String bookOrder(@RequestBody String data,HttpServletRequest request) {
+		LOGGER.log(Level.DEBUG, "前台传来的json数据为 {0}", data);
 		
-		// 将订单数据转化为订单对象
-		Order order = (Order)JsonUtil.jsonToObject(data, Order.class);
-		
-		// 检查订单信息，无错则执行下订订单，有则返回错误状态
-		String status = (checkOrder(userId, order) ? orderService.bookOrder(userId, order) : Constant.ERROR);
-		
-		return status;
+		try{
+			// 从session中获取用户
+			HttpSession session = request.getSession();
+			User user = (User)session.getAttribute("user");
+			int userId = ((user != null) ? user.getId() : 0);
+			
+			// 将订单数据转化为订单对象
+			Order order = (Order)JsonUtil.jsonToObject(data, Order.class);
+			
+			// 检查订单信息，无错则执行下订订单，有则返回错误状态
+			String status = (checkOrder(user, order) ? orderService.bookOrder(userId, order) : Constant.ERROR);
+			
+			return status;
+		}catch(Exception e){
+			return Constant.ERROR;
+		}
 	}
 	
-	private boolean checkOrder(int userId, Order order) {
+	private boolean checkOrder(User user, Order order) {
 		// 检查订单内容
 		
 		// 检查商家信息
-		User user = ShareMem.userIdMap.get(userId);
 		if(user != null) {
+			synchronized(ShareMem.currentOrderNum) {
+				order.setId(++ShareMem.currentOrderNum);
+			}
+			
 			order.setClientName(user.getUserName());
 			order.setClientAddress(user.getUserAddress());
 			order.setClientTelephone(user.getUserPhone());

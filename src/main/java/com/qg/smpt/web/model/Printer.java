@@ -17,8 +17,8 @@ public final class Printer {
     private volatile long lastSendTime;      //上一次发送批次的时间
     private boolean connected = false;               // 是否建立连接
 
-    public Printer() {}
-    public Printer(int id){this.id = id;}
+    public Printer() {this.currentBulk = 0;}
+    public Printer(int id){this.id = id;this.currentBulk = 0;}
 
     @Override
     public boolean equals(Object obj) {

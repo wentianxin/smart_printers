@@ -12,6 +12,7 @@ import org.omg.PortableInterceptor.USER_EXCEPTION;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -35,9 +36,9 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 	
-	@RequestMapping(value="/registerApp", method=RequestMethod.POST, produces="application/json;charset=utf-8" )
+	@RequestMapping(value="/register", method=RequestMethod.POST, produces="application/json;charset=utf-8" )
 	@ResponseBody
-	public String register(String data) {
+	public String register(@RequestBody String data) {
 		User newUser = (User)JsonUtil.jsonToObject(data, User.class);
 		
 		// 检查用户信息是否正确,正确则执行注册用户方法,错误则返回错误状态
@@ -100,36 +101,34 @@ public class UserController {
 		return true;
 	}
 	
-//	@RequestMapping(value="/login", method=RequestMethod.POST, produces="application/json;charset=utf-8" )
-//	@ResponseBody
-//	public String login(String userAccount, String userPassword,  HttpServletRequest request) {
-////		User user = (User)JsonUtil.jsonToObject(data, User.class);
-//		User user = installUser(userAccount, userPassword);
-//		
-//		// check the login infomation is correct
-//		if(!checkInput(user)){
-//			return Constant.ERROR;
-//		}
-//		
-//		// run the login method.
-//		// login successful - return the user
-//		// login fail - return null
-//		User loginUser = userService.login(user);
-//		
-//		// set the login status
-//		String status = (loginUser != null ? Constant.SUCCESS : Constant.ERROR);
-//		
-//		// check the login status
-//		// if success, store the user
-//		if(status.equals(Constant.SUCCESS)) {
-//			 HttpSession session = request.getSession();
-//			 session.setAttribute("user", user);
-//			 ShareMem.userIdMap.put(user.getId(), user);
-//		}
-//		
-////		return JsonUtil.jsonToMap("status", status);
-//		return "order_index";
-//	}
+	@RequestMapping(value="/login", method=RequestMethod.POST, produces="application/json;charset=utf-8" )
+	@ResponseBody
+	public String login(@RequestBody String data,  HttpServletRequest request) {
+		User user = (User)JsonUtil.jsonToObject(data, User.class);
+		
+		// check the login infomation is correct
+		if(!checkInput(user)){
+			return Constant.ERROR;
+		}
+		
+		// run the login method.
+		// login successful - return the user
+		// login fail - return null
+		User loginUser = userService.login(user);
+		
+		// set the login status
+		String status = (loginUser != null ? Constant.SUCCESS : Constant.ERROR);
+		
+		// check the login status
+		// if success, store the user
+		if(status.equals(Constant.SUCCESS)) {
+			 HttpSession session = request.getSession();
+			 session.setAttribute("user", loginUser);
+			 ShareMem.userIdMap.put(loginUser.getId(), loginUser);
+		}
+		
+		return JsonUtil.jsonToMap("status", status);
+	}
 	
 	@RequestMapping(value="/loginW", method=RequestMethod.POST, produces="application/html;charset=utf-8" )
 	public String login(String userAccount, String userPassword,  HttpServletRequest request) {
@@ -153,7 +152,7 @@ public class UserController {
 		if(status.equals(Constant.SUCCESS)) {
 			 HttpSession session = request.getSession();
 			 session.setAttribute("user", loginUser);
-			 ShareMem.userIdMap.put(user.getId(), loginUser);
+//			 ShareMem.userIdMap.put(loginUser.getId(), loginUser);
 			 return "redirect:/webContent/html/order_index.html";
 			 
 		}else{

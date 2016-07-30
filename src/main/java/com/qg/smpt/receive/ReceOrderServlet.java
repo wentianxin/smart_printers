@@ -48,7 +48,7 @@ public class ReceOrderServlet extends HttpServlet {
 //
 //        }
         // 根据商家id获取商家的打印机信息
-
+	  	
         LOGGER.log(Level.DEBUG, "商家 [{0}] 接收订单数据 [{1}]", userId, order.toString());
 
         /* 获取商家信息 ： 检查内存中是否含有商家信息 */
@@ -104,6 +104,7 @@ public class ReceOrderServlet extends HttpServlet {
 
                 for(Printer p : user.getPrinters()) {
                     LOGGER.log(Level.DEBUG, "建立打印机id [{0}]-打印机对象关系", p.getId());
+
                     ShareMem.printerIdMap.put(p.getId(), p);
                 }
             }
@@ -118,12 +119,14 @@ public class ReceOrderServlet extends HttpServlet {
 
         /* 获取打印机对应批次订单容器 */
         List<BulkOrder> bOrdersList = getBulkBuffer(printer);
-
+        
         BulkOrder bOrders = null;
         if (bOrdersList.size() > 0) {
             bOrders = bOrdersList.get(bOrdersList.size() - 1); // 获取容器中最后一个批次订
         } else {
-            bOrders = new BulkOrder(new ArrayList<>());
+            bOrders = new BulkOrder(new ArrayList<BOrder>());
+            bOrders.setId(printer.getCurrentBulk()+1);
+            printer.setCurrentBulk(printer.getCurrentOrder()+1);
             bOrdersList.add(bOrders);
         }
 
@@ -136,16 +139,18 @@ public class ReceOrderServlet extends HttpServlet {
                 return ;
             }
             // 需要将该订单分发给下一个批次订单
-            LOGGER.log(Level.DEBUG, "打印机[{0}] 批次容量 [{1}]已满足", printer.getId(), bOrders.getId());
-            bOrders = new BulkOrder(new ArrayList<BOrder>());
+            LOGGER.log(Level.DEBUG, "打印机[{0}] 第[{1}]批次容量已满足", printer.getId(), bOrders.getId());
+            bOrder.inNumber = (short) 0x1;
+            bOrder.bulkId = (short)bOrders.getId();
 
+            order.setMpu(printer.getId());
+
+            bOrders = new BulkOrder(new ArrayList<BOrder>());
             bOrders.getbOrders().add(bOrder);
             bOrders.getOrders().add(order);
             bOrders.setDataSize(bOrder.size + bOrders.getDataSize());
             bOrders.setId(printer.getCurrentBulk()+1);
             printer.setCurrentBulk(printer.getCurrentBulk()+1);
-
-            bOrder.inNumber = (short) 0x1;
 
             bOrdersList.add(bOrders);
 
@@ -166,13 +171,16 @@ public class ReceOrderServlet extends HttpServlet {
             bOrders.getbOrders().add(bOrder);
             bOrders.getOrders().add(order);
             bOrders.setDataSize( bOrders.getDataSize() + bOrder.size);
-            bOrder.inNumber = (short) 1;
+            bOrder.bulkId = (short)bOrders.getId();
+            bOrder.inNumber = (short)bOrders.getOrders().size();
             order.setMpu(printer.getId());
             LOGGER.log(Level.DEBUG, "不满足唤醒打印机 [{0}] 已睡眠线程的条件, 打印机缓冲队列 [{1}]，" +
-                            "批次订单数 [{2}], 最后批次订单号 [{3}], 最后批次订单容量 [{4}] byte" , printer.getId(),
+                            "批次订单数 [{2}], 最后批次订单号 , 最后批次订单容量 [{3}] byte" , printer.getId(),
                     bOrdersList.size(), bOrders.getId(), bOrders.getDataSize());
+
         }
     }
+
 
     private Printer selectPrinter(List<Printer> printers) {
         // TODO 缺少智能分发算法
@@ -187,9 +195,7 @@ public class ReceOrderServlet extends HttpServlet {
 
             // 创建批次订单容器
             ShareMem.priBufferMapList.put(printer, bOrdersList);
-            BulkOrder bOrders = new BulkOrder(new ArrayList<BOrder>());
-            bOrders.setId(printer.getCurrentBulk()+1);
-            printer.setCurrentBulk(printer.getCurrentOrder()+1);
+
         }
 
         LOGGER.log(Level.DEBUG, "当前打印机缓存批次订单队列长度：[{0}], 获取第[{1}] 个批次订单", bOrdersList.size(), bOrdersList.size());

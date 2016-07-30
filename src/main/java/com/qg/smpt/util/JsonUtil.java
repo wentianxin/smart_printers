@@ -60,7 +60,7 @@ public class JsonUtil {
 	}
 	
 	public static String objectToJson(Object object) {
-		LOGGER.log(Level.INFO,  "JsonUtil正在进行对象转化为JSON操作");
+		LOGGER.log(Level.INFO,  "JsonUtil正在进行对象转化为JSON操作,转化的对象为[{0}]", object.toString());
 		try {
 			
 			String json = mapper.writeValueAsString(object);
@@ -83,7 +83,7 @@ public class JsonUtil {
 	}
 	
 	public static Object jsonToObject(String json, Class clazz) {
-		LOGGER.log(Level.INFO,  "JsonUtil正在进行JSON转化对象操作");
+		LOGGER.log(Level.INFO,  "JsonUtil正在进行JSON转化对象操作,json数据为[{0}], 要转化的对象为[{1}]",json, clazz.toString());
 			
 			try {
 				
