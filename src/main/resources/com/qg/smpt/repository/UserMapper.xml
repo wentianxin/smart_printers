@@ -60,7 +60,7 @@
 		u.user_logo,
 		u.user_qrcode, u.user_store, u.user_address, u.user_phone, p.id as printer_id,
 		p.printer_status
-		from printer as p, user_printer as up, user as u where up.user_id = #{id}
+		from printer as p, user_printer as up, user as u where up.user_id = #{id} AND u.id = up.user_id
 		and up.printer_id = p.id;
 	</select>
 
