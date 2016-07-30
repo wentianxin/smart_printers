@@ -13,13 +13,15 @@ public class BPrinterStatus extends AbstactStatus{
     public int number;    // 主控板打印单元序号
 
     public static BPrinterStatus bytesToPrinterStatus(byte[] bytes) {
-        BPrinterStatus bps = (BPrinterStatus)BPrinterStatus.bytesToAbstractStatus(bytes);
+        AbstactStatus status = AbstactStatus.bytesToAbstractStatus(bytes);
 
-        bps.printerId = bps.line1;
+        BPrinterStatus bps = new BPrinterStatus();
 
-        bps.seconds = bps.line2;
+        bps.printerId = status.line1;
 
-        bps.number = bps.line3;
+        bps.seconds = status.line2;
+
+        bps.number = status.line3;
 
         return bps;
     }
