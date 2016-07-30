@@ -50,24 +50,24 @@ public class TestOrderController {
 	
 	@Test
 	public void testGetTyped() {
-		try{
-//			request.setParameter("userId", "1");
-			String json = orderController.queryTypedOrders(1);
-			System.out.println(json);
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
+//		try{
+////			request.setParameter("userId", "1");
+//			String json = orderController.queryTypedOrders(1);
+//			System.out.println(json);
+//		}catch(Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 	
 	@Ignore
 	@Test
 	public void testGetTyping() {
-		try{
-			String json = orderController.queryTpyingOrders(1);
-			System.out.println(json);
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
+//		try{
+//			String json = orderController.queryTpyingOrders(1);
+//			System.out.println(json);
+//		}catch(Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 	
 	private void init() {
@@ -121,7 +121,7 @@ public class TestOrderController {
 		
 	}
 	
-	@Ignore
+	
 	@Test
 	public void testBuyOrder() {
 		StringBuffer buffer = new StringBuffer();
@@ -137,6 +137,7 @@ public class TestOrderController {
 		buffer.append("\"userAddress\":\"华南农业大学\",");
 		buffer.append("\"userTelephone\":\"18819255400\",");
 		buffer.append("\"items\":[");
+		
 		buffer.append("{\"name\":\"炒猪肉\",\"price\":\"8\",\"count\":\"3\"},");
 		buffer.append("{\"name\":\"蒸饺子\",\"price\":\"7\",\"count\":\"2\"},");
 		buffer.append("{\"name\":\"火龙果\",\"price\":\"4\",\"count\":\"3\"}");

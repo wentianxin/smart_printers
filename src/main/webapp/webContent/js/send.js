@@ -101,18 +101,19 @@ document.oncontextmenu=new Function("event.returnValue=false;");
 document.onselectstart=new Function("event.returnValue=false;");
 document.getElementById('send_order').addEventListener('click',function(event){
 	var temp = new Date();
-	var str = ""+ temp.getFullYear()
-			+ (temp.getMonth() + 1)
-			+ temp.getDate()
-			+ temp.getHours()
-			+ temp.getMinutes()
+	var str = ""+ temp.getFullYear() + '-'
+			+ (temp.getMonth() + 1) + '-'
+			+ temp.getDate() + ' '
+			+ temp.getHours() + ':'
+			+ temp.getMinutes() + ':'
 			+ temp.getSeconds();
+
 	var dishes = menu_data.dishes;
 	var data = {
 		"company"       : '嘻唰唰火锅店',
 		"orderTime"     : str,
 		"expectTime"    : "" + (temp.getHours()+1) + temp.getMinutes(),
-		"item"			: [ ],
+		"items"			: [ ],
 		"orderRemark"   : '',
 		"orderMealFee"  : 0,
 		"orderDisFee"   : 0,
@@ -124,18 +125,19 @@ document.getElementById('send_order').addEventListener('click',function(event){
 	}
 	for(var i = 0,len = dishes.length; i < len; i++){
 		if(dishes[i].count > 0){
-			data.item.push(dishes[i]);
+			data.items.push(dishes[i]);
 		}
 	}
-	if(data.item.length === 0){
+	if(data.items.length === 0){
 		alert('禁止空订单');
 		return ;
 	}
+	var hh = JSON.stringify(data);
 	$.ajax({
 		url: SEND,
-		type: 'post',
-		data:  data,
-		contentType: 'json',
+		type: 'POST',
+		data:  hh,
+		contentType: 'application/json; charset=UTF-8',
 		dataType: 'json',
 		success: function(data){
 			console.info(data);
