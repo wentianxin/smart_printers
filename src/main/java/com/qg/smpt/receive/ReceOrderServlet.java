@@ -118,7 +118,7 @@ public class ReceOrderServlet extends HttpServlet {
 
         /* 获取打印机对应批次订单容器 */
         List<BulkOrder> bOrdersList = getBulkBuffer(printer);
-
+        
         BulkOrder bOrders = null;
         if (bOrdersList.size() > 0) {
             bOrders = bOrdersList.get(bOrdersList.size() - 1); // 获取容器中最后一个批次订

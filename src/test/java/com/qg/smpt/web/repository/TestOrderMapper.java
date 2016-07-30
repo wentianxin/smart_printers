@@ -17,7 +17,7 @@ import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.service.OrderService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:spring-mybatis.xml"})
+@ContextConfiguration(locations = {"classpath:spring/spring-*.xml"})
 
 public class TestOrderMapper {
 
