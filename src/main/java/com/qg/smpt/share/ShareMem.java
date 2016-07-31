@@ -18,6 +18,7 @@ public final class ShareMem {
 
     public static Map<Integer, User> userIdMap = null;                      // 用户id-用户
 
+    // TODO 编码严重漏洞，共享变量未实现共享
     public static Map<Integer, Printer> printerIdMap = null;                // 打印机id-打印机
 
     public static Map<Integer, List<Printer>> userListMap = null;           // 用户-打印机

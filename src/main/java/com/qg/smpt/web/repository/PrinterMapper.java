@@ -19,6 +19,19 @@ public interface PrinterMapper {
 
     Printer selectPrinter(Integer id);
 
+    /**
+     * 查询所有打印机 根据用户id
+     * @param userId
+     * @return
+     */
+    List<Printer> selectPrinters(Integer userId);
+    /**
+     * 查询用户id
+     * @param id 打印机id
+     * @return
+     */
+    Integer selectUserIdByPrinter(Integer id);
+
     int updateByPrimaryKeySelective(Printer record);
 
     int updateByPrimaryKey(Printer record);

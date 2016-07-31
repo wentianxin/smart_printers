@@ -10,6 +10,7 @@
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="printer_status" property="printerStatus" jdbcType="VARCHAR" />
   </resultMap>
+
   <sql id="Base_Column_List" >
     <!--
       WARNING - @mbggenerated
@@ -28,6 +29,14 @@
     <include refid="Base_Column_List" />
     from printer
     where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectUserIdByPrinter"  resultType="java.lang.Integer" parameterType="java.lang.Integer">
+    select up.user_id from printer as p, user_printer as up where p.id = #{id} and p.id = up.printer_id
+  </select>
+
+  <select id="selectPrinters" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+    select p.id, p.printer_status,  from printer as p, user_printer as up where up.user_id = #{id} and p.id = up.printer_id
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     <!--
