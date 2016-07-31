@@ -27,7 +27,7 @@ public class TestOrderBuilder {
 	
 	@Before
 	public void setUp() throws Exception {
-		orderBuilder = new OrderBuilder(userService); 
+		orderBuilder = new OrderBuilder();
 	}
 
 	@After
@@ -36,7 +36,7 @@ public class TestOrderBuilder {
 
 	@Test
 	public void test() {
-		Order o = orderBuilder.produceOrder();
+		Order o = orderBuilder.produceOrder(false);
 		String json = JsonUtil.objectToJson(o);
 		System.out.println(json);
 	}

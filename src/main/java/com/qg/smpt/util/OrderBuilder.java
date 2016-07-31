@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 
+import com.qg.smpt.share.ShareMem;
 import com.qg.smpt.web.model.Item;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.User;
@@ -20,26 +21,17 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 public class OrderBuilder {
 	private static final Logger LOGGER = Logger.getLogger(OrderBuilder.class);
-	
-	
 
+	private static List<User> users = null;
 
-	private UserService userService;
-
-	
-	private List<User> users = null;
-	private int userCount = 0;
+	private static int userCount = 0;
 	
 	public OrderBuilder() {
-		init();
+
 	}
 
-	public OrderBuilder(UserService userService) {
-		this.userService = userService;
-		init();
-	}
 	
-	private void init(){
+	static {
 		LOGGER.log(Level.DEBUG, "订单生成器正在初始化商家信息", OrderBuilder.class);
 
 		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryBuild.getSqlSessionFactory();
@@ -123,8 +115,13 @@ public class OrderBuilder {
 //		
 //		return order;
 //	}
-	
-	public Order produceOrder()  {
+
+	/**
+	 * 订单生成器 flag 0-非加急； 1-加急
+	 * @param flag
+	 * @return
+     */
+	public static Order produceOrder(boolean flag)  {
 		Order order = new Order();
 		
 		int randomNum = 0;
@@ -144,7 +141,8 @@ public class OrderBuilder {
 		}
 		
 		//获取订单信息
-		order.setId(getOrderNum());
+		order.setId(++ShareMem.currentOrderNum);
+
 		order.setOrderTime((new Date()));
 		order.setExpectTime(expectTimes[getRandom(6)]);
 		order.setOrderRemark(remarks[getRandom(3)]);
@@ -169,10 +167,16 @@ public class OrderBuilder {
 		order.setOrderPreAmount(getRandom(6));
 		order.setOrderPayStatus("1");
 		order.setOrderStatus("1");
+
+		// 判断是否设置加急
+		if (flag) {
+			order.setOrderType('1');
+		} else {
+			order.setOrderType('0');
+		}
 		return order;
 	}
-	
-	
+
 	private static int getMealCost() {
 		return getRandom(3);
 	}

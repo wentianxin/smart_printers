@@ -24,13 +24,13 @@ public final class BBulkStatus extends AbstactStatus{
 
         bbs.flag = status.flag;
 
-        bbs.bulkId = (short)(status.line1 & 0xFFFF);
+        bbs.bulkId = (short)(status.line3 & 0xFFFF);
 
-        bbs.padding = (short)((status.line1 >> 16) & 0xFFFF);
+        bbs.padding = (short)((status.line3 >> 16) & 0xFFFF);
 
         bbs.seconds = status.line2;
 
-        bbs.printerId = status.line3;
+        bbs.printerId = status.line1;
 
         return bbs;
     }

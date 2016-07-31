@@ -30,28 +30,35 @@ public class TestHttpProcessor {
 
             String s = br.readLine();
             if (s.equals("connection")) {
-                bytes = buildAbstractStatus((short)((BConstants.connectStatus << 8) & 0xFFFF) );
+                bytes = buildAbstractStatus((short) ((BConstants.connectStatus << 8) & 0xFFFF));
                 outputStream.write(bytes);
                 outputStream.flush();
-            }
-            else if (s.equals("ok")) {
-                bytes = buildAbstractStatus( (short) ( (BConstants.okStatus << 8) & 0xFFFF) );
+            } else if (s.equals("ok")) {
+                bytes = buildAbstractStatus((short) ((BConstants.okStatus << 8) & 0xFFFF));
                 outputStream.write(bytes);
                 outputStream.flush();
-
-
-            }
-            else if (s.equals("bulk")) {
-                bytes = buildAbstractStatus( (short) ( ( (BConstants.bulkStatus << 8) & 0xFFFF) | 0x1 ));
+            } else if (s.equals("bulk")) {
+                bytes = buildAbstractStatus((short) (((BConstants.bulkStatus << 8) & 0xFFFF) | 0x0));
                 outputStream.write(bytes);
                 outputStream.flush();
+            } else if (s.equals("order")) {
+                bytes = buildAbstractStatus((short) (((BConstants.orderStatus << 8) & 0xFFFF) | 0x1));
+                bytes[14] = (byte) 0;
+                bytes[15] = (byte) 1;
+                outputStream.write(bytes);
+                outputStream.flush();
+            } else if (s.equals("order2")) {
+                // 返回处理成功后的异常单
+                bytes = buildAbstractStatus((short) (((BConstants.orderStatus << 8) & 0xFFFF) | 0x5));
+                bytes[14] = (byte) 0;
+                bytes[15] = (byte) 1;
+                outputStream.write(bytes);
+                outputStream.flush();
+            }else if (s.equals("printer")) {
 
-            }
-            else {
-
+            } else {
                 byte[] byte4 = new byte[4];
                 int i = 0;
-
                 byte[] t = new byte[1024];
                 inputStream.read(t);
 //
@@ -62,8 +69,6 @@ public class TestHttpProcessor {
 //                    System.out.println("第" + i + "字节 ： " + stringBuffer.toString());
 //                    i++;
 //                }
-
-
 
                 System.out.println("接收数据完成");
                 i = 0;
@@ -82,7 +87,7 @@ public class TestHttpProcessor {
 
         abstactStatus.line2 = 0x0;
 
-        abstactStatus.line3 = 0x0;
+        abstactStatus.line3 = 0x1 << 16 | 0x0;
 
         abstactStatus.checkSum = 0x0;
 
