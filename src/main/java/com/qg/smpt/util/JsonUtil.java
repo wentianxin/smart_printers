@@ -16,7 +16,8 @@ import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;  
 import org.codehaus.jackson.type.TypeReference;
 
-import com.qg.smpt.printer.PrinterConnector;  
+import com.qg.smpt.printer.PrinterConnector;
+import com.sun.jdi.Value;  
 
 /**
  * Json格式转化工具
@@ -53,8 +54,12 @@ public class JsonUtil {
 	 * @return
 	 */
 	public static String jsonToMap(String[] key, String[] json) {
+		
+		
 		Map<String, String> map = new HashMap<>();
-		for(int i = 0; i < key.length; i++){
+		int length = Math.min(key.length, json.length);
+		for(int i = 0; i < length; i++){
+			LOGGER.log(Level.DEBUG,  "JsonUtil正在封装map信息,key为[{0}], value为 [{1}]", key[i], json[i]);
 			map.put(key[i], json[i]);
 		}
 		
@@ -62,7 +67,7 @@ public class JsonUtil {
 	}
 	
 	public static String objectToJson(Object object) {
-		LOGGER.log(Level.INFO,  "JsonUtil正在进行对象转化为JSON操作,转化的对象为[{0}]", object.getClass());
+		LOGGER.log(Level.DEBUG,  "JsonUtil正在进行对象转化为JSON操作,转化的对象为[{0}]", object.getClass());
 		try {
 			
 			String json = mapper.writeValueAsString(object);
@@ -85,7 +90,7 @@ public class JsonUtil {
 	}
 	
 	public static Object jsonToObject(String json, Class clazz) {
-		LOGGER.log(Level.INFO,  "JsonUtil正在进行JSON转化对象操作,json数据为[{0}], 要转化的对象为[{1}]",json, clazz.toString());
+		LOGGER.log(Level.DEBUG,  "JsonUtil正在进行JSON转化对象操作,json数据为[{0}], 要转化的对象为[{1}]",json, clazz.toString());
 			
 			try {
 				
