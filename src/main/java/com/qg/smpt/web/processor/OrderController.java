@@ -95,7 +95,7 @@ public class OrderController {
 	
 	@RequestMapping(value="/{userId}", method=RequestMethod.POST, produces="application/json;charset=utf-8")
 	@ResponseBody
-	public String bookOrder(@PathVariable @RequestBody String data,int userId) {
+	public String bookOrder(@PathVariable int userId, @RequestBody String data) {
 		try{
 			// 从session中获取用户
 //			HttpSession session = request.getSession();

@@ -1,4 +1,4 @@
-var SEND = 'http://localhost:8080/order/order/1';
+var SEND = 'http://localhost:8080/order/1';
 
 // Mock.mock(SEND,{
 //    status: 'SUCCESS'
