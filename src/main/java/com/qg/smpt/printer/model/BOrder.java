@@ -11,9 +11,9 @@ public final class BOrder {
 
     public short start = BConstants.orderStart;
 
-    public short length;
+    public short length;   // 订单长度
 
-    public int   id;   // 主控板id
+    public int   id;      // 主控板id
 
     public int   seconds;
 

@@ -29,9 +29,9 @@ public final class BOrderStatus extends AbstactStatus{
 
         bos.seconds = status.line2;
 
-        bos.bulkId = (short)(status.line3 & 0xFFFF);
+        bos.bulkId = (short)( (status.line3 >> 16 ) & 0xFFFF) ;
 
-        bos.inNumber = (short)((status.line3 >> 16) & 0xFFFF);
+        bos.inNumber = (short)(status.line3 & 0xFFFF);
 
         return bos;
     }
