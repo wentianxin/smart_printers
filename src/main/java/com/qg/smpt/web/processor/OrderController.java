@@ -92,19 +92,24 @@ public class OrderController {
 	@RequestMapping(value="/buy", method=RequestMethod.POST, produces="application/json;charset=utf-8")
 	@ResponseBody
 	public String bookOrder(@RequestBody String data,HttpServletRequest request) {
-		LOGGER.log(Level.DEBUG, "前台传来的json数据为 {0}", data);
-		
 		try{
 			// 从session中获取用户
 			HttpSession session = request.getSession();
 			User user = (User)session.getAttribute("user");
 			int userId = ((user != null) ? user.getId() : 0);
 			
+			
+			LOGGER.log(Level.DEBUG, "前台传来的json数据为 {0},当前用户为[{1}]", data, userId);
+			
 			// 将订单数据转化为订单对象
 			Order order = (Order)JsonUtil.jsonToObject(data, Order.class);
 			
+			
+			
 			// 检查订单信息，无错则执行下订订单，有则返回错误状态
 			String status = (checkOrder(user, order) ? orderService.bookOrder(userId, order) : Constant.ERROR);
+			
+			LOGGER.log(Level.DEBUG, "下单处理的结果为[{0}]", status);
 			
 			return status;
 		}catch(Exception e){
