@@ -28,8 +28,8 @@ import com.qg.smpt.web.service.UserService;
 
 import jdk.internal.org.objectweb.asm.tree.IntInsnNode;
 
-@Controller
-@RequestMapping("/user")
+//@Controller
+//@RequestMapping("/user")
 public class UserController {
 	private static final Logger LOGGER = Logger.getLogger(UserController.class);
 	
@@ -51,7 +51,8 @@ public class UserController {
 			
 			LOGGER.log(Level.DEBUG, "此次注册结果为 [{0}]", status);
 			
-			return JsonUtil.jsonToMap("status", status);
+			return JsonUtil.jsonToMap(new String[]{"status"}, new String[]{status});
+			
 		}catch(Exception e){
 			return Constant.ERROR;
 		}
@@ -108,7 +109,7 @@ public class UserController {
 		return true;
 	}
 	
-	@RequestMapping(value="/login", method=RequestMethod.POST, produces="application/json;charset=utf-8" )
+	@RequestMapping(value="/loginapp", method=RequestMethod.POST, produces="application/json;charset=utf-8" )
 	@ResponseBody
 	public String login(@RequestBody String data,  HttpServletRequest request) {
 		User user = (User)JsonUtil.jsonToObject(data, User.class);
@@ -129,15 +130,16 @@ public class UserController {
 		// check the login status
 		// if success, store the user
 		if(status.equals(Constant.SUCCESS)) {
-			 HttpSession session = request.getSession();
-			 session.setAttribute("user", loginUser);
 			 ShareMem.userIdMap.put(loginUser.getId(), loginUser);
+			 return JsonUtil.jsonToMap(new String[]{"status","userId"}, new String[]{status, loginUser.getId().toString()});
+			 
 		}
 		
-		return JsonUtil.jsonToMap("status", status);
+		return JsonUtil.jsonToMap(new String[]{"status"}, new String[]{status});
 	}
 	
-	@RequestMapping(value="/loginW", method=RequestMethod.POST, produces="application/html;charset=utf-8" )
+	
+	@RequestMapping(value="/login", method=RequestMethod.POST, produces="application/html;charset=utf-8" )
 	public String login(String userAccount, String userPassword,  HttpServletRequest request) {
 		User user = installUser(userAccount, userPassword);
 		

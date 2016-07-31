@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,11 +27,12 @@ import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
 import com.qg.smpt.web.model.User;
 import com.qg.smpt.web.service.OrderService;
+import com.qg.smpt.web.service.UserService;
 import com.sun.org.apache.xpath.internal.operations.Or;
 
 
 @Controller
-@RequestMapping("/orders")
+@RequestMapping("/order")
 public class OrderController {
 	private static final Logger LOGGER = Logger.getLogger(OrderController.class);
 	
@@ -88,23 +90,24 @@ public class OrderController {
 	
 	@Autowired
 	private OrderService orderService;
+	@Autowired
+	private UserService userService;
 	
-	@RequestMapping(value="/buy", method=RequestMethod.POST, produces="application/json;charset=utf-8")
+	@RequestMapping(value="/{userId}", method=RequestMethod.POST, produces="application/json;charset=utf-8")
 	@ResponseBody
-	public String bookOrder(@RequestBody String data,HttpServletRequest request) {
+	public String bookOrder(@PathVariable @RequestBody String data,int userId) {
 		try{
 			// 从session中获取用户
-			HttpSession session = request.getSession();
-			User user = (User)session.getAttribute("user");
-			int userId = ((user != null) ? user.getId() : 0);
-			
+//			HttpSession session = request.getSession();
+//			User user = (User)session.getAttribute("user");
+//			int userId = ((user != null) ? user.getId() : 0);
 			
 			LOGGER.log(Level.DEBUG, "前台传来的json数据为 {0},当前用户为[{1}]", data, userId);
 			
+			User user = userService.queryById(userId);
+			
 			// 将订单数据转化为订单对象
 			Order order = (Order)JsonUtil.jsonToObject(data, Order.class);
-			
-			
 			
 			// 检查订单信息，无错则执行下订订单，有则返回错误状态
 			String status = (checkOrder(user, order) ? orderService.bookOrder(userId, order) : Constant.ERROR);
@@ -140,13 +143,13 @@ public class OrderController {
 	 * 通过用户id获取商家的已打印的订单
 	 * @return
 	 */
-	@RequestMapping(value="/typed", method=RequestMethod.GET, produces="application/json;charset=UTF-8")
+	@RequestMapping(value="/typed/{userId}", method=RequestMethod.GET, produces="application/json;charset=UTF-8")
 	@ResponseBody
-	public String queryTypedOrders(HttpServletRequest request) {
+	public String queryTypedOrders(@PathVariable Integer userId) {
 		// 从session中获取用户
-		HttpSession session = request.getSession();
-		User user = (User)session.getAttribute("user");
-		int userId = ((user != null) ? user.getId() : 0);
+//		HttpSession session = request.getSession();
+//		User user = (User)session.getAttribute("user");
+//		int userId = ((user != null) ? user.getId() : 0);
 		
 		LOGGER.log(Level.DEBUG, "正在查询 用户[{0}] 的已打印订单", userId);
 		
@@ -162,6 +165,7 @@ public class OrderController {
 		LOGGER.log(Level.DEBUG, "转化后的json数据为[{0}]", json);
 		
 		return json;
+		
 	}
 	
 	
@@ -170,13 +174,13 @@ public class OrderController {
 	 * @param userId - 用户id
 	 * @return 订单集合的json对象
 	 */
-	@RequestMapping(value = "/typing",produces="application/json;charset=UTF-8",method = RequestMethod.GET)
+	@RequestMapping(value = "/typing/{userId}",produces="application/json;charset=UTF-8",method = RequestMethod.GET)
 	@ResponseBody
-	public String queryTpyingOrders(HttpServletRequest request) {
+	public String queryTpyingOrders(@PathVariable Integer userId) {
 		// 从session中获取用户
-		HttpSession session = request.getSession();
-		User user = (User)session.getAttribute("user");
-		int userId = ((user != null) ? user.getId() : 0);
+//		HttpSession session = request.getSession();
+//		User user = (User)session.getAttribute("user");
+//		int userId = ((user != null) ? user.getId() : 0);
 		
 		
 		// info message
@@ -189,6 +193,7 @@ public class OrderController {
 		// if has no object, return ""
 		// if has object, install orderList
 		if(!checkNormal(printers)) {
+			LOGGER.log(Level.DEBUG, "当前用户[{0}]没有打印机设备连入", userId);
 			return "";
 		}
 		
