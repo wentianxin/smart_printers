@@ -4,6 +4,8 @@ package com.qg.smpt; /**
 
 import com.qg.smpt.printer.LifecycleException;
 import com.qg.smpt.printer.PrinterConnector;
+import com.qg.smpt.util.Level;
+import com.qg.smpt.util.Logger;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -17,21 +19,17 @@ import javax.servlet.http.HttpSessionBindingEvent;
 public final class SmptServletListener implements ServletContextListener,
         HttpSessionListener, HttpSessionAttributeListener {
 
-    // Public constructor is required by servlet spec
+    private final static Logger LOGGER = Logger.getLogger(SmptServletListener.class);
+
     public SmptServletListener() {
 
     }
 
-    // -------------------------------------------------------
-    // ServletContextListener implementation
-    // -------------------------------------------------------
     public void contextInitialized(ServletContextEvent sce) {
-      /* This method is called when the servlet context is
-         initialized(when the Web application is deployed). 
-         You can initialize servlet context related data here.
-      */
+
         // 项目初始化, ServletSocket 线程池
 
+        LOGGER.log(Level.INFO, "启动 printerConnector");
         PrinterConnector printerConnector = new PrinterConnector();
 
         printerConnector.initialize();
@@ -39,48 +37,33 @@ public final class SmptServletListener implements ServletContextListener,
         try {
             printerConnector.start();
         } catch (LifecycleException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.ERROR, "printerConnector 启动失败", e);
         }
 
     }
 
     public void contextDestroyed(ServletContextEvent sce) {
-      /* This method is invoked when the Servlet Context 
-         (the Web application) is undeployed or 
-         Application Server shuts down.
-      */
+
     }
 
-    // -------------------------------------------------------
-    // HttpSessionListener implementation
-    // -------------------------------------------------------
+
     public void sessionCreated(HttpSessionEvent se) {
-      /* Session is created. */
+
     }
 
     public void sessionDestroyed(HttpSessionEvent se) {
-      /* Session is destroyed. */
+
     }
 
-    // -------------------------------------------------------
-    // HttpSessionAttributeListener implementation
-    // -------------------------------------------------------
-
     public void attributeAdded(HttpSessionBindingEvent sbe) {
-      /* This method is called when an attribute 
-         is added to a session.
-      */
+
     }
 
     public void attributeRemoved(HttpSessionBindingEvent sbe) {
-      /* This method is called when an attribute
-         is removed from a session.
-      */
+
     }
 
     public void attributeReplaced(HttpSessionBindingEvent sbe) {
-      /* This method is invoked when an attibute
-         is replaced in a session.
-      */
+
     }
 }
