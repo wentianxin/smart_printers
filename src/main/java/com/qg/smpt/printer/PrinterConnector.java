@@ -101,8 +101,6 @@ public class PrinterConnector implements Runnable, Lifecycle{
             PrinterProcessor processor = newProcessor();
             recycle(processor);
         }
-
-
     }
 
     public void stop() {

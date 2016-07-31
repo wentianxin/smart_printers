@@ -654,7 +654,10 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                 bPrinterStatus.printerId, bPrinterStatus.flag, bPrinterStatus.seconds, bPrinterStatus.number, bPrinterStatus.checkSum, this.id);
 
         Printer printer = ShareMem.printerIdMap.get(bPrinterStatus.printerId);
-
+        if (printer == null) {
+            LOGGER.log(Level.WARN, "打印机[{0}]未找到内中中对应打印机对象", bPrinterStatus.printerId);
+            return ;
+        }
         printer.setPrinterStatus( ( (bPrinterStatus.flag >> 8) & 0xFF ) + "");
     }
 
