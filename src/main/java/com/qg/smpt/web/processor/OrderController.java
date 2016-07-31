@@ -247,19 +247,22 @@ public class OrderController {
 			bulkUnsend = ShareMem.priBufferMapList.get(p);
 			bulkHasSend = ShareMem.priSentQueueMap.get(p);
 			bulkError = ShareMem.priExceQueueMap.get(p);
-			
-			// filling not typing orders
-			for(BulkOrder bulk : bulkUnsend) {
-				ordersNotTyping = bulk.getOrders();
-				fillOrders(ordersNotTyping, orderList);
+
+			if (bulkUnsend != null) {
+				// filling not typing orders
+				for (BulkOrder bulk : bulkUnsend) {
+					ordersNotTyping = bulk.getOrders();
+					fillOrders(ordersNotTyping, orderList);
+				}
 			}
 
 			// filling typing orders
-			for(BulkOrder bulk : bulkHasSend) {
-				ordersTyping = bulk.getOrders();
-				fillOrders(ordersTyping, orderList);
+			if (bulkHasSend != null) {
+				for (BulkOrder bulk : bulkHasSend) {
+					ordersTyping = bulk.getOrders();
+					fillOrders(ordersTyping, orderList);
+				}
 			}
-			
 //			for(BulkOrder bulk : bulkError) {
 //				OrdersError = bulk.getOrders();
 //				fillOrders(OrdersError, orderList);
