@@ -17,6 +17,7 @@ import com.qg.smpt.web.model.User;
 import com.qg.smpt.web.repository.PrinterMapper;
 import com.qg.smpt.web.repository.UserMapper;
 import com.qg.smpt.web.service.UserService;
+import com.sun.org.apache.xml.internal.resolver.helpers.Debug;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -97,6 +98,18 @@ public class UserServiceImpl implements UserService{
 		}
 		
 		return loginUser;
+	}
+	
+	
+	public User queryUserPrinter(int userId) {
+		lOGGER.log(Level.DEBUG, "正在查询用户[{0}]的打印机", userId);
+		
+		User user = userMapper.selectUserPrinter(userId);
+		
+		lOGGER.log(Level.DEBUG, "用户 [{0}] 拥有 [{1}] 台打印机", userId, (user.getPrinters() != null) ? user.getPrinters().size() : 0);
+	
+		return user;
+				
 	}
 
 }

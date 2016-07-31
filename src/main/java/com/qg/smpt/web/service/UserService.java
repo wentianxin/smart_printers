@@ -30,4 +30,11 @@ public interface UserService {
 	 * @return 
 	 */
 	public User login(User user) ;
+	
+	/**
+	 * 获取用户打印机
+	 * @param userId
+	 * @return
+	 */
+	public User queryUserPrinter(int userId);
 }
