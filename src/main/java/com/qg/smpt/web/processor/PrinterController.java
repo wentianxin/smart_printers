@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -24,14 +26,17 @@ import com.qg.smpt.web.model.User;
 public class PrinterController {
 	private static final Logger LOGGER = Logger.getLogger(PrinterController.class);
 	
-	@RequestMapping(value="/printer", method=RequestMethod.GET, produces="application/json;charset=UTF-8")
+	@RequestMapping(value="/printer/{userId}", method=RequestMethod.GET, produces="application/json;charset=UTF-8")
 	@ResponseBody
-	public String seePrinterStatus(HttpServletRequest request) {
+	public String seePrinterStatus(@PathVariable int userId) {
 		
 		// 从session中获取用户
-		HttpSession session = request.getSession();
-		User user = (User) session.getAttribute("user");
-		int userId = ((user != null) ? user.getId() : 0);
+//		HttpSession session = request.getSession();
+//		User user = (User) session.getAttribute("user");
+//		int userId = ((user != null) ? user.getId() : 0);
+		
+		
+		LOGGER.log(Level.DEBUG, "查看用户[{0}]的打印机状态 ", userId);
 		
 		// 根据用户id获取打印机
 		List<Printer> printers = ShareMem.userListMap.get(userId);

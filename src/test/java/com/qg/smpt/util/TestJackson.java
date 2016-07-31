@@ -83,7 +83,7 @@ public class TestJackson {
 		System.out.println(json);
 	}
 	
-
+	@Ignore
 	@Test
 	public void convert() throws JsonParseException, JsonMappingException, IOException {
 		String name="{\"orderStatus\":\"110\"}";

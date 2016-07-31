@@ -1,6 +1,6 @@
-var ORDER_TYPING = 'http://localhost:8080/smart_printers/orders/typing?userId=1';  // 正在打印的订单路径接口
-var PRINTER_TYPING = 'http://localhost:8080/smart_printers/printer?userId=1';// 打印机状态接口
-var ORDER_TYPED = 'http://localhost:8080/smart_printers/orders/typed?userId=1'; // 打印完的订单路径接口
+var ORDER_TYPING = 'http://localhost:8080/smart_printers/order/typing/1';  // 正在打印的订单路径接口
+var PRINTER_TYPING = 'http://localhost:8080/smart_printers/printer/1';// 打印机状态接口
+var ORDER_TYPED = 'http://localhost:8080/smart_printers/order/typed/1'; // 打印完的订单路径接口
 // var PRINTER_TYPING = 'printer'; // 打印机状态接口
 // var ORDER_TYPED = 'orders/typed'; // 打印完的订单路径接口
 

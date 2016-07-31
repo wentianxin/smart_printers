@@ -52,15 +52,17 @@ public class JsonUtil {
 	 * 改方法用于给json
 	 * @return
 	 */
-	public static String jsonToMap(String key, String json) {
-		Map map = new HashMap<>();
-		map.put(key, json);
+	public static String jsonToMap(String[] key, String[] json) {
+		Map<String, String> map = new HashMap<>();
+		for(int i = 0; i < key.length; i++){
+			map.put(key[i], json[i]);
+		}
 		
 		return objectToJson(map);
 	}
 	
 	public static String objectToJson(Object object) {
-		LOGGER.log(Level.INFO,  "JsonUtil正在进行对象转化为JSON操作,转化的对象为[{0}]", object.toString());
+		LOGGER.log(Level.INFO,  "JsonUtil正在进行对象转化为JSON操作,转化的对象为[{0}]", object.getClass());
 		try {
 			
 			String json = mapper.writeValueAsString(object);
