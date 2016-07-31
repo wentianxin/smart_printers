@@ -36,8 +36,8 @@ public class TestPrinterConnector implements Runnable{
     public synchronized void run() {
         OrderBuilder orderBuilder = new OrderBuilder();
 
-        Order order1 = orderBuilder.produceOrder();
-        Order order2 = orderBuilder.produceOrder();
+        Order order1 = orderBuilder.produceOrder(false);
+//        Order order2 = orderBuilder.produceOrder(false);
         ReceOrderServlet receOrderServlet = new ReceOrderServlet();
 
         try {
@@ -45,9 +45,9 @@ public class TestPrinterConnector implements Runnable{
 
             wait(1000);
 
-            receOrderServlet.doGet(1, orderBuilder.produceOrder());
+            receOrderServlet.doGet(1, orderBuilder.produceOrder(false));
             wait(1000);
-            receOrderServlet.doGet(1, orderBuilder.produceOrder());
+            receOrderServlet.doGet(1, orderBuilder.produceOrder(false));
 //            wait(1000);
 //            receOrderServlet.doGet(1, orderBuilder.produceOrder());
 //            wait(1000);
