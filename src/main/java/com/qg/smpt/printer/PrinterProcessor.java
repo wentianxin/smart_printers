@@ -272,17 +272,25 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         printer = ShareMem.printerIdMap.get(printerId);
         if (printer == null) {
             // id - printer 建立在商家注册时 进行建立
+            Integer userId = null;
             SqlSession sqlSession = sqlSessionFactory.openSession();
             try {
                 PrinterMapper printerMapper = sqlSession.getMapper(PrinterMapper.class);
-                printer = printerMapper.selectPrinter(printerId);
+                userId = printerMapper.selectUserIdByPrinter(printerId);
+                if (userId == null) {
+                    LOGGER.log(Level.ERROR, "打印机信息并未注册[{0}]", printerId);
+                    return ;
+                }
+                List<Printer> printers = printerMapper.selectPrinters(userId);
+                if (printers == null) {
+                    LOGGER.log(Level.ERROR, "打印机信息并未注册[{0}]", userId);
+                    return ;
+                }
             } finally {
+                sqlSession.commit();
                 sqlSession.close();
             }
-            if (printer == null) {
-                LOGGER.log(Level.ERROR, "打印机信息并未注册[{0}]", printerId);
-                return ;
-            }
+
             printer.setConnected(true);
             printer.setCurrentBulk(0);
             // TODO 如果有两个线程同时向 HashMap中添加相同printerId， 是否会出现重复问题
