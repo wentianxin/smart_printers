@@ -36,7 +36,7 @@
   </select>
 
   <select id="selectPrinters" resultMap="BaseResultMap" parameterType="java.lang.Integer">
-    select p.id, p.printer_status,  from printer as p, user_printer as up where up.user_id = #{id} and p.id = up.printer_id
+    select p.id, p.printer_status,  from printer as p user_printer as up where up.user_id = #{id} and p.id = up.printer_id
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     <!--
