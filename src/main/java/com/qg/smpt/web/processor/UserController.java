@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.qg.smpt.share.ShareMem;
 import com.qg.smpt.util.JsonUtil;
+import com.qg.smpt.util.Level;
 import com.qg.smpt.util.Logger;
 import com.qg.smpt.web.model.Constant;
 import com.qg.smpt.web.model.Printer;
@@ -45,9 +46,15 @@ public class UserController {
 		// check the user information is correct
 		// true-run register method;
 		// false- return ERROR status
-		String status = (checkUserInfo(newUser) ? userService.registerUser(newUser) : Constant.ERROR);
-		
-		return JsonUtil.jsonToMap("status", status);
+		try{
+			String status = (checkUserInfo(newUser) ? userService.registerUser(newUser) : Constant.ERROR);
+			
+			LOGGER.log(Level.DEBUG, "此次注册结果为 [{0}]", status);
+			
+			return JsonUtil.jsonToMap("status", status);
+		}catch(Exception e){
+			return Constant.ERROR;
+		}
 	}	
 		
 	@RequestMapping(value="/registerW", method=RequestMethod.POST, produces="application/html;charset=utf-8" )
