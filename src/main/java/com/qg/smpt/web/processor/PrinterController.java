@@ -40,6 +40,7 @@ public class PrinterController {
 		
 		// 根据用户id获取打印机
 		List<Printer> printers = ShareMem.userListMap.get(userId);
+
 		
 		Map<String, List<Printer>> map = new HashMap<>();
 		
