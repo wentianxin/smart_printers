@@ -65,7 +65,7 @@
 	</select>
 
 	<select id="selectByLogin" resultMap="BaseResultMap" parameterType="com.qg.smpt.web.model.User">
-		select * from User where user_account = #{userAccount} and user_password = #{userPassword}
+		select * from user where user_account = #{userAccount} and user_password = #{userPassword}
 	</select>
 
 
