@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.print.attribute.standard.NumberUp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,7 +66,7 @@ public class UserServiceImpl implements UserService{
 	
 
 	@Transactional(rollbackFor=Exception.class)
-	public String registerUser(User user) throws RuntimeException {
+	public int registerUser(User user) throws RuntimeException {
 		try{
 			//执行插入用户
 			int userId = userMapper.insert(user);
@@ -79,7 +80,7 @@ public class UserServiceImpl implements UserService{
 			printerMapper.insertPrinterBatch(printers);
 			printerMapper.addUserPrinterBatch(printers);
 			
-			return Constant.SUCCESS;
+			return Constant.TRUE;
 		}catch(Exception e) {
 			lOGGER.log(Level.ERROR, "注册用户失败了", e);
 			
@@ -106,7 +107,7 @@ public class UserServiceImpl implements UserService{
 		
 		User user = userMapper.selectUserPrinter(userId);
 		
-		lOGGER.log(Level.DEBUG, "用户 [{0}] 拥有 [{1}] 台打印机", userId, (user.getPrinters() != null) ? user.getPrinters().size() : 0);
+		lOGGER.log(Level.DEBUG, "用户 [{0}] 拥有 [{1}] 台打印机", userId, (user != null && user.getPrinters() != null) ? user.getPrinters().size() : 0);
 	
 		return user;
 				
