@@ -264,8 +264,10 @@ public final class Order {
 
     private int getTotalCost() {
         int c = 0;
-        for(Item item : items) {
-            c += item.getCost();
+        if(items != null) {
+	        for(Item item : items) {
+	            c += item.getCost();
+	        }
         }
 
         c += orderDisFee;
@@ -288,8 +290,10 @@ public final class Order {
         buffer.append("预计下单时间: " + getExpectTime() + "\n");
         buffer.append("备注: " + getOrderRemark() + "\n");
         buffer.append("菜单名                                 数量               小计\n");
-        for(Item item : items){
-            buffer.append(item.toString() + "\n");
+        if(items != null) {
+	        for(Item item : items){
+	            buffer.append(item.toString() + "\n");
+	        }
         }
         buffer.append("餐盒费: " + getOrderMealFee() + "\n");
         buffer.append("配送费: " + getOrderDisFee() + "\n");
