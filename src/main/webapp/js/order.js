@@ -38,12 +38,12 @@ var main = {
         var str = '<div class="order head">' + '<p class="order_number">订单编号</p>' + '<p class="order_status">状态</p>' + '</div>';
         var _this = this;
         document.getElementsByClassName('typing_up_main')[0].innerHTML = str + html;
-       tets = setTimeout('main.call()', 5000);
+       tets = setTimeout('main.call()', 1000 * 15);
     },
     renderPrinter: function(datas) {
         var html = template('printer_template', datas);
         document.getElementsByClassName('sb_printer')[0].innerHTML = html;
-       tets2 = setTimeout('main.printf()', 5000);
+       tets2 = setTimeout('main.printf()', 1000 * 15);
     },
     changeChoice: function(str) {
         console.info(str);
