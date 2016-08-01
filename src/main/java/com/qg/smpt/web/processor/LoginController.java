@@ -29,9 +29,11 @@ public class LoginController {
 	public String login(@RequestBody String data,  HttpServletRequest request) {
 		User user = (User)JsonUtil.jsonToObject(data, User.class);
 		
+		int retcode = Constant.FALSE;
+		
 		// check the login infomation is correct
 		if(!checkInput(user)){
-			return Constant.ERROR;
+			return JsonUtil.jsonToMap(new String[]{"retcode"}, new String[]{String.valueOf(retcode)});
 		}
 		
 		// run the login method.
@@ -40,17 +42,17 @@ public class LoginController {
 		User loginUser = userService.login(user);
 		
 		// set the login status
-		String status = (loginUser != null ? Constant.SUCCESS : Constant.ERROR);
+		retcode = (loginUser != null ? Constant.TRUE : Constant.FALSE);
 		
 		// check the login status
 		// if success, store the user
-		if(status.equals(Constant.SUCCESS)) {
+		if(retcode == Constant.TRUE) {
 			 ShareMem.userIdMap.put(loginUser.getId(), loginUser);
-			 return JsonUtil.jsonToMap(new String[]{"status","userId"}, new String[]{status, loginUser.getId().toString()});
+			 return JsonUtil.jsonToMap(new String[]{"retcode","userId"}, new Object[]{retcode, loginUser.getId().toString()});
 			 
 		}
 		
-		return JsonUtil.jsonToMap(new String[]{"status"}, new String[]{status});
+		return JsonUtil.jsonToMap(new String[]{"retcode"}, new Object[]{retcode});
 	}
 	
 	

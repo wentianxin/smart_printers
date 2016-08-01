@@ -58,13 +58,11 @@ public class PrinterController {
 				
 		}
 		
-		Map<String, List<Printer>> map = new HashMap<>();
+								
+		String json = JsonUtil.jsonToMap(new String[]{"retcode","data"}, 
+				new Object[]{1 ,printers});
 		
-		map.put("data", printers);
-		
-		String json = JsonUtil.objectToJson(map);
-		
-		LOGGER.log(Level.DEBUG, "查看打印机状态 转化后的json数据为[{0}]", json);
+		LOGGER.log(Level.DEBUG, "当前转化的信息为 [{0}]", json);
 		
 		return json;
 	}
