@@ -53,13 +53,13 @@ public class JsonUtil {
 	 * 改方法用于给json
 	 * @return
 	 */
-	public static String jsonToMap(String[] key, String[] json) {
+	public static String jsonToMap(Object[] key, Object[] json) {
 		
 		
-		Map<String, String> map = new HashMap<>();
+		Map map = new HashMap<>();
 		int length = Math.min(key.length, json.length);
 		for(int i = 0; i < length; i++){
-			LOGGER.log(Level.DEBUG,  "JsonUtil正在封装map信息,key为[{0}], value为 [{1}]", key[i], json[i]);
+//			LOGGER.log(Level.DEBUG,  "JsonUtil正在封装map信息,key为[{0}], value为 [{1}]", key[i], json[i]);
 			map.put(key[i], json[i]);
 		}
 		
