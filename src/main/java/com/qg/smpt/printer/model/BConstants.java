@@ -49,6 +49,8 @@ public final class BConstants {
     public static final byte orderDataW = (byte)0x4;    // 数据错误
 
     public static final byte orderExcep = (byte)0x5;    // 打印成功-之前的异常订单
+    
+    public static final byte orderWait = (byte)0x6;		// 等待被发送
 
 
     /* 批次订单状态 */
