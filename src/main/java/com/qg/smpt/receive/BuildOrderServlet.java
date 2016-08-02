@@ -21,9 +21,11 @@ public class BuildOrderServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+
         Integer userId = null;
         Integer orderNumbers = null;
         Integer expeNumbers = null;
+
         try {
             userId = Integer.valueOf(request.getParameter("d"));
             orderNumbers = Integer.valueOf(request.getParameter("n"));
