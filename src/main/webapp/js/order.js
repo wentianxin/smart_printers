@@ -39,19 +39,27 @@ var main = {
         var _this = this;
         document.getElementsByClassName('typing_up_main')[0].innerHTML = str + html;
 <<<<<<< HEAD
+<<<<<<< HEAD
        // tets = setTimeout('main.call()', 5000);
 =======
        tets = setTimeout('main.call()', 1000 * 15);
 >>>>>>> 98b0f5e4bd6400ba422bb06e746fb4f42ca7c563
+=======
+       tets = setTimeout('main.call()', 1000 * 15);
+>>>>>>> 1.0.0-dev
     },
     renderPrinter: function(datas) {
         var html = template('printer_template', datas);
         document.getElementsByClassName('sb_printer')[0].innerHTML = html;
 <<<<<<< HEAD
+<<<<<<< HEAD
        // tets2 = setTimeout('main.printf()', 5000);
 =======
        tets2 = setTimeout('main.printf()', 1000 * 15);
 >>>>>>> 98b0f5e4bd6400ba422bb06e746fb4f42ca7c563
+=======
+       tets2 = setTimeout('main.printf()', 1000 * 15);
+>>>>>>> 1.0.0-dev
     },
     changeChoice: function(str) {
         console.info(str);
