@@ -545,38 +545,24 @@ background: #f75e3a;
     position: relative;
 }
 
-/*#test{
-    width: 200px;
-    float: left;
-    background-size: cover;
-    height: 200px;
-    background: url(file:///C:/Users/st/Pictures/QQ%E5%9B%BE%E7%89%8720160703193602.jpg);
-    background-position: 0;
-}
-*/
-
-
- #preview-pane {
-  display: block;
-  position: absolute;
-  z-index: 2000;
-  top: 10px;
-  right: -280px;
-  padding: 6px;
-  border: 1px rgba(0,0,0,.4) solid;
-  background-color: white;
-
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
-
-  -webkit-box-shadow: 1px 1px 5px 2px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 1px 1px 5px 2px rgba(0, 0, 0, 0.2);
-  box-shadow: 1px 1px 5px 2px rgba(0, 0, 0, 0.2);
+#logo_clip_area{
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 500px;
+    height: 500px;
+    background-color: #e5e5e5;
 }
 
-#preview-pane .preview-container {
-  width: 250px;
-  height: 170px;
-  overflow: hidden;
+#canvas_clip_area{
+    background-color: rgba(229,229,229,0.5);
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 128px;
+    height: 128px;
+}
+
+#show_area{
+    float:right;
 }
