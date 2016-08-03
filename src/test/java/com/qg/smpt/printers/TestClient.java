@@ -13,7 +13,7 @@ import java.net.Socket;
 /**
  * Created by tisong on 7/28/16.
  */
-public class TestHttpProcessor {
+public class TestClient {
 
     public static void main(String[] args) throws IOException {
         Socket socket = new Socket("localhost", 8086);
