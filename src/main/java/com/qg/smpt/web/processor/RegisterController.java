@@ -38,14 +38,14 @@ public class RegisterController {
 		// true-run register method;
 		// false- return ERROR status
 		try{
-			String status = (checkUserInfo(newUser) ? userService.registerUser(newUser) : Constant.ERROR);
+			int retcode = (checkUserInfo(newUser) ?userService.registerUser(newUser) : Constant.FALSE);
 			
-			LOGGER.log(Level.DEBUG, "此次注册结果为 [{0}]", status);
+			LOGGER.log(Level.DEBUG, "此次注册结果为 [{0}]", retcode);
 			
-			return JsonUtil.jsonToMap(new String[]{"status"}, new String[]{status});
+			return JsonUtil.jsonToMap(new String[]{"retcode"}, new Object[]{retcode});
 			
 		}catch(Exception e){
-			return Constant.ERROR;
+			return JsonUtil.jsonToMap(new String[]{"retcode"}, new Object[]{Constant.FALSE});
 		}
 	}	
 		
@@ -57,9 +57,9 @@ public class RegisterController {
 		// check the user information is correct
 		// true-run register method;
 		// false- return ERROR status
-		String status = (checkUserInfo(newUser) ? userService.registerUser(newUser) : Constant.ERROR);
+		int status = (checkUserInfo(newUser) ? userService.registerUser(newUser) : Constant.FALSE);
 		
-		String url = (status.equals(Constant.SUCCESS) ? "redirect:/html/user_login.html" : "redirect:/html/register.html");
+		String url = (status == Constant.TRUE) ? "redirect:/html/user_login.html" : "redirect:/html/register.html";
 		
 		return url;
 	}	

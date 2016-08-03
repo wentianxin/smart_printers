@@ -1,5 +1,8 @@
 package com.qg.smpt.web.processor;
 
+import java.sql.Array;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.druid.support.json.JSONUtils;
+import com.qg.smpt.printer.model.BConstants;
 import com.qg.smpt.share.ShareMem;
 import com.qg.smpt.util.JsonUtil;
 import com.qg.smpt.util.Level;
@@ -112,11 +116,13 @@ public class OrderController {
 			// 检查订单信息，无错则执行下订订单，有则返回错误状态
 			String status = (checkOrder(user, order) ? orderService.bookOrder(userId, order) : Constant.ERROR);
 			
+			int retcode = status.equals(Constant.SUCCESS)? Constant.TRUE : Constant.FALSE;
+			
 			LOGGER.log(Level.DEBUG, "下单处理的结果为[{0}]", status);
 			
-			return status;
+			return JsonUtil.jsonToMap(new String[]{"retcode","status"}, new Object[]{retcode,status});
 		}catch(Exception e){
-			return Constant.ERROR;
+			return JsonUtil.jsonToMap(new String[]{"retcode","status"}, new Object[]{0,Constant.ERROR});
 		}
 	}
 	
@@ -128,7 +134,7 @@ public class OrderController {
 			synchronized(ShareMem.currentOrderNum) {
 				order.setId(++ShareMem.currentOrderNum);
 			}
-			
+			order.setOrderStatus(String.valueOf(BConstants.orderWait));
 			order.setClientName(user.getUserName());
 			order.setClientAddress(user.getUserAddress());
 			order.setClientTelephone(user.getUserPhone());
@@ -156,15 +162,13 @@ public class OrderController {
 		// 根据用户id获取订单
 		List<Order> orderList = orderService.queryByUser(userId);
 		
-		Map<String, List<Order>> map = new HashMap<>();
+		String json =  JsonUtil.jsonToMap(new String[]{"retcode","data"}, 
+				new Object[]{Constant.TRUE,orderList});
 		
-		map.put("data", orderList);
-		
-		String json = JsonUtil.objectToJson(map);
-		
-		LOGGER.log(Level.DEBUG, "转化后的json数据为[{0}]", json);
+		LOGGER.log(Level.DEBUG, "当前转化的信息为 [{0}]", json);
 		
 		return json;
+		
 		
 	}
 	
@@ -194,24 +198,20 @@ public class OrderController {
 		// if has object, install orderList
 		if(!checkNormal(printers)) {
 			LOGGER.log(Level.DEBUG, "当前用户[{0}]没有打印机设备连入", userId);
-			return "";
+			return JsonUtil.jsonToMap(new String[]{"retcode","data"}, 
+					new String[]{String.valueOf(Constant.TRUE),"[]"});
 		}
 		
 		// install orderList
 		List<Order> orderList = installOrders(printers);
 		
 		
-		Map<String, List<Order>> map = new HashMap<>();
+		String json =  JsonUtil.jsonToMap(new String[]{"retcode","data"}, 
+				new Object[]{Constant.TRUE,orderList});
 		
-		map.put("data", orderList);
-		
-		//convert object to json
-		String json = JsonUtil.objectToJson(map);
-		
-		LOGGER.log(Level.DEBUG, "转化后的json数据为[{0}]", json);
+		LOGGER.log(Level.DEBUG, "当前转化的信息为 [{0}]", json);
 		
 		return json;
-		
 	}
 	
 
