@@ -29,7 +29,9 @@ ol {
     width: 80%;
     min-width: 1000px;
 }
-
+.ct{
+    text-align: center;
+}
 .user {
     line-height: 60px;
     padding: 5px 0;
@@ -246,11 +248,10 @@ ol {
     min-height: calc(100vh - 235px - 70px + 5px);
 }
 #ware{
-    background-image: url(../images/ware_03.png) , url(../images/ware_02.png);
+    background-image: url(../images/ware_02.png);
     width: 100%;
     min-width: 1000px;
-    background-repeat-y: no-repeat;
-    background-position-y: bottom; 
+    background-size: cover;
     height: 235px;
 
 }
@@ -303,14 +304,25 @@ ol {
 }
 
 .dish_name {
-    width: 250px;
+    width: 210px;
     float: left;
     text-indent: 20px;
 }
 
 .head .dish_name{
     padding-left: 10px;
-    width: 240px;
+    width: 200px;
+    text-indent: 0;
+}
+.dish_price {
+    width: 100px;
+    float: left;
+    text-indent: 20px;
+}
+
+.head .dish_price{
+    padding-left: 10px;
+    width: 100px;
     text-indent: 0;
 }
 .head .count{
@@ -328,8 +340,13 @@ ol {
     overflow: hidden;
     border-bottom: 1px solid #e5e5e5;
 }
+.menu .dollar{
+    float: left;
+    text-align: center;
+    width: 100px;
+}
 
-span.dollar{
+.dollar{
     float: right;
     margin-right: 15px;
     width: 3em;
@@ -343,6 +360,7 @@ span.dollar{
 /** button **/
 .dish_status{
     overflow: hidden;
+    height: 28px;
 }
 
 .add_dish{
@@ -459,7 +477,7 @@ span.dollar{
 }
 
 #shoppong_cart .sum span{
-    padding: 13px 24px;
+    padding: 13px 10px ;
     line-height: 42px;
 }
 
@@ -475,6 +493,7 @@ span.dollar{
 }
 #shoppong_cart .sum .dollar{
     float: none;
+    border-left: 1px solid #e5e5e5;
 }
 
 #toggle_card{
@@ -482,6 +501,7 @@ span.dollar{
     width: 34px;
     height: 27px;
     border: 0px;
+    border-radius: 3px;
     padding: 24px;
     margin-top: 30px;
 }
@@ -503,5 +523,60 @@ background: #f75e3a;
     line-height: 1.5em;
 
 }
-/** end shopping_card **/
 
+#shoppong_cart  #dish_cou{
+    color: #f75e3a;
+    padding: 5px;
+}
+/** end shopping_card **/
+/** clip_picture **/
+#clip_picture{
+    border: 1px solid gray;
+}
+
+#clip_picture img#clip_area{
+    width: 300px;
+    padding: 20px;
+}
+
+#clip_sure{
+    display: inline-block;
+    z-index: 1;
+    position: relative;
+}
+
+/*#test{
+    width: 200px;
+    float: left;
+    background-size: cover;
+    height: 200px;
+    background: url(file:///C:/Users/st/Pictures/QQ%E5%9B%BE%E7%89%8720160703193602.jpg);
+    background-position: 0;
+}
+*/
+
+
+ #preview-pane {
+  display: block;
+  position: absolute;
+  z-index: 2000;
+  top: 10px;
+  right: -280px;
+  padding: 6px;
+  border: 1px rgba(0,0,0,.4) solid;
+  background-color: white;
+
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+
+  -webkit-box-shadow: 1px 1px 5px 2px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 1px 1px 5px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 1px 1px 5px 2px rgba(0, 0, 0, 0.2);
+}
+
+#preview-pane .preview-container {
+  width: 250px;
+  height: 170px;
+  overflow: hidden;
+}

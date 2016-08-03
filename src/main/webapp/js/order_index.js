@@ -1,6 +1,6 @@
-// var ORDER_TYPING = 'http://localhost:8080/order/typing/1';  // 正在打印的订单路径接口
-// var PRINTER_TYPING = 'http://localhost:8080/printer/1';// 打印机状态接口
-// var ORDER_TYPED = 'http://localhost:8080/order/typed/1'; // 打印完的订单路径接口
+var ORDER_TYPING = 'http://localhost:8080/order/typing/1';  // 正在打印的订单路径接口
+var PRINTER_TYPING = 'http://localhost:8080/printer/1';// 打印机状态接口
+var ORDER_TYPED = 'http://localhost:8080/order/typed/1'; // 打印完的订单路径接口
 // var PRINTER_TYPING = 'printer'; // 打印机状态接口
 // var ORDER_TYPED = 'orders/typed'; // 打印完的订单路径接口
 
@@ -38,12 +38,12 @@ var main = {
         var str = '<div class="order head">' + '<p class="order_number">订单编号</p>' + '<p class="order_status">状态</p>' + '</div>';
         var _this = this;
         document.getElementsByClassName('typing_up_main')[0].innerHTML = str + html;
-       // tets = setTimeout('main.call()', 5000);
+       tets = setTimeout('main.call()', 5000);
     },
     renderPrinter: function(datas) {
         var html = template('printer_template', datas);
         document.getElementsByClassName('sb_printer')[0].innerHTML = html;
-       // tets2 = setTimeout('main.printf()', 5000);
+       tets2 = setTimeout('main.printf()', 5000);
     },
     changeChoice: function(str) {
         console.info(str);
