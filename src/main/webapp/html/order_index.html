@@ -41,6 +41,11 @@
     </div>
     <div id="ware"></div>
     <script id="order_template" type="text/html">
+        <% if( (!data) || data.length === 0){%>
+            <div class="order">
+                <p class='ct'> 当前没有订单</p>
+            </div>
+        <%}else{%>
         <% for (var i = 0; i < data.length; i++){%>
             <div class="order <%=odstatus(data[i].orderStatus)%>">
                 <p class="order_number">
@@ -50,9 +55,12 @@
                     <%=odstatusFormat(data[i].orderStatus) %>
                 </p>
             </div>
-        <%}%>
+        <%}}%>
     </script>
     <script id="printer_template" type="text/html">
+        <% if( (!data) || data.length === 0){%>
+                <p> 当前没有打印机</p>
+        <%}else{%>
         <% for (var i = 0; i < data.length; i++){%>
             <li>
                 <p>
@@ -63,13 +71,13 @@
                     <%=ptstatusFormat(data[i].printerStatus)%>
                 </p>
             </li>
-        <%}%>
+        <%}}%>
     </script>
-    <!-- <script src="https://cdn.bootcss.com/jquery/3.1.0/jquery.js"></script> -->
     <script src="../js/jquery.min.js"></script>
-    <!-- <script src="../js/mock.js"></script> -->
+     <script src="../js/vue.js"></script>
+    <script src="../js/mock.js"></script>
     <script src="../js/template-native.js"></script>
-    <!-- <script src="../js/test.js"></script> -->
+    <script src="../js/test.js"></script>
     <script src="../js/order.js"></script>
 </body>
 
