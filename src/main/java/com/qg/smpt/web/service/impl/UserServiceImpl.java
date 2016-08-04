@@ -18,7 +18,6 @@ import com.qg.smpt.web.model.User;
 import com.qg.smpt.web.repository.PrinterMapper;
 import com.qg.smpt.web.repository.UserMapper;
 import com.qg.smpt.web.service.UserService;
-import com.sun.org.apache.xml.internal.resolver.helpers.Debug;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -93,7 +92,12 @@ public class UserServiceImpl implements UserService{
 		try{
 			
 			loginUser = userMapper.selectByLogin(user);
-			
+
+			if(loginUser != null && loginUser.getId() > 0) {
+				loginUser = userMapper.selectUserPrinter(loginUser.getId());
+
+			}
+
 		}catch(Exception e) {
 			lOGGER.log(Level.ERROR, "userService.login(),用户登录时出现错误", e);
 		}
