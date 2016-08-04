@@ -536,6 +536,7 @@ background: #f75e3a;
     border: 0;
     padding: 5px 20px;
     margin: 20px auto;
+    visibility: hidden;
 }
 
 #clip_picture{

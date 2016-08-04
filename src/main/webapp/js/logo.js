@@ -1,15 +1,11 @@
 const WIDTH = 128;
 const HEIGHT = 128;
+const PATH = 'user/image/1';
 var logo = {
     oFReader: null, // 文件流
-    canvas: null, // canvas对象
-    form: null, // 获取图片表单的对象
-    left: 0,
-    top: 0,
-    strDataURI: 0,
     getFileFullPath: function() {
         var _this = this;
-        $('#logo_upload_button').click(function() {
+        $('#logo_file').bind('change',function() {
             var files = document.getElementById('logo_file').files;
             // 获取图片
             if (files.length === 0) {
@@ -19,134 +15,101 @@ var logo = {
                 _this.oFReader = null;
                 _this.initoFR(_this);
                 document.getElementById('logo_clip_area').removeChild(document.getElementById('clip_area'));
-                document.getElementById('logo_clip_area').removeChild(document.getElementById('canvas_clip_area'));
-                document.getElementById('logo_show_area').removeChild(document.getElementById('show_area'));
 
             }
-                logo.oFReader.readAsDataURL(files[0]);
+            logo.oFReader.readAsDataURL(files[0]);
+            $('#save_file').css({'visibility': 'visible'});
         });
     },
-    _getEleLeft: function(element) {　　　　
-        var actualLeft = element.offsetLeft;　　　　
-        var current = element.offsetParent;　　　　
-        while (current !== null) {　　　　　　 actualLeft += current.offsetLeft;　　　　　　
-            current = current.offsetParent;　　　　 }　　　　
-        return actualLeft;　　 },
-    _getEleTop: function(element) {　　　　
-        var actualTop = element.offsetTop;　　　　
-        var current = element.offsetParent;　　　　
-        while (current !== null) {　　　　　　 actualTop += current.offsetTop;　　　　　　
-            current = current.offsetParent;　　　　 }　　　　
-        return actualTop;　　 },
+    _handlePicture: function(_this, canvas){
+        var img = new Image(),
+            imgURL = canvas.toDataURL("image/png"),
+            context = canvas.getContext('2d'),
+            iw, ih, multiple, deviation, length;
+            // length是按倍数伸缩之后的大小。
+
+        // 获取图片来源
+        img.src = _this.oFReader.result;
+        console.log('img width: '+ img.width);
+        console.log('img height: '+ img.height);
+
+        iw = img.width;
+        ih = img.height;
+
+        if(iw > ih){
+            multiple = iw / 128;
+            length = ih/multiple;
+            deviation = (128 - length)/2;
+            context.drawImage(img, 0, deviation, 128, length);
+        }else{
+            multiple = ih / 128;
+            length = iw/multiple;
+            deviation = (128 - length)/2;
+            context.drawImage(img, deviation , 0, length, 128);
+        }
+    },
     // 第2步：前端获取图片文件放在canvas里面,和创建遮罩去遮盖元素
     createCanvas: function(_this) {
-        var imgURL,
-            img,
-            canvas = _this.canvas,
-            context,
-            drag,
-            left,
-            top,
+        var context,
             canvas = document.createElement('canvas');
-        canvas.id = "clip_area";
-        var c = document.createElement('canvas');
-        var area = document.getElementById('logo_clip_area');
+            // 裁剪路径
+            canvas.id = "clip_area";
+
         if (canvas.getContext) {
-            imgURL = canvas.toDataURL("image/png");
-            img = new Image();
-            // 获取图片来源
-            img.src = _this.oFReader.result;
-            canvas.width = img.width;
-            canvas.height = img.height;
-            context = canvas.getContext('2d');
+            canvas.width = 128;
+            canvas.height = 128;
+            
+            // 对图片进行处理
+            _this._handlePicture(_this, canvas);
+            
             // 将图片插入到canvas里面
-            context.drawImage(img, 0, 0);
-
-            area.addEventListener('dragover', function(event) {
-                // 允许元素放置
-                event.preventDefault();
-            });
-            area.addEventListener('drop', function(event) {
-                var target = event.target;
-                event.preventDefault();
-                event.stopPropagation(); // 兼容ff
-                // debugger;
-                _this.left = drag.style.left = (event.pageX - left - document.getElementById('logo_clip_area').offsetLeft) + 'px';
-                _this.top = drag.style.top = (event.pageY - top - document.getElementById('logo_clip_area').offsetTop) + 'px';
-                ctx.drawImage(img, parseInt(logo.left), parseInt(logo.top), WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT); //重绘
-            });
-
-            drag = document.createElement('div');
-            drag.id = "canvas_clip_area";
-            drag.draggable = "true";
-            // div拖动事件,拖动什么
-            drag.addEventListener('drag', function(event) {
-                var target = event.target;
-
-                var dt = event.dataTransfer;
-                dt.dropAllowed = 'move';
-                dt.dropEffect = 'move';
-                ctx.drawImage(img, parseInt(logo.left), parseInt(logo.top), WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT); //重绘
-            });
-            drag.addEventListener('dragstart', function(event) {
-                // 允许元素放置
-                // event.preventDefault();
-                left = event.pageX - _this._getEleLeft(event.target);
-                top = event.pageY - _this._getEleTop(event.target);
-            });
-            // div 放到何处
-            drag.addEventListener('dragover', function(event) {
-                // 允许元素放置
-                event.preventDefault();
-            });
-            drag.addEventListener('dragenter', function(event) {
-                // 允许元素放置
-                event.preventDefault();
-            });
-            // 用户鼠标移除之前调用了dragenter的元素时，浏览器会触发dragleave事件
-            drag.addEventListener('dragleave', function(event) {
-
-            });
-            c.width = 150;
-            c.height = 150;
-            c.id = "show_area";
-            ctx = c.getContext('2d');
-            ctx.drawImage(img, parseInt(logo.left), parseInt(logo.top), WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT); //重绘
-
             document.getElementById('logo_clip_area').appendChild(canvas);
-            document.getElementById('logo_clip_area').appendChild(drag);
-            document.getElementById('logo_show_area').appendChild(c);
+            _this.canvas = canvas;
         }
     },
     // 第3步： 导出元素
-    createClip: function() {
-        var canvas = document.getElementById('show_area');
-        logo.strDataURI = canvas.toDataURL('image/png');
-        var data = logo.strDataURI.split(',')[1];
+    createClip: function(_this) {
+        var strDataURI = _this.canvas.toDataURL('image/png'),
+            data = strDataURI.split(',')[1],
+            ia,
+            blob,
+            form_obj,
+            file;
         data = window.atob(data);
-        var ia = new Uint8Array(data.length);
+        ia = new Uint8Array(data.length);
         for (var i = 0; i < data.length; i++) {
             ia[i] = data.charCodeAt(i);
         };
-        var blob = new Blob([ia], { type: "image/png" });
-        var form_obj = new FormData();
-        form_obj.append('file',blob);
 
-        $.ajax({
-            data: form_obj,
-            url: 'user/image/1',
-            dataType: 'json',
-            processData: false,
-            contentType: 'application/octet-stream',
-            type: 'post',
-            success: function(data) {
+        // blob = new Blob([ia], { type: "image/png" });
+        form_obj = new FormData(document.getElementById('#upload_form'));
+        file = new File([ia] , "foo.png", {type:"image/png"})
+        form_obj.append('file',file);
+
+        // $.ajax({
+        //     data: form_obj,
+        //     url: 'user/image/1',
+        //     dataType: 'json',
+        //     processData: false,  // 告诉jQuery不要去处理发送的数据
+        //     contentType: "multipart/form-data",   // 告诉jQuery不要去设置Content-Type请求头
+        //     type: 'post',
+        //     success: function(data) {
+        //         alert('success');
+        //     },
+        //     error: function(data) {
+        //         alert('error');
+        //     }
+
+        // });
+        var xhr = new XMLHttpRequest();
+        xhr.open('post',PATH, true);
+        xhr.onreadystatechange = function () {
+            if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                console.log(xhr.responseText);
                 alert('success');
-            },
-            error: function(data) {
-                alert('error');
             }
-
-        });
+        };
+        xhr.send(form_obj);
     },
     initoFR: function(_this){
         _this.oFReader = new FileReader();
@@ -161,7 +124,7 @@ var logo = {
         this.initoFR(_this);
         this.getFileFullPath();
         document.getElementById('save_file').addEventListener('click', function(event) {
-            logo.createClip();
+            logo.createClip(_this);
         });
 
     }
