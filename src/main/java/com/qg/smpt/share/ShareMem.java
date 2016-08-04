@@ -21,7 +21,7 @@ public final class ShareMem {
      * 关于userId - user 对象共享问题
      * 登录 打印机连接 订单发送均会查询该对象
      * 1. 检测 userIdMap.get(userId) == null ? 进行第二行 : 结束
-     * 2. synchronized(ShareMem.userIdMap) {  some code }
+     * 2. synchronized(Sha reMem.userIdMap) {  some code }
      * 3. 去数据库中查询 user 信息(打印机和用户多表查询 selectPrinterUser)并放入 userIdMap 对象中
      */
     public static Map<Integer, User> userIdMap = null;                      // 用户id-用户, 用户登陆, 打印机初次发送请求, 订单初次生成
