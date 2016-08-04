@@ -8,15 +8,22 @@ var logo = {
     top: 0,
     strDataURI: 0,
     getFileFullPath: function() {
+        var _this = this;
         $('#logo_upload_button').click(function() {
             var files = document.getElementById('logo_file').files;
             // 获取图片
             if (files.length === 0) {
                 alert("you don't upload files!");
                 return;
-            } else {
-                logo.oFReader.readAsDataURL(files[0]);
+            } else if(document.getElementsByTagName('canvas').length > 0){
+                _this.oFReader = null;
+                _this.initoFR(_this);
+                document.getElementById('logo_clip_area').removeChild(document.getElementById('clip_area'));
+                document.getElementById('logo_clip_area').removeChild(document.getElementById('canvas_clip_area'));
+                document.getElementById('logo_show_area').removeChild(document.getElementById('show_area'));
+
             }
+                logo.oFReader.readAsDataURL(files[0]);
         });
     },
     _getEleLeft: function(element) {　　　　
@@ -100,15 +107,15 @@ var logo = {
             drag.addEventListener('dragleave', function(event) {
 
             });
-            c.width = 300;
-            c.height = 300;
+            c.width = 150;
+            c.height = 150;
             c.id = "show_area";
             ctx = c.getContext('2d');
             ctx.drawImage(img, parseInt(logo.left), parseInt(logo.top), WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT); //重绘
 
             document.getElementById('logo_clip_area').appendChild(canvas);
             document.getElementById('logo_clip_area').appendChild(drag);
-            document.getElementById('logo_clip_area').appendChild(c);
+            document.getElementById('logo_show_area').appendChild(c);
         }
     },
     // 第3步： 导出元素
@@ -141,14 +148,17 @@ var logo = {
 
         });
     },
-    init: function() {
-        var _this = this;
-        this.oFReader = new FileReader();
+    initoFR: function(_this){
+        _this.oFReader = new FileReader();
         // 加载了图片之后执行这个函数
-        this.oFReader.onload = function(event) {
+        _this.oFReader.onload = function(event) {
             _this.createCanvas(_this);
 
         }
+    },
+    init: function() {
+        var _this = this;
+        this.initoFR(_this);
         this.getFileFullPath();
         document.getElementById('save_file').addEventListener('click', function(event) {
             logo.createClip();
