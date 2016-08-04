@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 
+import com.qg.smpt.printer.model.BConstants;
 import com.qg.smpt.share.ShareMem;
 import com.qg.smpt.web.model.Item;
 import com.qg.smpt.web.model.Order;
@@ -73,48 +74,6 @@ public class OrderBuilder {
 	private static String remarks[] = {"加饭", "晚点来", "加菜"};
 	
 	private static String expectTimes[] = {"10:30", "11.30", "12.30", "5.30", "6.30", "7.30"};
-	
-//	public Order produceOrder() throws UnsupportedEncodingException {
-//		Order order = new Order();
-//		
-//		int randomNum = 0;
-//		
-//		//生活公司信息
-//		randomNum = getRandom(4);
-//		order.setCompany(companys[randomNum]);
-//		
-//		//生成商家信息
-//		randomNum = getRandom(4);
-//		order.setShopName(shops[randomNum]);
-//		order.setFrom(address[randomNum]);
-//		order.setShopContact(contact[randomNum]);
-//		
-//		//获取订单信息
-//		order.setOrderNum(getOrderNum());
-//		order.setOrderTime(new Date().toString());
-//		order.setExpectTime(expectTimes[getRandom(6)]);
-//		order.setRemark(remarks[getRandom(3)]);
-//		
-//		//生成顾客信息
-//		randomNum = getRandom(6);
-//		order.setCustomer(customers[randomNum]);
-//		order.setTo(cAddress[randomNum]);
-//		order.setComContact(cContact[randomNum]);
-//		
-//		//生成菜
-//		randomNum = getRandom(5) + 1;
-//		List<Item> items = new ArrayList<>(randomNum);
-//		for(int i = 0; i < randomNum; i++){
-//			items.add(createItem(i));
-//		}
-//		order.setItems(items);
-//		
-//		//生成其他付费信息
-//		order.setMealCost(getMealCost());
-//		order.setDeliveryCost(getdeliveryCost());
-//		
-//		return order;
-//	}
 
 	/**
 	 * 订单生成器 flag 0-非加急； 1-加急
@@ -152,7 +111,8 @@ public class OrderBuilder {
 		order.setUserName(customers[randomNum]);
 		order.setUserAddress(cAddress[randomNum]);
 		order.setUserTelephone(cContact[randomNum]);
-		
+		order.setOrderStatus(Integer.valueOf(BConstants.orderWait).toString());
+
 		//生成菜
 		randomNum = getRandom(5) + 1;
 		List<Item> items = new ArrayList<Item>(randomNum);
@@ -165,8 +125,7 @@ public class OrderBuilder {
 		order.setOrderMealFee(getMealCost());
 		order.setOrderDisFee(getdeliveryCost());
 		order.setOrderPreAmount(getRandom(6));
-		order.setOrderPayStatus("1");
-		order.setOrderStatus("1");
+		order.setOrderPayStatus("已支付");
 
 		// 判断是否设置加急
 		if (flag) {

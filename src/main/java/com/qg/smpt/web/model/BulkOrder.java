@@ -25,12 +25,13 @@ public final class BulkOrder {
 
     private List<BOrder> bOrders = null;
 
-
     private List<Order> orders = null;
 
-    private int dataSize;       //批次订单数据的总大小
+    private int dataSize = 0;       //批次订单数据的总大小
 
-    private short bulkType;    //0-普通 1-加急
+    private short bulkType = 0;    //0-普通 1-加急
+
+    private int receNum = 0;       // 从打印机中接收到的订单数
 
     public BulkOrder(List<BOrder> bOrders) {
         this.dataSize = 0;
@@ -163,5 +164,13 @@ public final class BulkOrder {
 
     public List<Order> getOrders() {
         return orders;
+    }
+
+    public void setReceNum(int receNum) {
+        this.receNum = receNum;
+    }
+
+    public int getReceNum() {
+        return receNum;
     }
 }

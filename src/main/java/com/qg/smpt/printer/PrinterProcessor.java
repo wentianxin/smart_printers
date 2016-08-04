@@ -1,6 +1,7 @@
 package com.qg.smpt.printer;
 
 import com.qg.smpt.printer.model.*;
+import com.qg.smpt.receive.ReceOrderServlet;
 import com.qg.smpt.share.ShareMem;
 import com.qg.smpt.util.DebugUtil;
 import com.qg.smpt.util.Level;
@@ -8,8 +9,10 @@ import com.qg.smpt.util.Logger;
 import com.qg.smpt.web.model.BulkOrder;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
+import com.qg.smpt.web.model.User;
 import com.qg.smpt.web.repository.OrderMapper;
 import com.qg.smpt.web.repository.PrinterMapper;
+import com.qg.smpt.web.repository.UserMapper;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -256,6 +259,12 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
     /**
      * 处理打印机的连接请求, 若打印机对象未建立，则建立并初始化打印机对象
+     * 1. 检测打印机id - 打印机关系是否建立, 若已建立，则直接返回
+     * 2. （未建立条件下）, 从数据库中获取打印机对应的 userid
+     * 3. 根据userid 获取共享内存中的User对象
+     * 4. 若User对象为空，则查询数据库, 获取List<Printer>集合; 否则直接从User对象中获取Printer集合
+     * 5. 从Printer集合中查找对应的Printer对象
+     * 6. 将Printer对象放入共享内存中,并设置为已连接状态
      * @param bytes
      */
     private void parseConnectStatus(byte[] bytes, SocketChannel socketChannel) {
@@ -267,47 +276,82 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         int printerId = bRequest.printerId;
 
         // 建立用户-printer 关系
-        Printer printer = null;
-
-        printer = ShareMem.printerIdMap.get(printerId);
-        if (printer == null) {
-            // id - printer 建立在商家注册时 进行建立
-            Integer userId = null;
-            SqlSession sqlSession = sqlSessionFactory.openSession();
-            try {
-                PrinterMapper printerMapper = sqlSession.getMapper(PrinterMapper.class);
-                userId = printerMapper.selectUserIdByPrinter(printerId);
-                if (userId == null) {
-                    LOGGER.log(Level.ERROR, "打印机信息并未注册[{0}]", printerId);
-                    return ;
-                }
-                List<Printer> printers = printerMapper.selectPrinters(userId);
-                if (printers == null) {
-                    LOGGER.log(Level.ERROR, "打印机信息并未注册[{0}]", userId);
-                    return ;
-                }
-            } finally {
-                sqlSession.commit();
-                sqlSession.close();
-            }
-
-            printer.setConnected(true);
-            printer.setCurrentBulk(0);
-            // TODO 如果有两个线程同时向 HashMap中添加相同printerId， 是否会出现重复问题
-            synchronized (ShareMem.printerIdMap) {
-                ShareMem.printerIdMap.put(printerId, printer);
-            }
-
-            LOGGER.log(Level.DEBUG, "将打印机[{0}]并为建立打印对象；打印机状态:[{1}];用户:[{2}]", printerId,
-                    printer.getPrinterStatus(), printer.getUserId());
-
-        }
-        else {
+        Printer printer = ShareMem.printerIdMap.get(printerId);
+        if (printer != null){
             LOGGER.log(Level.WARN, "共享对象中已存在打印机[{0}]与打印机对象", printerId);
+            return ;
         }
 
-        ShareMem.priSocketMap.put(printer, socketChannel);
-        LOGGER.log(Level.DEBUG, "建立打印机[{0}] 与 socketChannel对象关联", printerId);
+        // id - printer 建立在商家注册时 进行建立
+        Integer userId = null;
+        User user = null;
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        try {
+            PrinterMapper printerMapper = sqlSession.getMapper(PrinterMapper.class);
+            /* Step 2 从数据库中获取用户id */
+            userId = printerMapper.selectUserIdByPrinter(printerId);
+            if (userId == null) {
+                LOGGER.log(Level.ERROR, "打印机信息并未注册[{0}]", printerId);
+                return ;
+            }
+            /* Step 3 根据userId 获取 user 对象 */
+            user = ShareMem.userIdMap.get(userId);
+            synchronized (ShareMem.userIdMap) {
+                if (user == null) {
+                    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+                    user = userMapper.selectUserPrinter(userId);
+                    if (user == null) {
+                        LOGGER.log(Level.WARN, "无商家信息 [{0}]", userId);
+                        return;
+                    }
+
+                    ShareMem.userIdMap.put(userId, user);
+                }
+            }
+
+
+
+        } finally {
+            sqlSession.commit();
+            sqlSession.close();
+        }
+
+        /* Step 4 */
+        List<Printer> printers = user.getPrinters();
+        if (printers == null || printers.size() < 1) {
+            LOGGER.log(Level.ERROR, "打印机信息并未注册 商家：[{0}]", userId);
+            return ;
+        }
+        int position  = 0;
+        for (position = 0; position < printers.size(); position++) {
+            Printer p = printers.get(position);
+            if (p.getId() == printerId) {
+                printer = p;
+                break;
+            }
+        }
+        if (position >= printers.size()) {
+            LOGGER.log(Level.WARN, "商家无该打印机信息 [{0}]", printerId);
+            return ;
+        }
+
+
+        printer.setConnected(true);
+        printer.setCurrentBulk(0);
+        // TODO 如果有两个线程同时向 HashMap中添加相同printerId， 是否会出现重复问题
+
+        synchronized (ShareMem.printerIdMap) {
+            ShareMem.printerIdMap.put(printerId, printer);
+        }
+
+        LOGGER.log(Level.DEBUG, "将打印机[{0}]并为建立打印对象；打印机状态:[{1}];用户:[{2}]", printerId,
+                printer.getPrinterStatus(), printer.getUserId());
+
+
+        if (ShareMem.priSocketMap.get(printer) == null) {
+            ShareMem.priSocketMap.put(printer, socketChannel);
+            LOGGER.log(Level.DEBUG, "建立打印机[{0}] 与 socketChannel对象关联", printerId);
+        }
 
         // TODO printer 锁是否有用
         /* 锁住 printer 打印机对象，避免出现创建多次队列现象*/
@@ -325,6 +369,18 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                 LOGGER.log(Level.INFO, "初始化打印机[{0}] 已发队列", printerId);
                 ShareMem.priSentQueueMap.put(printer, new ArrayList<BulkOrder>());
             }
+        }
+
+        /* 检测userOrderBufferMap 中是否存有订单数据 */
+        List<Order> orders = ShareMem.userOrderBufferMap.get(userId);
+        if (orders == null || orders.size() == 0) {
+            return ;
+        }
+
+        LOGGER.log(Level.DEBUG, "在打印机建立连接前商家已经接收到订单");
+
+        synchronized (ShareMem.userOrderBufferMap.get(userId)) {
+            new ReceOrderServlet().sendUserOrderBuffer(printer, userId);
         }
     }
 
@@ -410,6 +466,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             bulkOrderList = new ArrayList<BulkOrder>();
             ShareMem.priSentQueueMap.put(p, bulkOrderList);
         }
+
 
         bulkOrderList.add(bOrders);
 
@@ -525,6 +582,8 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                 order.setOrderStatus(String.valueOf(bOrderStatus.flag & 0xFF));  // 设置订单状态 //
                 LOGGER.log(Level.DEBUG, "订单内容 [{0}] 当前线程 [{1}]", order.toString(), this.id);
 
+
+
                 break;
             }
         }
@@ -571,18 +630,41 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
         } else if ( flag == BConstants.orderSucc ) {
             LOGGER.log(Level.DEBUG, "订单处理成功 当前线程 [{1}]", this.id);
+            order.setOrderStatus(Integer.valueOf(BConstants.orderSucc).toString());
+            bulkOrderF.setReceNum(bulkOrderF.getReceNum()+1);
+            if (bulkOrderF.getReceNum() < bulkOrderF.getOrders().size()) {
+                return ;
+            }
+
+            SqlSession sqlSession = sqlSessionFactory.openSession();
+            OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
+            try {
+                Order o = null;
+                for (int i = 0; i < bulkOrderF.getbOrders().size(); i++) {
+                    o = bulkOrderF.getOrders().get(i);
+                    orderMapper.insert(o);
+                    orderMapper.insertUserOrder(o.getUserId(), o.getId());
+                }
+            } finally {
+                sqlSession.commit();
+                sqlSession.close();
+            }
+
         } else if ( flag == BConstants.orderInQueue ){
             LOGGER.log(Level.DEBUG, "订单进入打印队列 当前线程 [{1}]", this.id);
+            order.setOrderStatus(Integer.valueOf(BConstants.orderInQueue).toString());
         } else if ( flag == BConstants.orderTyping) {
             LOGGER.log(Level.DEBUG, "订单正在打印成功 当前线程 [{1}]", this.id);
+            order.setOrderStatus(Integer.valueOf(BConstants.orderTyping).toString());
         } else if ( flag == BConstants.orderExcep ) {
             LOGGER.log(Level.DEBUG, "打印机 [{0}] 异常队列批次 [{1}] 处理成功 当前线程 [{2}]", printer.getId(), bOrderStatus.bulkId, this.id);
-
+            order.setOrderStatus(Integer.valueOf(BConstants.orderExcep).toString());
             /* 向数据库中插入处理成功的订单数据 */
             SqlSession sqlSession = sqlSessionFactory.openSession();
             OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
             try {
-                orderMapper.insertSelective(order);
+                orderMapper.insert(order);
+                orderMapper.insertUserOrder(order.getUserId(), order.getId());
             } finally {
                 sqlSession.commit();
                 sqlSession.close();
@@ -597,7 +679,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
     }
 
     /**
-     * 解析打印机发送的批次订单状态
+     * 解析打印机发送的批次订单状态 暂时废弃, 当批次中的单个订单全部反馈完状态后，插入数据库中
      * @param bytes
      */
     private void parseBulkStatus(byte[] bytes) {
@@ -636,14 +718,17 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
             SqlSession sqlSession = sqlSessionFactory.openSession();
             OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
-            try {
-                for (int i = 0; i < bulkOrder.getbOrders().size(); i++) {
-                    orderMapper.insert(bulkOrder.getOrders().get(i));
-                }
-            } finally {
-                sqlSession.commit();
-                sqlSession.close();
-            }
+//            try {
+//                Order o = null;
+//                for (int i = 0; i < bulkOrder.getbOrders().size(); i++) {
+//                    o = bulkOrder.getOrders().get(i);
+//                    orderMapper.insert(o);
+//                    orderMapper.insertUserOrder(o.getUserId(), o.getId());
+//                }
+//            } finally {
+//                sqlSession.commit();
+//                sqlSession.close();
+//            }
 
         } else if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
         	// 批次订单失败 忽略失败信息-bug

@@ -68,9 +68,18 @@ public final class Order {
 
     private char orderType;  // 0-非加急; 1-加急
 
+    private int userId;
 
     public Order() {
         this.orderType = '0';
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public int getUserId() {
+        return userId;
     }
 
     public void setOrderType(char orderType) {

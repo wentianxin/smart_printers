@@ -208,6 +208,9 @@
       </if>
     </trim>
   </insert>
+  <insert id="insertUserOrder" parameterType="java.lang.Integer">
+    insert into user_orders (user_id, order_id) values (#{userId, jdbcType=INTEGER}, #{orderId, jdbcType=INTEGER})
+  </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.qg.smpt.web.model.Order" >
     <!--
       WARNING - @mbggenerated

@@ -11,6 +11,7 @@ import java.util.Queue;
 
 /**
  * 全局生命周期的共享对象
+ * // TODO 何时注销这些对象呢?
  */
 public final class ShareMem {
 	
@@ -18,7 +19,7 @@ public final class ShareMem {
 
     /**
      * 关于userId - user 对象共享问题
-     * 登录
+     * 登录 打印机连接 订单发送均会查询该对象
      * 1. 检测 userIdMap.get(userId) == null ? 进行第二行 : 结束
      * 2. synchronized(ShareMem.userIdMap) {  some code }
      * 3. 去数据库中查询 user 信息(打印机和用户多表查询 selectPrinterUser)并放入 userIdMap 对象中
@@ -30,6 +31,11 @@ public final class ShareMem {
 
     public static Map<Integer, List<Printer>> userListMap = null;           // 用户-打印机 废弃该共享变量，使用 user 对象中包含的变量
                                                                             // TODO 注意对象的生命周期, 而没有保持同步
+    /**
+     * 关于userId - BulkOrder集合问题
+     * 当用户打印机均未连接到服务器时, 将订单数据先保存在该对象中, 倘若任意一台打印机设备已连接服务器, 则忽略该对象
+     */
+    public static Map<Integer, List<Order>> userOrderBufferMap = null;     // 用户id-缓冲队列
 
     public static Map<Printer, List<BulkOrder>> priSentQueueMap = null;     // 打印机-已发批次队列
 
@@ -48,6 +54,8 @@ public final class ShareMem {
         printerIdMap = new HashMap<Integer, Printer>();
 
         userListMap = new HashMap<Integer, List<Printer>>();
+
+        userOrderBufferMap = new HashMap<Integer, List<Order>>();
 
         priSentQueueMap = new HashMap<Printer, List<BulkOrder>>();
 
