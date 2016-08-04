@@ -11,7 +11,7 @@
 <body>
     <div id="nav" class="wrapper" >
         <div class="user subwrapper">
-            <a href="#"></a>
+            <a href="order_send.html"></a>
             <span class="user_name">用户名字</span>
         </div>
     </div>
@@ -21,10 +21,12 @@
             <ul class="menu">
                 <li class="head">
                     <p class="dish_name">菜名</p>
+                    <p class="dish_price">价格</p>
                     <p class="count">数量</p>
                 </li>
                 <li v-for="dish in dishes">
-                    <p class="dish_name">{{dish.name}} <span class="dollar">{{dish.price}}</span></p>
+                    <p class="dish_name">{{dish.name}} </p>
+                    <p class="dish_price dollar">{{dish.price}}</p>
                     <p class="dish_status" v-if="dish.count === 0">
                         <span class="add_dish" v-on:click='changeDishStatus($index)'>+</span>
                     </p>
@@ -42,6 +44,7 @@
                         <span>></span>
                     </div>
                     <ul>
+                        
                         <li v-for="dish in dishes" v-if="dish.count !== 0">
                             <p class="dish_name">{{dish.name}} <span class="dollar">{{dish.price}}</span></p>
                             <p class="dish_status">
@@ -51,7 +54,7 @@
                             </p>
                         </li>
                         <li class="sum">
-                            <span>结算</span>
+                            <span>共<span id="dish_cou">{{sum}}</span>份</span>
                             <!-- 这里添加一个触发状态的东西，一旦数目发生改变，这里的单价发生改变 -->
                             <span class="dollar" id="sum">{{ sum }}</span>
                             <button type="button" id="send_order">确定</button>

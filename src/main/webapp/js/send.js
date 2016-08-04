@@ -72,7 +72,9 @@ function countSum(){
 		counter += dishes[i].count;
 	}
 	document.getElementById('sum').innerHTML = sum;		
-	document.getElementById('counter_num').innerHTML = counter;		
+	document.getElementById('counter_num').innerHTML =  counter;		
+	document.getElementById('dish_cou').innerHTML = counter;	
+	
 }
 document.getElementById('toggle_card').addEventListener('click',function(event){
 	var ele = document.getElementById('sc_area');
