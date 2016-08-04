@@ -39,59 +39,7 @@ import com.sun.org.apache.xpath.internal.operations.Or;
 @RequestMapping("/order")
 public class OrderController {
 	private static final Logger LOGGER = Logger.getLogger(OrderController.class);
-	
-//	static {
-//		int num = 0;
-//		
-//		List<Printer> printers = new ArrayList<>();
-//		
-//		for(int i = 0; i < 5; i++) {
-//			//生成打印机信息
-//			Printer p = new Printer();
-//			p.setId(i);
-//			p.setPrinterStatus("110");
-//			printers.add(p);
-//			
-//			//生成未打印批次
-//			List<BulkOrder> bulks = new ArrayList<>();
-//			for(int k = 0; k < 5; k++) {
-//				BulkOrder bulk = new BulkOrder(k);
-//				List<Order> notTypeOrder = new ArrayList<>();
-//				for(int j = 0; j < 10; j++ ) {
-//					Order o = new Order();
-//					o.setId(num++);
-//					o.setOrderStatus("130");
-//					notTypeOrder.add(o);
-//				}
-//				bulk.setOrders(notTypeOrder);
-//				bulks.add(bulk);
-//			}
-//			ShareMem.priBufferMapList.put(p, bulks);
-//			
-//			
-//			//生成正在打印批次
-//			List<BulkOrder> bulksT = new ArrayList<>();
-//			for(int k = 0; k < 5; k++) {
-//				BulkOrder bulk = new BulkOrder(k);
-//				List<Order> TypingOrder = new ArrayList<>();
-//				for(int j = 0; j < 10; j++ ) {
-//					Order o = new Order();
-//					o.setId(num++);
-//					o.setOrderStatus("120");
-//					TypingOrder.add(o);
-//				}
-//				bulk.setOrders(TypingOrder);
-//				bulksT.add(bulk);
-//			}
-//			ShareMem.priSentQueueMap.put(p, bulksT);
-//			
-//			
-//		}
-//		
-//		ShareMem.userListMap.put(1, printers);
-//	}
-	
-	
+
 	@Autowired
 	private OrderService orderService;
 	@Autowired
@@ -122,6 +70,7 @@ public class OrderController {
 			
 			return JsonUtil.jsonToMap(new String[]{"retcode","status"}, new Object[]{retcode,status});
 		}catch(Exception e){
+			LOGGER.log(Level.DEBUG,"用户[{0}]下单出现了错误", userId, e);
 			return JsonUtil.jsonToMap(new String[]{"retcode","status"}, new Object[]{0,Constant.ERROR});
 		}
 	}
@@ -191,7 +140,12 @@ public class OrderController {
 		LOGGER.log(Level.DEBUG, "正在查询 用户[{0}] 的未打印/正在打印订单", userId);
 		
 		// get printers by userId
-		List<Printer> printers = ShareMem.userListMap.get(userId);
+		User user = ShareMem.userIdMap.get(userId);
+		List<Printer> printers = null;
+		if(user != null) {
+			printers = user.getPrinters();
+		}
+//		List<Printer> printers = ShareMem.userListMap.get(userId);
 
 		// check the printers
 		// if has no object, return ""
@@ -203,7 +157,7 @@ public class OrderController {
 		}
 		
 		// install orderList
-		List<Order> orderList = installOrders(printers);
+		List<Order> orderList = installOrders(userId, printers);
 		
 		
 		String json =  JsonUtil.jsonToMap(new String[]{"retcode","data"}, 
@@ -232,16 +186,22 @@ public class OrderController {
 	 * @param printers 打印机集合
 	 * @return	未打印/正在打印的订单集合
 	 */
-	private List<Order> installOrders(List<Printer> printers) {
+	private List<Order> installOrders(int userId, List<Printer> printers) {
 		List<Order> orderList = new ArrayList<Order>();
 
+		List<Order> orderUnsend = null;
 		List<BulkOrder> bulkUnsend = null;	//未发送的批次集合
 		List<BulkOrder> bulkHasSend = null;	//已发送的批次集合
-		List<BulkOrder> bulkError = null;
+		List<BulkOrder> bulkError = null;	//异常批次
 		List<Order> ordersNotTyping = null;	//未打印订单
 		List<Order> ordersTyping = null;	//正在打印的订单集合
 		List<Order> OrdersError = null;		//异常订单
-		
+
+		orderUnsend = ShareMem.userOrderBufferMap.get(userId);
+		if(orderUnsend != null) {
+			fillOrders(orderUnsend, orderList);
+		}
+
 		// foreach printers to install orderList
 		for(Printer p : printers) {
 			bulkUnsend = ShareMem.priBufferMapList.get(p);

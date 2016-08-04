@@ -44,21 +44,19 @@ public class PrinterController {
 		LOGGER.log(Level.DEBUG, "查看用户[{0}]的打印机状态 ", userId);
 		
 		// 根据用户id获取打印机
-		List<Printer> printers = ShareMem.userListMap.get(userId);
+		User user = ShareMem.userIdMap.get(userId);
+		List<Printer> printers = null;
+		// 若内存中没有用户，则去数据库中获取,并放进内存
+		if(user == null) {
+			user = userService.queryUserPrinter(userId);
 
-		
-		// 若内存中没有用户的打印机，则去数据库中获取,并放进内存
-		if(printers == null || printers.size() <= 0) {
-			User user = userService.queryUserPrinter(userId);
-			
 			if(user != null && user.getPrinters() != null){
-				printers = user.getPrinters();
+
 				ShareMem.userListMap.put(userId, user.getPrinters());
 			}
-				
 		}
-		
-								
+
+		printers = user.getPrinters();
 		String json = JsonUtil.jsonToMap(new String[]{"retcode","data"}, 
 				new Object[]{1 ,printers});
 		

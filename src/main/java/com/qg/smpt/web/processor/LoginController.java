@@ -47,8 +47,10 @@ public class LoginController {
 		// check the login status
 		// if success, store the user
 		if(retcode == Constant.TRUE) {
-			 ShareMem.userIdMap.put(loginUser.getId(), loginUser);
-			 return JsonUtil.jsonToMap(new String[]{"retcode","userId"}, new Object[]{retcode, loginUser.getId().toString()});
+			synchronized(ShareMem.userIdMap) {
+				ShareMem.userIdMap.put(loginUser.getId(), loginUser);
+			}
+			return JsonUtil.jsonToMap(new String[]{"retcode","userId"}, new Object[]{retcode, loginUser.getId().toString()});
 			 
 		}
 		
@@ -78,7 +80,10 @@ public class LoginController {
 		if(status.equals(Constant.SUCCESS)) {
 			 HttpSession session = request.getSession();
 			 session.setAttribute("user", loginUser);
-//			 ShareMem.userIdMap.put(loginUser.getId(), loginUser);
+
+			synchronized(ShareMem.userIdMap) {
+				ShareMem.userIdMap.put(loginUser.getId(), loginUser);
+			}
 			 return "redirect:/html/order_index.html";
 			 
 		}else{
