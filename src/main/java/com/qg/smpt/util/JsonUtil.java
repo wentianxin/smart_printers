@@ -63,7 +63,11 @@ public class JsonUtil {
 			map.put(key[i], json[i]);
 		}
 		
-		return objectToJson(map);
+		String data =  objectToJson(map);
+		
+		LOGGER.log(Level.DEBUG, "转化后的json数据为 [{0}]", data);
+		
+		return data;
 	}
 	
 	public static String objectToJson(Object object) {
