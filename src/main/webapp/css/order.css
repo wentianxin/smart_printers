@@ -15,7 +15,9 @@ ol {
     padding: 0;
     margin: 0;
 }
-
+button{
+    cursor: pointer;
+}
 .of{
     overflow: hidden;
 }
@@ -372,7 +374,6 @@ ol {
     background: #5864ff;
     font-size: 20px;
     vertical-align: middle;
-    cursor: pointer;
 }
 .add_dish:hover{
     background: #d89eed;
@@ -390,7 +391,6 @@ ol {
     font-size: 18px;
     line-height: 18px;
     color: #5864ff;
-    cursor: pointer;
 }
 
 .change_dish:hover{
@@ -489,7 +489,6 @@ ol {
     color: white;
     font-size: 18px;
     border: 0px;
-    cursor: pointer;
 }
 #shoppong_cart .sum .dollar{
     float: none;
@@ -530,6 +529,15 @@ background: #f75e3a;
 }
 /** end shopping_card **/
 /** clip_picture **/
+#upload_form{
+    margin: 20px 0;
+}
+#logo_upload_button,#save_file{
+    border: 0;
+    padding: 5px 20px;
+    margin: 20px auto;
+}
+
 #clip_picture{
     border: 1px solid gray;
 }
@@ -546,12 +554,22 @@ background: #f75e3a;
 }
 
 #logo_clip_area{
+    float: left;
     position: relative;
     top: 0;
     left: 0;
-    width: 500px;
-    height: 500px;
+    overflow: auto;
+    width: 650px;
+    height: 650px;
     background-color: #e5e5e5;
+}
+#logo_show_area{
+    width: 300px;
+    float: right;
+}
+
+#show_area{
+    margin: 20px auto;
 }
 
 #canvas_clip_area{
@@ -565,4 +583,7 @@ background: #f75e3a;
 
 #show_area{
     float:right;
+    margin: 20px auto;
 }
+
+/** end clip_picture **/
