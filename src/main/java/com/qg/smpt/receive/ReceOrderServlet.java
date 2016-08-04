@@ -2,6 +2,7 @@ package com.qg.smpt.receive;
 
 import com.qg.smpt.printer.Constants;
 import com.qg.smpt.printer.PrinterProcessor;
+import com.qg.smpt.printer.model.BConstants;
 import com.qg.smpt.printer.model.BOrder;
 import com.qg.smpt.share.ShareMem;
 import com.qg.smpt.util.Level;
@@ -13,6 +14,7 @@ import com.qg.smpt.web.model.Printer;
 import com.qg.smpt.web.model.User;
 import com.qg.smpt.web.repository.PrinterMapper;
 import com.qg.smpt.web.repository.UserMapper;
+import com.sun.tools.corba.se.idl.constExpr.Or;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
@@ -55,66 +57,101 @@ public class ReceOrderServlet extends HttpServlet {
         User user = getUser(userId);
         if (user == null) { return ; }
         /* 获取用户购买的打印机信息 */
-        List<Printer> printers = getPrinters(userId, user);
-        if (printers == null || printers.size() <= 0) { return ; }
+//        List<Printer> printers = getPrinters(userId, user);
+//        if (printers == null || printers.size() <= 0) { return ; }
+
+        order.setUserId(userId);
+
+        Printer printer = selectPrinter(user.getPrinters());
+        if (printer == null) {
+            synchronized (ShareMem.userOrderBufferMap) {
+                List<Order> orders = ShareMem.userOrderBufferMap.get(userId);
+                if (orders == null) {
+                    orders = new ArrayList<>();
+                    ShareMem.userOrderBufferMap.put(userId, orders);
+                }
+                orders.add(order);
+            }
+            return ;
+        }
 
         /* 获取打印机对应缓冲队列　添加数据, 判断是否满足线程唤醒的条件　*/
-        setOrderData(printers, userId, order);
+        setOrderData(printer, userId, order);
 
     }
 
     private User getUser(int userId) {
         User user = ShareMem.userIdMap.get(userId) ;
-        if (user == null) {
-            LOGGER.log(Level.DEBUG, "内存中暂无商家信息 [{0}]", userId);
-
-            SqlSessionFactory sqlSessionFactory = SqlSessionFactoryBuild.getSqlSessionFactory();
-            SqlSession sqlSession = sqlSessionFactory.openSession();
-            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
-            try {
-                user = userMapper.selectUserPrinter(userId);
-            } finally {
-                sqlSession.close();
-            }
+        synchronized (ShareMem.userIdMap) {
             if (user == null) {
-                LOGGER.log(Level.WARN, "数据库中无该商家 [{0}]", userId);
-                return null;
-            }
-            LOGGER.log(Level.DEBUG, "已将商家信息 id:[{0}], name [{1}], address [{2}], store [{3}] 放入内存中", user.getId(), user.getUserName(),
-                    user.getUserAddress(), user.getUserStore());
+                LOGGER.log(Level.DEBUG, "内存中暂无商家信息 [{0}]", userId);
 
-            ShareMem.userIdMap.put(userId, user);
+                SqlSessionFactory sqlSessionFactory = SqlSessionFactoryBuild.getSqlSessionFactory();
+                SqlSession sqlSession = sqlSessionFactory.openSession();
+                UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+                try {
+                    user = userMapper.selectUserPrinter(userId);
+                } finally {
+                    sqlSession.commit();
+                    sqlSession.close();
+                }
+                if (user == null) {
+                    LOGGER.log(Level.WARN, "数据库中无该商家 [{0}]", userId);
+                    return null;
+                }
+                LOGGER.log(Level.DEBUG, "已将商家信息 id:[{0}], name [{1}], address [{2}], store [{3}] 放入内存中", user.getId(), user.getUserName(),
+                        user.getUserAddress(), user.getUserStore());
+
+                ShareMem.userIdMap.put(userId, user);
+
+                if (user.getPrinters() == null || user.getPrinters().size() < 1) {
+                    LOGGER.log(Level.WARN, "商家 [{0}] 未购买 或 登记打印机信息", userId);
+                    return null;
+                }
+
+                for (Printer p : user.getPrinters()) {
+                    p.setConnected(false);
+                }
+            }
         }
         return user;
     }
 
     private List<Printer> getPrinters(int userId, User user) {
-        List<Printer> printers =  ShareMem.userListMap.get(userId);
-        if (printers == null) {
-            /* 查询数据库中商家的打印机信息 */
-            LOGGER.log(Level.DEBUG, "内存缓冲中暂未商家 [{1}] 对应的打印机 , 需查询数据库", userId);
+        List<Printer> printers =  ShareMem.userIdMap.get(userId).getPrinters();
 
-            if ( user.getPrinters() == null || user.getPrinters().size() < 1) {
-                LOGGER.log(Level.WARN, "商家暂时未购买打印机 [{0}]", userId);
-                return null;
-            } else {
-                printers = user.getPrinters();
-                LOGGER.log(Level.DEBUG, "建立商家 [{0}]-打印机列表 [{1}] 关系", user.getId(), user.getPrinters());
-                ShareMem.userListMap.put(user.getId(), user.getPrinters());
+//        if (printers == null) {
+//            /* 查询数据库中商家的打印机信息 */
+//            LOGGER.log(Level.DEBUG, "内存缓冲中暂未商家 [{0}] 对应的打印机 , 需查询数据库", userId);
+//
+//            if ( user.getPrinters() == null || user.getPrinters().size() < 1) {
+//                LOGGER.log(Level.WARN, "商家暂时未购买打印机 [{0}]", userId);
+//                return null;
+//            } else {
+//                printers = user.getPrinters();
+//                LOGGER.log(Level.DEBUG, "建立商家 [{0}]-打印机列表 [{1}] 关系", user.getId(), user.getPrinters());
+//                ShareMem.userListMap.put(user.getId(), user.getPrinters());
+//                // 锁住打印机列表对象
+//                synchronized (ShareMem.printerIdMap) {
+//                    for (Printer p : user.getPrinters()) {
+//                        LOGGER.log(Level.DEBUG, "建立打印机id [{0}]-打印机对象关系", p.getId());
+//                        ShareMem.printerIdMap.put(p.getId(), p);
+//                        p.setConnected(false);
+//                        // TODO 漏洞，打印机未连接时，而是开启其他打印机
+//                    }
+//                }
+//            }
+//        }
 
-                for(Printer p : user.getPrinters()) {
-                    LOGGER.log(Level.DEBUG, "建立打印机id [{0}]-打印机对象关系", p.getId());
-
-                    ShareMem.printerIdMap.put(p.getId(), p);
-                }
-            }
+        for (Printer p : printers) {
+            p.setConnected(false);
         }
 
         return printers;
     }
 
-    private void setOrderData(List<Printer> printers, int userId, Order order) {
-        Printer printer = selectPrinter(printers);
+    private void setOrderData(Printer printer, int userId, Order order) {
+
         LOGGER.log(Level.DEBUG, "分发的打印机id: [{0}], 商家: [{1}]", printer.getId(), userId);
 
         /* 获取打印机对应批次订单容器 */
@@ -181,10 +218,31 @@ public class ReceOrderServlet extends HttpServlet {
         }
     }
 
+    /**
+     * 当因打印机未连接而将订单数据存放到 userOrderBufferMap 对象中时, 在打印机重新建立连接时重新发送该对象中数据
+     * @param p
+     * @param userId
+     */
+    public void sendUserOrderBuffer(Printer p, int userId) {
+
+        List<Order> orders = ShareMem.userOrderBufferMap.get(userId);
+
+        ShareMem.userOrderBufferMap.remove(userId);
+
+        for (Order o : orders) {
+            setOrderData(p, userId, o);
+        }
+    }
 
     private Printer selectPrinter(List<Printer> printers) {
         // TODO 缺少智能分发算法
-        return printers.get(0);
+        for (Printer p : printers) {
+            if (p.isConnected()) {
+                return p;
+            }
+        }
+
+        return  null;
     }
 
     private List<BulkOrder> getBulkBuffer(Printer printer) {

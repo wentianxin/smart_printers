@@ -48,16 +48,6 @@ public class TestPrinterConnector implements Runnable{
             receOrderServlet.doGet(1, orderBuilder.produceOrder(false));
             wait(1000);
             receOrderServlet.doGet(1, orderBuilder.produceOrder(false));
-//            wait(1000);
-//            receOrderServlet.doGet(1, orderBuilder.produceOrder());
-//            wait(1000);
-//            receOrderServlet.doGet(1, orderBuilder.produceOrder());
-//            wait(1000);
-//            receOrderServlet.doGet(1, orderBuilder.produceOrder());
-//            wait(1000);
-//            receOrderServlet.doGet(1, orderBuilder.produceOrder());
-//            wait(1000);
-//            receOrderServlet.doGet(1, orderBuilder.produceOrder());
         } catch (ServletException e) {
             e.printStackTrace();
         } catch (IOException e) {
