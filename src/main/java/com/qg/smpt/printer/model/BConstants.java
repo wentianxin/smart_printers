@@ -42,16 +42,17 @@ public final class BConstants {
 
     public static final byte orderFail = (byte)0x01;    // 打印失败
 
-    public static final byte orderInQueue = (byte)0x2;  // 进入打印队列
+    public static final byte orderInQueue = (byte)0x02;  // 进入打印队列
 
-    public static final byte orderTyping = (byte)0x3;   // 开始打印
+    public static final byte orderTyping = (byte)0x03;   // 开始打印
 
-    public static final byte orderDataW = (byte)0x4;    // 数据错误
+    public static final byte orderDataW = (byte)0x04;    // 数据错误
 
-    public static final byte orderExcep = (byte)0x5;    // 打印成功-之前的异常订单
+    public static final byte orderExcep = (byte)0x05;    // 打印成功-之前的异常订单
     
-    public static final byte orderWait = (byte)0x6;		// 等待被发送
+    public static final byte orderWait = (byte)0x06;     // 等待被发送
 
+    public static final byte orderSent = (byte)0x07;     // 订单已发送
 
     /* 批次订单状态 */
     public static final byte bulkSucc  = (byte)0x00;    // 批次订单成功
