@@ -81,8 +81,11 @@ public class LoginController {
 			 HttpSession session = request.getSession();
 			 session.setAttribute("user", loginUser);
 
-			synchronized(ShareMem.userIdMap) {
-				ShareMem.userIdMap.put(loginUser.getId(), loginUser);
+			User u = ShareMem.userIdMap.get(user.getId());
+			if(u != null) {
+				synchronized (ShareMem.userIdMap) {
+					ShareMem.userIdMap.put(loginUser.getId(), loginUser);
+				}
 			}
 			 return "redirect:/html/order_index.html";
 			 

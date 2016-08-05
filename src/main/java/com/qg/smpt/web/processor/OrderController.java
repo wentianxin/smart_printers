@@ -80,7 +80,7 @@ public class OrderController {
 		
 		// 检查商家信息
 		if(user != null) {
-			synchronized(ShareMem.currentOrderNum) {
+			synchronized(ShareMem.class) {
 				order.setId(++ShareMem.currentOrderNum);
 			}
 			order.setOrderStatus(String.valueOf(BConstants.orderWait));
