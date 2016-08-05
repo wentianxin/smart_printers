@@ -707,7 +707,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         LOGGER.log(Level.DEBUG, "打印机 [{0}] 处理批次订单 [{1}], 发送时间戳 [{2}]， 校验和 [{3}] printerProcessor 线程 [{4}]", bBulkStatus.printerId,bBulkStatus.bulkId,
                 bBulkStatus.seconds, bBulkStatus.checkSum, this.id);
 
-        if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
+        if ( (byte)(bBulkStatus.flag  & 0xFF) == (byte) BConstants.bulkSucc) {
         	// 批次订单成功
             // 将已发队列中数据装填到数据库中，并清除已发队列
             LOGGER.log(Level.DEBUG, "打印机 [{0}] 处理批次订单成功 [{1}]  printerProcessor 线程 [{2}]", bBulkStatus.printerId,
@@ -749,9 +749,11 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 //                sqlSession.close();
 //            }
 
-        } else if ( (byte)((bBulkStatus.flag >> 8) & 0xFF) == (byte) BConstants.bulkSucc) {
-        	// 批次订单失败 忽略失败信息-bug
-            LOGGER.log(Level.DEBUG, "暂未处理批次订单异常情况 当前线程[{0}]", this.id);
+        } else if ( (byte)(bBulkStatus.flag  & 0xFF) == (byte) BConstants.bulkInBuffer) {
+        	// 批次进入缓冲区 超时重新传送
+            LOGGER.log(Level.DEBUG, "暂未处理批次订进入缓冲区 当前线程[{0}]", this.id);
+        } else if ( (byte)(bBulkStatus.flag & 0xFF) == (byte) BConstants.bulkFail) {
+            LOGGER.log(Level.DEBUG, "暂未处理批次订错误 当前线程[{0}]", this.id);
         }
     }
 
