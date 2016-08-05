@@ -173,4 +173,8 @@ public final class BulkOrder {
     public int getReceNum() {
         return receNum;
     }
+
+    public void increaseReceNum() {
+        receNum++;
+    }
 }

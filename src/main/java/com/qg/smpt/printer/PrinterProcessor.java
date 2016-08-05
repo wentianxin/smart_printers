@@ -597,7 +597,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             return ;
         }
 
-        bulkOrderF.increaseReceNum();
+
 
         LOGGER.log(Level.DEBUG, "内存中的订单id: [{0}], 当前线程 [{1}]", order.getId(), this.id);
         LOGGER.log(Level.DEBUG, "====确认 orderId: {0}, userId: {1}", order.getId(), order.getUserId());
@@ -605,6 +605,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
         /* 失败 重发数据*/
         if ( flag == BConstants.orderFail || flag == BConstants.orderDataW) {
+            bulkOrderF.increaseReceNum();
 
             // TODO 如何获取打印机发来的异常订单被更新后的数据
             LOGGER.log(Level.INFO, "打印机 [{0}] 打印订单 (订单批次号 [{1}], 批次内序号 [{2}]) 失败 当前线程 [{3}]",
@@ -640,6 +641,8 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
 
         } else if ( flag == BConstants.orderSucc ) {
+            bulkOrderF.increaseReceNum();
+            
             LOGGER.log(Level.DEBUG, "订单处理成功 当前线程 [{1}]", this.id);
             order.setOrderStatus(Integer.valueOf(BConstants.orderSucc).toString());
 
