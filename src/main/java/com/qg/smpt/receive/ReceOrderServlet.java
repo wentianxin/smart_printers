@@ -154,6 +154,8 @@ public class ReceOrderServlet extends HttpServlet {
 
         LOGGER.log(Level.DEBUG, "分发的打印机id: [{0}], 商家: [{1}]", printer.getId(), userId);
 
+        order.setMpu(printer.getId());
+
         /* 获取打印机对应批次订单容器 */
         List<BulkOrder> bOrdersList = getBulkBuffer(printer);
         
