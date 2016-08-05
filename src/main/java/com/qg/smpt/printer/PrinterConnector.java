@@ -146,17 +146,20 @@ public class PrinterConnector implements Runnable, Lifecycle{
                             // 当有多个 SocketChannel时, 会自动筛选哪一个SocketChannel 触发了事件
                             // 1. 连接后的一个请求：将打印机id-主控板（用户）id绑定，将打印机id-SocketChannel绑定
 
-                            PrinterProcessor processor = createProcessor();
-
-                            LOGGER.log(Level.DEBUG, "ServerSocket accpet read requestion， alloate a printerProcessor thread [{0}]", processor.getId());
                             SocketChannel sc = (SocketChannel) key.channel();
                             ByteBuffer byteBuffer = ByteBuffer.allocate(20);
                             byteBuffer.clear();
-                            sc.read(byteBuffer);
+                            /* 检测socket 客户端是否关闭 */
+                            if ( sc.read(byteBuffer) == -1 ) {
+                                sc.close();
+                                // TODO 当打印机关闭连接时, 更新打印机状态, 打印机相关的共享内存对象?
+                            }
                             byteBuffer.flip();
 
                             LOGGER.log(Level.DEBUG, "SocketChannel [{0}}",key.channel().toString());
+                            PrinterProcessor processor = createProcessor();
                             processor.assign((SocketChannel)key.channel(), byteBuffer);
+                            LOGGER.log(Level.DEBUG, "ServerSocket accpet read requestion， alloate a printerProcessor thread id [{0}]", processor.getId());
                             break;
                         default: // something was wrong
                             LOGGER.log(Level.ERROR, "ServerSocket 出现未知情况");
