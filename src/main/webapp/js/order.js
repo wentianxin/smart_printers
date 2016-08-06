@@ -29,7 +29,13 @@ var odst =  {
     2: '进入打印队列',
     3: '开始打印',
     4: '数据错误',
-    5: '打印成功-之前的异常订单'
+    5: '打印成功-之前的异常订单',
+    6: '异常单打印出错',
+    7: '异常单进入打印队列',
+    8: '异常单开始打印',
+    9: '异常单数据错误',
+    10: '订单准备发送到打印机',
+    11: '订单已发放到打印机'
 };
 var main = {
     choice: ORDER_TYPING,
@@ -38,12 +44,12 @@ var main = {
         var str = '<div class="order head">' + '<p class="order_number">订单编号</p>' + '<p class="order_status">状态</p>' + '</div>';
         var _this = this;
         document.getElementsByClassName('typing_up_main')[0].innerHTML = str + html;
-        tets = setTimeout('main.call()', 1000 * 15);
+        // tets = setTimeout('main.call()', 1000 * 15);
     },
     renderPrinter: function(datas) {
         var html = template('printer_template', datas);
         document.getElementsByClassName('sb_printer')[0].innerHTML = html;
-        tets2 = setTimeout('main.printf()', 1000 * 15);
+        // tets2 = setTimeout('main.printf()', 1000 * 15);
 
     },
     changeChoice: function(str) {
@@ -131,6 +137,12 @@ template.helper('odstatus', function(data) {
         case 2:
         case 3:
         case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+        case 11:
             format = '';
             break;
         case 1:
@@ -151,7 +163,7 @@ template.helper('ptstatusFormat', function(data) {
     return format;
 });
 template.helper('odstatusFormat', function(data, format) {
-    if(data >= 0 && data < 6){
+    if(data >= 0 && data < 12){
         format = odst[data];
     }else{
         format = '系统异常';
