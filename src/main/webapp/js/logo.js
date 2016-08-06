@@ -1,24 +1,41 @@
 const WIDTH = 128;
 const HEIGHT = 128;
-const PATH = 'user/image/1';
+// const PATH = 'user/image/1';
+const PATH = 'http://baidu.com'
 var logo = {
     oFReader: null, // 文件流
+    type: /((.png)$)|((.jpg)$)|((.jpeg)$)|((.gif)$)/gi,
     getFileFullPath: function() {
-        var _this = this;
-        $('#logo_file').bind('change',function() {
+        var _this = this,
+            textEle = document.getElementsByClassName('beautify')[0].getElementsByTagName('p')[0],
+            fileEle = document.getElementById('logo_file');
+        fileEle.addEventListener('change', function(event) {
             var files = document.getElementById('logo_file').files;
             // 获取图片
             if (files.length === 0) {
                 alert("you don't upload files!");
                 return;
-            } else if(document.getElementsByTagName('canvas').length > 0){
-                _this.oFReader = null;
-                _this.initoFR(_this);
-                document.getElementById('logo_clip_area').removeChild(document.getElementById('clip_area'));
-
+            } else if(_this.oFReader != null){
+                console.log(files[0].name.match(_this.type));
+                if(files[0].name.match(_this.type)){
+                    document.getElementById('show_area').getElementsByTagName('p')[0].innerHTML = '你选择的文件是<span>' + files[0].name + '</span>';
+                    _this.oFReader = null;
+                    _this.initoFR(_this);
+                    if(document.getElementById('clip_area')){
+                        document.getElementById('show_area').removeChild(document.getElementById('clip_area'));
+                    }
+                }else{
+                    return ;
+                }
             }
             logo.oFReader.readAsDataURL(files[0]);
-            $('#save_file').css({'visibility': 'visible'});
+        });
+        // 文字模拟出发表单提交事件。
+        textEle.addEventListener('click', function(){
+            var event = document.createEvent("MouseEvents");
+            event.initMouseEvent('click', true, true, document.defaultView, 0, 0, 0, 0, 0,
+                                false, false, false, false, 0, null);
+            fileEle.dispatchEvent(event);
         });
     },
     _handlePicture: function(_this, canvas){
@@ -30,8 +47,9 @@ var logo = {
 
         // 获取图片来源
         img.src = _this.oFReader.result;
-        console.log('img width: '+ img.width);
-        console.log('img height: '+ img.height);
+        img.onload = function(event){
+            document.getElementById('save_file').style.visibility = 'visible';
+        }
 
         iw = img.width;
         ih = img.height;
@@ -63,7 +81,7 @@ var logo = {
             _this._handlePicture(_this, canvas);
             
             // 将图片插入到canvas里面
-            document.getElementById('logo_clip_area').appendChild(canvas);
+            document.getElementById('show_area').appendChild(canvas);
             _this.canvas = canvas;
         }
     },
@@ -81,26 +99,10 @@ var logo = {
             ia[i] = data.charCodeAt(i);
         };
 
-        // blob = new Blob([ia], { type: "image/png" });
         form_obj = new FormData(document.getElementById('#upload_form'));
         file = new File([ia] , "foo.png", {type:"image/png"})
         form_obj.append('file',file);
 
-        // $.ajax({
-        //     data: form_obj,
-        //     url: 'user/image/1',
-        //     dataType: 'json',
-        //     processData: false,  // 告诉jQuery不要去处理发送的数据
-        //     contentType: "multipart/form-data",   // 告诉jQuery不要去设置Content-Type请求头
-        //     type: 'post',
-        //     success: function(data) {
-        //         alert('success');
-        //     },
-        //     error: function(data) {
-        //         alert('error');
-        //     }
-
-        // });
         var xhr = new XMLHttpRequest();
         xhr.open('post',PATH, true);
         xhr.onreadystatechange = function () {
@@ -110,6 +112,13 @@ var logo = {
             }
         };
         xhr.send(form_obj);
+        xhr.upload.onprogress = function (event) {
+    　　　　if (event.lengthComputable) {
+    　　　　　　var complete = (event.loaded / event.total * 100 | 0);
+    　　　　　　var progress = document.getElementById('uploadprogress');
+    　　　　　　progress.value = progress.innerHTML = complete;
+    　　　　}
+    　　};
     },
     initoFR: function(_this){
         _this.oFReader = new FileReader();
