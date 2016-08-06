@@ -164,8 +164,8 @@ public class ReceOrderServlet extends HttpServlet {
             bOrders = bOrdersList.get(bOrdersList.size() - 1); // 获取容器中最后一个批次订
         } else {
             bOrders = new BulkOrder(new ArrayList<BOrder>());
-            bOrders.setId(printer.getCurrentBulk()+1);
-            printer.setCurrentBulk(printer.getCurrentOrder()+1);
+            printer.increaseBulkId();
+            bOrders.setId(printer.getCurrentBulk());
             bOrdersList.add(bOrders);
         }
 
@@ -179,8 +179,6 @@ public class ReceOrderServlet extends HttpServlet {
             }
             // 需要将该订单分发给下一个批次订单
             LOGGER.log(Level.DEBUG, "打印机[{0}] 第[{1}]批次容量已满足", printer.getId(), bOrders.getId());
-            bOrder.inNumber = (short) 0x1;
-            bOrder.bulkId = (short)bOrders.getId();
 
             order.setMpu(printer.getId());
 
@@ -188,10 +186,15 @@ public class ReceOrderServlet extends HttpServlet {
             bOrders.getbOrders().add(bOrder);
             bOrders.getOrders().add(order);
             bOrders.setDataSize(bOrder.size + bOrders.getDataSize());
-            bOrders.setId(printer.getCurrentBulk()+1);
-            printer.setCurrentBulk(printer.getCurrentBulk()+1);
+            printer.increaseBulkId();
+            bOrders.setId(printer.getCurrentBulk());
 
             bOrdersList.add(bOrders);
+
+            bOrder.inNumber = (short) 0x1;
+            bOrder.bulkId = (short)bOrders.getId();
+
+            LOGGER.log(Level.DEBUG, "订单的批次id: [{0}], 批次内序号 [{1}]", bOrder.bulkId, bOrder.inNumber);
 
             // 如果打印机可以接收数据，唤醒线程
             if (printer.isCanAccept()) {
@@ -213,6 +216,8 @@ public class ReceOrderServlet extends HttpServlet {
             bOrder.bulkId = (short)bOrders.getId();
             bOrder.inNumber = (short)bOrders.getOrders().size();
             order.setMpu(printer.getId());
+            LOGGER.log(Level.DEBUG, "订单的批次id: [{0}], 批次内序号 [{1}]", bOrder.bulkId, bOrder.inNumber);
+
             LOGGER.log(Level.DEBUG, "不满足唤醒打印机 [{0}] 已睡眠线程的条件, 打印机缓冲队列 [{1}]，" +
                             "批次订单数 [{2}], 最后批次订单号 , 最后批次订单容量 [{3}] byte" , printer.getId(),
                     bOrdersList.size(), bOrders.getId(), bOrders.getDataSize());

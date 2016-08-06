@@ -126,7 +126,7 @@ public final class Order {
         return mpu;
     }
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 

@@ -49,10 +49,18 @@ public final class BConstants {
     public static final byte orderDataW = (byte)0x04;    // 数据错误
 
     public static final byte orderExcep = (byte)0x05;    // 打印成功-之前的异常订单
-    
-    public static final byte orderWait = (byte)0x06;     // 等待被发送
 
-    public static final byte orderSent = (byte)0x07;     // 订单已发送
+    public static final byte orderExcepFail = (byte)0x06;
+
+    public static final byte orderExcepInQueue = (byte)0x07;
+
+    public static final byte orderExcepTyping = (byte)0x08;
+
+    public static final byte orderExcepDataW = (byte)0x09;
+
+    public static final byte orderWait = (byte)0x0A;     // 等待被发送
+
+    public static final byte orderSent = (byte)0x0B;     // 订单已发送
 
     /* 批次订单状态 */
     public static final byte bulkSucc  = (byte)0x00;    // 批次订单成功
@@ -92,5 +100,7 @@ public final class BConstants {
     public static final byte printerE = (byte)0xE;      // 健康状态
 
     public static final byte printerF = (byte)0xF;      // 亚健康状态
+
+    public static final byte printerNotConnect = (byte)0xFF; // 未连接
 
 }

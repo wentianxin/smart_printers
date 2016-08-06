@@ -13,21 +13,21 @@ import java.net.Socket;
 /**
  *  模拟打印机客户端发送数据
  */
-public class TestClient implements Runnable{
+public class TestClient2 implements Runnable{
 
     private int printerId;
 
-    public TestClient(int printerId) {
+    public TestClient2(int printerId) {
         this.printerId = printerId;
     }
 
     public static void main(String[] args)  {
 
-        Thread thread = new Thread(new TestClient(1));
 
-        thread.start();
+            Thread thread = new Thread(new TestClient(2));
 
-        System.out.println(System.currentTimeMillis());
+            thread.start();
+
 
     }
 
@@ -85,31 +85,17 @@ public class TestClient implements Runnable{
                     outputStream.write(bytes);
                     outputStream.flush();
                 } else if (s.equals("order")) {
-                    String s1 = br.readLine();
-                    short flag = (BConstants.orderStatus << 8) & 0xFFFF;
-                    if (s1.equals("succ")) {
-                        flag |= 0x0;
-                    } else if (s1.equals("fail")) {
-                        flag |= 0x1;
-                    } else if (s1.equals("in")) {
-                        flag |= 0x2;
-                    } else if (s1.equals("start")) {
-                        flag |= 0x3;
-                    } else if (s1.equals("excp")) {
-                        flag |= 0x4;
-                    } else if (s1.equals("excpsucc")) {
-                        flag |= 0x5;
-                    } else {
-                        System.out.println("输入错误");
-                    }
                     // 单个订单接收
-                    bytes = buildAbstractStatus(flag, this.printerId);
-                    System.out.print("请输入订单批次号与订单号内序号");
-                    String bulkId = br.readLine();
-                    String inNumber = br.readLine();
-
-                    bytes[14] = Byte.valueOf(bulkId);
-                    bytes[15] = Byte.valueOf(inNumber);
+                    bytes = buildAbstractStatus((short) (((BConstants.orderStatus << 8) & 0xFFFF) | 0x1), this.printerId);
+                    bytes[14] = (byte) 0;
+                    bytes[15] = (byte) 1;
+                    outputStream.write(bytes);
+                    outputStream.flush();
+                } else if (s.equals("order2")) {
+                    // 返回处理成功后的异常单
+                    bytes = buildAbstractStatus((short) (((BConstants.orderStatus << 8) & 0xFFFF) | 0x5), this.printerId);
+                    bytes[14] = (byte) 0;
+                    bytes[15] = (byte) 1;
                     outputStream.write(bytes);
                     outputStream.flush();
                 } else if (s.equals("printer")) {
@@ -134,7 +120,7 @@ public class TestClient implements Runnable{
                     //DebugUtil.printBytes(byte4);
                 }
 
-
+                DebugUtil.printBytes(bytes);
             }
 
         } catch (IOException e) {

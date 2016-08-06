@@ -145,7 +145,7 @@ public class PrinterConnector implements Runnable, Lifecycle{
                         case SelectionKey.OP_READ:
                             // 当有多个 SocketChannel时, 会自动筛选哪一个SocketChannel 触发了事件
                             // 1. 连接后的一个请求：将打印机id-主控板（用户）id绑定，将打印机id-SocketChannel绑定
-
+                            LOGGER.debug("ServerSocket accpet printer read request");
                             SocketChannel sc = (SocketChannel) key.channel();
                             ByteBuffer byteBuffer = ByteBuffer.allocate(20);
                             byteBuffer.clear();
@@ -170,7 +170,7 @@ public class PrinterConnector implements Runnable, Lifecycle{
                 }
             }
         } catch (IOException e) {
-            LOGGER.log(Level.ERROR, "serverSocketChannel ");
+            LOGGER.log(Level.ERROR, "serverSocketChannel ", e);
         }
     }
 

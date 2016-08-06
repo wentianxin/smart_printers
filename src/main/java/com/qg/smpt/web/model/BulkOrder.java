@@ -41,7 +41,7 @@ public final class BulkOrder {
         //this.userId = userId;
     }
 
-    public static BBulkOrder convertBBulkOrder(BulkOrder bulkOrder) {
+    public static BBulkOrder convertBBulkOrder(BulkOrder bulkOrder, boolean isExcep) {
         BBulkOrder bBulk = new BBulkOrder();
 
         // 设置订单个数
@@ -66,17 +66,20 @@ public final class BulkOrder {
         bBulk.setPadding1((short)0);
 
         //设置订单数据
-        byte[] data = installOrders(bulkOrder);
+        byte[] data = installOrders(bulkOrder, isExcep);
         bBulk.setData(data);
 
         return bBulk;
     }
 
-    private static byte[] installOrders(BulkOrder bulkOrder) {
+    private static byte[] installOrders(BulkOrder bulkOrder, boolean isExcep) {
         byte[] data = new byte[bulkOrder.getDataSize()];
 
         int pos = 0;
         for(BOrder o : bulkOrder.getbOrders()) {
+            // 若是异常单，则将之前的保留为设置为 0x0002;
+            if (isExcep)
+                o.padding0 = (short) 0x2;
             byte[] orderB = BOrder.bOrderToBytes(o);
             pos = BytesConvert.fillByte(orderB, data, pos);
         }
@@ -174,7 +177,7 @@ public final class BulkOrder {
         return receNum;
     }
 
-    public void increaseReceNum() {
+    public synchronized void increaseReceNum() {
         receNum++;
     }
 }
