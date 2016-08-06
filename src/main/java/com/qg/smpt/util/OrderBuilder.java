@@ -97,6 +97,7 @@ public class OrderBuilder {
 			order.setClientName(u.getUserStore());
 			order.setClientAddress(u.getUserAddress());
 			order.setClientTelephone(u.getUserPhone());
+			order.setOrderStatus(String.valueOf(BConstants.orderWait));
 		}
 		
 		//获取订单信息

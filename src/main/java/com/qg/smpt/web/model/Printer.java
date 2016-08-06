@@ -62,6 +62,10 @@ public final class Printer {
         return currentOrder;
     }
 
+    public synchronized void increaseBulkId() {
+        currentBulk++;
+    }
+
     public void setCurrentOrder(int currentOrder) {
         this.currentOrder = currentOrder;
     }

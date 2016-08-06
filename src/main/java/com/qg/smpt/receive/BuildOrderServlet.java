@@ -48,6 +48,7 @@ public class BuildOrderServlet extends HttpServlet {
 
         for (int i = 0; i < expeNumbers; i++) {
             Order order = OrderBuilder.produceOrder(true);
+
             receOrderServlet.doGet(userId, order);
         }
 
