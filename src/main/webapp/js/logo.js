@@ -1,6 +1,7 @@
 const WIDTH = 128;
 const HEIGHT = 128;
-const PATH = 'http://localhost:8080/user/image/1';
+const id = window.localStorage.getItem('smart_printer');
+const PATH = 'http://localhost:8080/user/image/' + id;
 var logo = {
     oFReader: null, // 文件流
     type: /((.png)$)|((.jpg)$)|((.jpeg)$)|((.gif)$)/gi,

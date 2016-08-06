@@ -1,6 +1,10 @@
-var ORDER_TYPING = 'http://localhost:8080/order/typing/1';  // 正在打印的订单路径接口
-var PRINTER_TYPING = 'http://localhost:8080/printer/1';// 打印机状态接口
-var ORDER_TYPED = 'http://localhost:8080/order/typed/1'; // 打印完的订单路径接口
+var temp = window.location.search.indexOf('=');
+var id = window.location.search.slice(temp+1);
+window.localStorage.setItem('smart_printer', id);
+    
+var ORDER_TYPING = 'http://localhost:8080/order/typing/' + id;  // 正在打印的订单路径接口
+var PRINTER_TYPING = 'http://localhost:8080/printer/' + id;// 打印机状态接口
+var ORDER_TYPED = 'http://localhost:8080/order/typed/' + id; // 打印完的订单路径接口
 // var PRINTER_TYPING = 'printer'; // 打印机状态接口
 // var ORDER_TYPED = 'orders/typed'; // 打印完的订单路径接口
 
@@ -171,25 +175,6 @@ template.helper('odstatusFormat', function(data, format) {
     return format;
 });
 
-var ware = {
-    width: document.body.offsetWidth,
-    displacement_1: 0,
-    displacement_2: 0,
-    move: function(){
-        $('#ware').css('background-position', (this.displacement_1 = this.displacement_1+ 10) + 'px  bottom,' + (this.displacement_2 = this.displacement_2 + 5) + 'px  bottom');
-        if(this.width < this.displacement_1){
-            console.log(this.displacement_1);
-            console.log(this.width);
-            this.displacement_1 -= 1087;
-        }
-        if(this.width < this.displacement_2){
-            console.log(this.displacement_1);
-            console.log(this.width);
-            this.displacement_2 -= 1209;
-        }
-        setTimeout('ware.move()', 75);
-    }
-};
 (function() {
     $('#ab_od_typing').click(function() {
         main.changeChoice(ORDER_TYPING);
@@ -199,5 +184,4 @@ var ware = {
     });
     main.call();
     main.printf();
-    // ware.move();
 })();
