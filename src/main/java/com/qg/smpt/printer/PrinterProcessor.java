@@ -462,7 +462,6 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             LOGGER.log(Level.WARN, "打印机 [{0}] printerConnector [{1}} 缓存队列无批次订单数据");
         }
 
-
         LOGGER.log(Level.DEBUG, "打印机 [{0}] 绑定线程 printerConnector[{1}] 锁定打印机已发队列 [{2}]，" +
                 "并将批次订单数据加入已发队列中", printerId, this.id, ShareMem.priSentQueueMap.get(p));
         List<BulkOrder> bulkOrderList = ShareMem.priSentQueueMap.get(p);
@@ -478,7 +477,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
         LOGGER.log(Level.DEBUG, "打印机 [{0}] 线程 printerConnector[{1}] 开始转换批次订单数据",
                 printerId, this.id);
-        BBulkOrder bBulkOrder = BulkOrder.convertBBulkOrder(bOrders);
+        BBulkOrder bBulkOrder = BulkOrder.convertBBulkOrder(bOrders, false);
         byte[] bBulkOrderBytes = BBulkOrder.bBulkOrderToBytes(bBulkOrder);
 
 
@@ -499,6 +498,11 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             socketChannel.write(byteBuffer);
         } catch (final IOException e) {
             LOGGER.log(Level.ERROR, "打印机 [{0}] 打印机线程 printerProcessor [{1}] 发送订单数据异常", p.getId(), this.id);
+        }
+
+        String orderSent = String.valueOf(BConstants.orderSent);
+        for (Order o : bOrders.getOrders()) {
+            o.setOrderStatus(orderSent);
         }
 
         LOGGER.log(Level.INFO, "打印机 [{0}] 对应 打印机线程 printerProcessor [{1}] 完成订单发送请求; 时间 [{2}]",
@@ -559,7 +563,8 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 //        } else
         /* 获取批次订单队列 flag 0x5 : 获取异常批次订单队列; others : 获取已发送批次订单队列 */
         List<BulkOrder> bulkOrderList = null;
-        if ( flag != BConstants.orderExcep ) {
+        if ( flag == BConstants.orderInQueue || flag == BConstants.orderFail || flag == BConstants.orderTyping
+                || flag == BConstants.orderDataW || flag == BConstants.orderSucc) {
             // 获取已发队列数据
             bulkOrderList = ShareMem.priSentQueueMap.get(printer);
         } else {
@@ -616,8 +621,9 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             bulkOrder.getOrders().add(order);
             bulkOrder.setBulkType((short) 1);
             bulkOrder.setDataSize(bOrder.size);
-            bulkOrder.setId(bulkOrderF.getId());
-            bulkOrder.getbOrders().add(order.orderToBOrder((short) (bulkOrder.getId()), (short) 0));
+            printer.increaseBulkId();
+            bulkOrder.setId(printer.getCurrentBulk());
+            bulkOrder.getbOrders().add(order.orderToBOrder( (short) (bulkOrder.getId()), (short) 1 ) );  // 根据bulkid 和 批次内序号 : 1
             bulkOrder.setUserId(bulkOrderF.getUserId());
 
             order.setOrderStatus(Integer.valueOf(flag).toString());
@@ -628,7 +634,8 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             ShareMem.priExceQueueMap.get(printer).add(bulkOrder); // 放入异常队列
 
             /*  转化发送批次订单数据 */
-            byte[] bBulkOrderByters = BBulkOrder.bBulkOrderToBytes(BulkOrder.convertBBulkOrder(bulkOrder));
+            byte[] bBulkOrderByters = BBulkOrder.bBulkOrderToBytes(BulkOrder.convertBBulkOrder(bulkOrder, true));
+            bBulkOrderByters[15] = (byte)0x1;
             LOGGER.log(Level.DEBUG, "打印机 [{0}] 重新发送批次异常单 当前线程 [{1}]", bOrderStatus.printerId, this.id);
             DebugUtil.printBytes(bBulkOrderByters);
 
