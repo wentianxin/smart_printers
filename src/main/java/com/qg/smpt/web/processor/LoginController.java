@@ -87,7 +87,7 @@ public class LoginController {
 					ShareMem.userIdMap.put(loginUser.getId(), loginUser);
 				}
 			}
-			 return "redirect:/html/order_index.html";
+			 return "redirect:/html/order_index.html?userId=" + loginUser.getId();
 			 
 		}else{
 			 return "redirect:/html/user_login.html";
