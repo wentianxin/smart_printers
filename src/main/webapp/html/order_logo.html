@@ -15,12 +15,19 @@
         </div>
         <div class="wrapper">
             <div class="subwrapper" id="logo_upload">
-                <input type="file" name="logo_file" id="logo_file">
+                <div class="beautify">
+                    <p>选择文件</p>
+                    <input type="file" name="logo_file" id="logo_file"  accept="image/png,image/gif,image/jpeg">
+                </div>
                 <form id="upload_form" enctype="multipart/form-data">
-                    <button type="button" id="save_file">保存为BMP</button>
+                    <div id="show_area">
+                        <p>你选择的文件是</p>
+
+                    </div>
+                    <button type="button" id="save_file">确认上传</button>
                 </form>
-                <div id="logo_clip_area"></div>
-                <div id="logo_show_area">
+                <div id="logo_clip_area">
+                <!-- 　<progress id="uploadprogress" min="0" max="100" value="0">0</progress> -->
                 </div>
             </div>
             <script src="../js/jquery.min.js"></script>

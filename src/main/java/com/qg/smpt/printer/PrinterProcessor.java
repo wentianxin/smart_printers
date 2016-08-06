@@ -402,7 +402,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
         Printer p = ShareMem.printerIdMap.get(printerId);
         if (p == null) {
-            LOGGER.log(Level.ERROR, "共享内存中并为找到打印机id[{0}]对应printer对象 当前线程 [{1}]", printerId, this.id);
+            LOGGER.log(Level.ERROR, "共享内存中并未找到打印机id[{0}]对应printer对象 当前线程 [{1}]", printerId, this.id);
             return ;
         }
 

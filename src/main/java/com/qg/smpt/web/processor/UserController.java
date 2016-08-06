@@ -3,10 +3,17 @@ package com.qg.smpt.web.processor;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.qg.smpt.util.Level;
+import com.qg.smpt.util.Logger;
+import com.qg.smpt.web.model.User;
+import com.qg.smpt.web.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -17,10 +24,15 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 @Controller
 @RequestMapping("user")
 public class UserController {
+	private static Logger LOGGER = Logger.getLogger(UserController.class);
+
+    @Autowired
+    private UserService userService;
 
 	@RequestMapping(value="image/{userId}", method=RequestMethod.POST, produces="application/json;charset=utf-8")
     @ResponseBody
-	public String springUpload(HttpServletRequest request) throws IllegalStateException, IOException {
+	public String springUpload(@PathVariable int userId, HttpServletRequest request) throws IllegalStateException, IOException {
+        LOGGER.log(Level.DEBUG,"正在上传logo图片");
 		long startTime = System.currentTimeMillis();
 
 		// 将当前上下文初始化给 CommonsMutipartResolver （多部分解析器）
@@ -40,12 +52,29 @@ public class UserController {
 				// 一次遍历所有文件
 				MultipartFile file = multiRequest.getFile(iter.next().toString());
 				if (file != null) {
-					String path = request.getServletContext().getContextPath() + file.getOriginalFilename();
-					System.out.println(path);
+					String path = request.getServletContext().getRealPath("/") + "WEB-INF"
+                            + File.separator + "image";
 
+					LOGGER.log(Level.DEBUG, "正在查找图片保存文件夹 [{0}]" ,path);
 
-					// 上传
+                    File catalog = new File(path);
+                    if(!catalog.exists()) {
+                        LOGGER.log(Level.DEBUG, "文件夹不存在，正在试图创建文件夹");
+                        boolean isCreated = catalog.mkdir();
+                        LOGGER.log(Level.DEBUG, "文件夹创建结果为[{0}]", isCreated);
+                    }
+
+//                    String originalFileName = file.getOriginalFilename();
+//                    String suffix = originalFileName.lastIndexOf(".") != -1 ? originalFileName.substring(originalFileName.lastIndexOf(".")) : "";
+                    String filename = "" + userId + UUID.randomUUID() + ".jpg";
+                    path = path + File.separator + filename;
+                    LOGGER.log(Level.DEBUG, "图片文件路径为 [{0}]" ,path);
+
+                    // 执行上传
 					file.transferTo(new File(path));
+
+                    // 将数据保存到数据库
+
 				}
 
 			}
