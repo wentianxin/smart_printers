@@ -270,7 +270,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
     private void parseConnectStatus(byte[] bytes, SocketChannel socketChannel) {
         BRequest bRequest = BRequest.bytesToRequest(bytes);
 
-        LOGGER.log(Level.DEBUG, "打印机id [{0}], 发送时间戳 [{1}], 校验和 [{2}], 标志位 [{3}]",
+        LOGGER.log(Level.DEBUG, "打印机id [{0}], 发送时间戳 [{1}], 校验和 [{2}], 标志位 [{3}] ",
                 bRequest.printerId, bRequest.seconds, bRequest.checkSum, bRequest.flag);
 
         int printerId = bRequest.printerId;
@@ -402,9 +402,14 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
         Printer p = ShareMem.printerIdMap.get(printerId);
         if (p == null) {
-            LOGGER.log(Level.ERROR, "共享内存中并为找到打印机id[{0}]对应printer对象 当前线程 [{1}]", printerId, this.id);
+            LOGGER.log(Level.ERROR, "共享内存中并未找到打印机id[{0}]对应printer对象 当前线程 [{1}]", printerId, this.id);
             return ;
         }
+
+        if (!p.isConnected()) {
+            //LOGGER.log();
+        }
+
         ShareMem.priPriProcessMap.put(p, this);
         LOGGER.log(Level.INFO, "建立打印机对象:[{0}] 与 PrinterConnector 线程之间连接 当前线程 [{1}]", p.getId(), this.id);
 
@@ -512,7 +517,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
     private void parseOrderStatus(byte[] bytes, SocketChannel socketChannel) {
         BOrderStatus bOrderStatus = BOrderStatus.bytesToOrderStatus(bytes);
 
-        LOGGER.log(Level.DEBUG, "打印机id [{0}], 订单flag : [{1}] , 订单发送时间戳 : [{2}], " +
+        LOGGER.log(Level.DEBUG, "打印机id [{0}], 订单标志 : [{1}] , 订单发送时间戳 : [{2}], " +
                 "所属批次[{3}], 批次内序号 [{4}], 校验和 [{5}] 当前线程 [{6}]", bOrderStatus.printerId, bOrderStatus.flag,
                 bOrderStatus.seconds, bOrderStatus.bulkId, bOrderStatus.inNumber, bOrderStatus.checkSum, this.id);
         byte flag = (byte)(bOrderStatus.flag  & 0xFF);
@@ -567,6 +572,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         int position = 0;              // 记录批次订单在缓存队列中的位置
         for (position = 0; position < bulkOrderList.size(); position++) {
             bulkOrderF = bulkOrderList.get(position);
+            LOGGER.log(Level.DEBUG,"寻找的批次订单号[{0}], 打印机发送的批次订单号 [{1}]", bulkOrderF.getId(), bOrderStatus.printerId);
             if (bulkOrderF.getId() == bOrderStatus.bulkId) {
                 LOGGER.log(Level.DEBUG, "已找到打印机 [{0}]  对应批次订单号 [{1}] 当前线程 [{2}]", bOrderStatus.printerId, bOrderStatus.bulkId, this.id);
 
@@ -582,20 +588,24 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                 order.setOrderStatus(String.valueOf(bOrderStatus.flag & 0xFF));  // 设置订单状态 //
                 LOGGER.log(Level.DEBUG, "订单内容 [{0}] 当前线程 [{1}]", order.toString(), this.id);
 
-
-
                 break;
             }
         }
-
         if (position == bulkOrderList.size()) {
-            LOGGER.log(Level.WARN, "打印机[{0}] 批次订单号[{1}] 订单内序号[{2}] 并不存在 ;当前线程 [{3}]", bOrderStatus.printerId,
+            LOGGER.log(Level.WARN, "打印机[{0}] 批次订单号[{1}] 订单内序号[{2}] 批次并不存在 ;当前线程 [{3}]", bOrderStatus.printerId,
                     bOrderStatus.bulkId, bOrderStatus.inNumber, this.id);
             return ;
         }
 
+
+
+        LOGGER.log(Level.DEBUG, "内存中的订单id: [{0}], 当前线程 [{1}]", order.getId(), this.id);
+        LOGGER.log(Level.DEBUG, "====确认 orderId: {0}, userId: {1}", order.getId(), order.getUserId());
+
+
         /* 失败 重发数据*/
         if ( flag == BConstants.orderFail || flag == BConstants.orderDataW) {
+            bulkOrderF.increaseReceNum();
 
             // TODO 如何获取打印机发来的异常订单被更新后的数据
             LOGGER.log(Level.INFO, "打印机 [{0}] 打印订单 (订单批次号 [{1}], 批次内序号 [{2}]) 失败 当前线程 [{3}]",
@@ -609,6 +619,8 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             bulkOrder.setId(bulkOrderF.getId());
             bulkOrder.getbOrders().add(order.orderToBOrder((short) (bulkOrder.getId()), (short) 0));
             bulkOrder.setUserId(bulkOrderF.getUserId());
+
+            order.setOrderStatus(Integer.valueOf(flag).toString());
 
             LOGGER.log(Level.DEBUG, "打印机 [{0}] 当前线程 [{1}] 组装异常单 并放入异常队列",
                     bOrderStatus.printerId, this.id);
@@ -626,24 +638,30 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                 LOGGER.log(Level.ERROR, "打印机 [{0}] 重新发送异常单 异常 当前线程 [{1}]", bOrderStatus.printerId,
                         this.id, e);
             }
-            bulkOrderList.remove(position);
+
 
         } else if ( flag == BConstants.orderSucc ) {
+            bulkOrderF.increaseReceNum();
+            
             LOGGER.log(Level.DEBUG, "订单处理成功 当前线程 [{1}]", this.id);
             order.setOrderStatus(Integer.valueOf(BConstants.orderSucc).toString());
-            bulkOrderF.setReceNum(bulkOrderF.getReceNum()+1);
+
             if (bulkOrderF.getReceNum() < bulkOrderF.getOrders().size()) {
                 return ;
             }
 
+            LOGGER.log(Level.DEBUG, "打印机[{0}] 批次订单处理完毕 [{1}] 当前线程 [{2}]", printer.getId(), bOrderStatus.bulkId, this.id);
             SqlSession sqlSession = sqlSessionFactory.openSession();
             OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
             try {
                 Order o = null;
+                String succ = Integer.valueOf(BConstants.orderSucc).toString();
                 for (int i = 0; i < bulkOrderF.getbOrders().size(); i++) {
                     o = bulkOrderF.getOrders().get(i);
-                    orderMapper.insert(o);
-                    orderMapper.insertUserOrder(o.getUserId(), o.getId());
+                    if (o.getOrderStatus().equals(succ)) {
+                        orderMapper.insert(o);
+                        orderMapper.insertUserOrder(o.getUserId(), o.getId());
+                    }
                 }
             } finally {
                 sqlSession.commit();
@@ -663,8 +681,9 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             SqlSession sqlSession = sqlSessionFactory.openSession();
             OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
             try {
-                orderMapper.insert(order);
+                LOGGER.log(Level.DEBUG, "====再次确认 orderId: {0}, userId: {1}", order.getId(), order.getUserId());
                 orderMapper.insertUserOrder(order.getUserId(), order.getId());
+                orderMapper.insert(order);
             } finally {
                 sqlSession.commit();
                 sqlSession.close();

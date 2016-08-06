@@ -1,7 +1,6 @@
 const WIDTH = 128;
 const HEIGHT = 128;
-// const PATH = 'user/image/1';
-const PATH = 'http://baidu.com'
+const PATH = 'http://localhost:8080/user/image/1';
 var logo = {
     oFReader: null, // 文件流
     type: /((.png)$)|((.jpg)$)|((.jpeg)$)|((.gif)$)/gi,
@@ -87,10 +86,10 @@ var logo = {
     },
     // 第3步： 导出元素
     createClip: function(_this) {
-        var strDataURI = _this.canvas.toDataURL('image/png'),
+        var strDataURI = _this.canvas.toDataURL('image/jpeg'),
             data = strDataURI.split(',')[1],
             ia,
-            blob,
+            // blob,
             form_obj,
             file;
         data = window.atob(data);
@@ -100,7 +99,7 @@ var logo = {
         };
 
         form_obj = new FormData(document.getElementById('#upload_form'));
-        file = new File([ia] , "foo.png", {type:"image/png"})
+        file = new File([ia] , "foo.jpg", {type:"image/jpeg"})
         form_obj.append('file',file);
 
         var xhr = new XMLHttpRequest();

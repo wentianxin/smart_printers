@@ -51,8 +51,9 @@ public class PrinterController {
 			user = userService.queryUserPrinter(userId);
 
 			if(user != null && user.getPrinters() != null){
-
-				ShareMem.userListMap.put(userId, user.getPrinters());
+                synchronized (ShareMem.userIdMap) {
+                    ShareMem.userIdMap.put(user.getId(), user);
+                }
 			}
 		}
 
