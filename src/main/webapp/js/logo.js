@@ -52,21 +52,21 @@ var logo = {
             document.getElementById('save_file').style.visibility = 'visible';
 
             // 灰度处理
-            var imageData = context.getImageData( 0, 0 , canvas.width, canvas.height );
-            var pixels = imageData.data;
-            var numPixels = pixels.length;
-
-            context.clearRect( 0, 0 , canvas.width, canvas.height );
-
-            for(var i = 0; i < numPixels; i++){
-
-                // 将文件转化为黑白
-                var arg = ((pixels[i * 4] + pixels[i * 4 + 1] + pixels[i * 4 + 2])/3) >= 126 ? 255 : 0;
-                pixels[i * 4] = pixels[i * 4 + 1] = pixels[i * 4 + 2] = arg;
-            }
-
-            context.putImageData( imageData, 0, 0 );
-            console.log('last:' + canvas.toDataURL('image/jpeg').length);
+            // var imageData = context.getImageData( 0, 0 , canvas.width, canvas.height );
+            // var pixels = imageData.data;
+            // var numPixels = pixels.length;
+            //
+            // context.clearRect( 0, 0 , canvas.width, canvas.height );
+            //
+            // for(var i = 0; i < numPixels; i++){
+            //
+            //     // 将文件转化为黑白
+            //     var arg = ((pixels[i * 4] + pixels[i * 4 + 1] + pixels[i * 4 + 2])/3) >= 126 ? 255 : 0;
+            //     pixels[i * 4] = pixels[i * 4 + 1] = pixels[i * 4 + 2] = arg;
+            // }
+            //
+            // context.putImageData( imageData, 0, 0 );
+            // console.log('last:' + canvas.toDataURL('image/jpeg').length);
         }
 
         iw = img.width;
@@ -77,13 +77,11 @@ var logo = {
             length = ih/multiple;
             deviation = (128 - length)/2;
             context.drawImage(img, 0, deviation, 128, length);
-            console.log('first:' + canvas.toDataURL('image/jpeg').length);
         }else{
             multiple = ih / 128;
             length = iw/multiple;
             deviation = (128 - length)/2;
             context.drawImage(img, deviation , 0, length, 128);
-            console.log('first:' + canvas.toDataURL('image/jpeg').length);
         }
     },
     // 第2步：前端获取图片文件放在canvas里面,和创建遮罩去遮盖元素
