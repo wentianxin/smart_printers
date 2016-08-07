@@ -1,5 +1,8 @@
 package com.qg.smpt.web.model;
 
+import com.qg.smpt.util.ImageUtil;
+
+import java.io.File;
 import java.util.List;
 
 public class User {
@@ -25,6 +28,18 @@ public class User {
     private String userPhone;
 
     private List<Printer> printers;
+
+    private byte[] logoB;
+
+    public boolean isConvert() {
+        return isConvert;
+    }
+
+    public void setConvert(boolean convert) {
+        isConvert = convert;
+    }
+
+    private boolean isConvert = false;
 
     public void setPrinters(List<Printer> printers) {
         this.printers = printers;
@@ -113,4 +128,28 @@ public class User {
     public void setUserPhone(String userPhone) {
         this.userPhone = userPhone == null ? null : userPhone.trim();
     }
+
+    public byte[] getLogoB() {
+        if(!isConvert) {
+            logoB = loadLogo();
+            isConvert = true;
+        }
+
+        return logoB;
+    }
+
+    private byte[] loadLogo() {
+        String path = this.getClass().getResource("/").getPath();
+
+        path = path.substring(0, path.indexOf("/classes"));
+
+        path += (File.separator + userLogo);
+
+        byte[] data = ImageUtil.getImage(path);
+
+        return data;
+    }
+
+
+
 }

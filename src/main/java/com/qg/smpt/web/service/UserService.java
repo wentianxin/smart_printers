@@ -37,4 +37,12 @@ public interface UserService {
 	 * @return
 	 */
 	public User queryUserPrinter(int userId);
+
+	/**
+	 * 更新用户的logo
+	 * @param path	logo的路径
+	 * @param userId 用户id
+     * @return
+     */
+	public String updateLogo(String path, int userId) ;
 }

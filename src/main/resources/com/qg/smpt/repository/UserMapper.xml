@@ -211,6 +211,8 @@
 		where id = #{id,jdbcType=INTEGER}
 	</update>
 
-
+	<update id="updateLogo" parameterType="com.qg.smpt.web.model.User">
+		update user set user_logo = #{userLogo} where id = #{id}
+	</update>
 
 </mapper>

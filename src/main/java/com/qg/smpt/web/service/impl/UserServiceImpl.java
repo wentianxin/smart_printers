@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.print.attribute.standard.NumberUp;
 
+import com.qg.smpt.share.ShareMem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,7 @@ import com.qg.smpt.web.service.UserService;
 
 @Service
 public class UserServiceImpl implements UserService{
-	private static final Logger lOGGER = Logger.getLogger(UserServiceImpl.class);
+	private static final Logger LOGGER = Logger.getLogger(UserServiceImpl.class);
 	
 	
 	@Autowired
@@ -36,13 +37,13 @@ public class UserServiceImpl implements UserService{
 	 * @return 存在则返回对应用户,不存在则返回空
 	 */
 	public User queryById(int userId) {
-		lOGGER.log(Level.DEBUG, "正在通过主键[{0}]来查找用户", userId);
+		LOGGER.log(Level.DEBUG, "正在通过主键[{0}]来查找用户", userId);
 		
 		User user = null;
 		try{
 			user = userMapper.selectByPrimaryKey(userId);
 		}catch(Exception e) {
-			lOGGER.log(Level.ERROR, "通过主键[{0}]来查找用户出错了", userId,e);
+			LOGGER.log(Level.ERROR, "通过主键[{0}]来查找用户出错了", userId,e);
 		} 
 		
 		return user;
@@ -57,7 +58,7 @@ public class UserServiceImpl implements UserService{
 		try{
 			users = userMapper.selectAllUser();
 		}catch(Exception e) {
-			lOGGER.log(Level.ERROR, "UserService.queryAllUser 查询所有用户出错 ", e);
+			LOGGER.log(Level.ERROR, "UserService.queryAllUser 查询所有用户出错 ", e);
 		}
 		
 		return users;
@@ -81,7 +82,7 @@ public class UserServiceImpl implements UserService{
 			
 			return Constant.TRUE;
 		}catch(Exception e) {
-			lOGGER.log(Level.ERROR, "注册用户失败了", e);
+			LOGGER.log(Level.ERROR, "注册用户失败了", e);
 			
 			throw(new RuntimeException("注册用户时出现了错误"));
 		}
@@ -99,7 +100,7 @@ public class UserServiceImpl implements UserService{
 			}
 
 		}catch(Exception e) {
-			lOGGER.log(Level.ERROR, "userService.login(),用户登录时出现错误", e);
+			LOGGER.log(Level.ERROR, "userService.login(),用户登录时出现错误", e);
 		}
 		
 		return loginUser;
@@ -107,14 +108,31 @@ public class UserServiceImpl implements UserService{
 	
 	
 	public User queryUserPrinter(int userId) {
-		lOGGER.log(Level.DEBUG, "正在查询用户[{0}]的打印机", userId);
+		LOGGER.log(Level.DEBUG, "正在查询用户[{0}]的打印机", userId);
 		
 		User user = userMapper.selectUserPrinter(userId);
-		
-		lOGGER.log(Level.DEBUG, "用户 [{0}] 拥有 [{1}] 台打印机", userId, (user != null && user.getPrinters() != null) ? user.getPrinters().size() : 0);
+
+		LOGGER.log(Level.DEBUG, "用户 [{0}] 拥有 [{1}] 台打印机", userId, (user != null && user.getPrinters() != null) ? user.getPrinters().size() : 0);
 	
 		return user;
 				
+	}
+
+	@Override
+	public String updateLogo(String path, int userId) {
+		LOGGER.log(Level.INFO,"用户[{0}]正在更新logo信息，路径为[{1}]", userId,path);
+		User u = new User();
+		u.setId(userId);
+		u.setUserLogo(path);
+		String status =  userMapper.updateLogo(u) > 0 ? Constant.SUCCESS : Constant.ERROR;
+
+		if(status.equals(Constant.SUCCESS)) {
+			User user = ShareMem.userIdMap.get(userId);
+			user.setUserLogo(path);
+			user.setConvert(false);
+		}
+
+		return status;
 	}
 
 }
