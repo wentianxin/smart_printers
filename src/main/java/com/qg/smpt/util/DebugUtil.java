@@ -19,7 +19,10 @@ public final class DebugUtil {
             System.arraycopy(bytes, i, test, 0, 4);
             StringBuffer stringBuffer = new StringBuffer();
             for (int j = 0; j < 4; j++)
-                stringBuffer.append(Integer.toHexString(test[j] & 0xFF) + " | ");
+                stringBuffer.append(Integer.toHexString(test[j] & 0xFF) + ",");
+
+            //System.out.print(stringBuffer.toString());
+
             LOGGER.log(Level.DEBUG, "第[{0}]字节 ： [{1}]", i, stringBuffer.toString());
         }
 
