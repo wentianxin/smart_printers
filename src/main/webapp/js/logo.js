@@ -30,7 +30,7 @@ var logo = {
             }
             logo.oFReader.readAsDataURL(files[0]);
         });
-        // 文字模拟出发表单提交事件。
+        // 文字模拟出发表单提交事件。因为文字挡住了input file的位置，阻止事件的发生。
         textEle.addEventListener('click', function(){
             var event = document.createEvent("MouseEvents");
             event.initMouseEvent('click', true, true, document.defaultView, 0, 0, 0, 0, 0,
@@ -47,8 +47,26 @@ var logo = {
 
         // 获取图片来源
         img.src = _this.oFReader.result;
+
         img.onload = function(event){
             document.getElementById('save_file').style.visibility = 'visible';
+
+            // 灰度处理
+            var imageData = context.getImageData( 0, 0 , canvas.width, canvas.height );
+            var pixels = imageData.data;
+            var numPixels = pixels.length;
+
+            context.clearRect( 0, 0 , canvas.width, canvas.height );
+
+            for(var i = 0; i < numPixels; i++){
+
+                // 将文件转化为黑白
+                var arg = ((pixels[i * 4] + pixels[i * 4 + 1] + pixels[i * 4 + 2])/3) >= 126 ? 255 : 0;
+                pixels[i * 4] = pixels[i * 4 + 1] = pixels[i * 4 + 2] = arg;
+            }
+
+            context.putImageData( imageData, 0, 0 );
+            console.log('last:' + canvas.toDataURL('image/jpeg').length);
         }
 
         iw = img.width;
@@ -59,11 +77,13 @@ var logo = {
             length = ih/multiple;
             deviation = (128 - length)/2;
             context.drawImage(img, 0, deviation, 128, length);
+            console.log('first:' + canvas.toDataURL('image/jpeg').length);
         }else{
             multiple = ih / 128;
             length = iw/multiple;
             deviation = (128 - length)/2;
             context.drawImage(img, deviation , 0, length, 128);
+            console.log('first:' + canvas.toDataURL('image/jpeg').length);
         }
     },
     // 第2步：前端获取图片文件放在canvas里面,和创建遮罩去遮盖元素
@@ -83,6 +103,7 @@ var logo = {
             // 将图片插入到canvas里面
             document.getElementById('show_area').appendChild(canvas);
             _this.canvas = canvas;
+
         }
     },
     // 第3步： 导出元素
@@ -90,7 +111,6 @@ var logo = {
         var strDataURI = _this.canvas.toDataURL('image/jpeg'),
             data = strDataURI.split(',')[1],
             ia,
-            // blob,
             form_obj,
             file;
         data = window.atob(data);
@@ -112,13 +132,6 @@ var logo = {
             }
         };
         xhr.send(form_obj);
-        xhr.upload.onprogress = function (event) {
-    　　　　if (event.lengthComputable) {
-    　　　　　　var complete = (event.loaded / event.total * 100 | 0);
-    　　　　　　var progress = document.getElementById('uploadprogress');
-    　　　　　　progress.value = progress.innerHTML = complete;
-    　　　　}
-    　　};
     },
     initoFR: function(_this){
         _this.oFReader = new FileReader();
