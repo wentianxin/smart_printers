@@ -76,8 +76,8 @@ var logo = (function(){
             canvas.id = "clip_area";
 
         if (canvas.getContext) {
-            canvas.width = 120;
-            canvas.height = 128;
+            canvas.width = 128;
+            canvas.height = 120;
             
             // 对图片进行处理
             _handlePicture(canvas);
