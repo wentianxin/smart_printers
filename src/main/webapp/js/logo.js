@@ -56,16 +56,16 @@ var logo = (function(){
         iw = img.width;
         ih = img.height;
 
-        if( (iw/120) > (ih/128) ){
-            multiple = iw / 120;
+        if( (iw/128) > (ih/120) ){
+            multiple = iw / 128;
             length = ih / multiple;
-            deviation = (128 - length)/2;
-            context.drawImage(img, 0, deviation, 120, length);
-        }else{
-            multiple = ih / 128;
-            length = iw / multiple;
             deviation = (120 - length)/2;
-            context.drawImage(img, deviation , 0, length, 128);
+            context.drawImage(img, 0, deviation, 128, length);
+        }else{
+            multiple = ih / 120;
+            length = iw / multiple;
+            deviation = (128 - length)/2;
+            context.drawImage(img, deviation , 0, length, 120);
         }
     }
     // 第2步：前端获取图片文件放在canvas里面,和创建遮罩去遮盖元素
