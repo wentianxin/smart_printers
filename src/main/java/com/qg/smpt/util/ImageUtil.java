@@ -20,10 +20,12 @@ public class ImageUtil {
         int width = image.getWidth();
         int height = image.getHeight();
 
+		LOGGER.log(Level.DEBUG, "图片的宽为[{0}],长为[{1}]",width, height);
+
         int[][] data = new int[height][width];
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                int rgb = image.getRGB(i, j);
+                int rgb = image.getRGB(j, i);
                 data[i][j] = rgb;
             }
         }
@@ -98,7 +100,7 @@ public class ImageUtil {
 
 	/*压缩完毕后的数组头两个字节代表行数、列数，其余字节为压缩的图像数据*/
 		des[d++] = (byte) row;
-		des[d++] = (byte) col;
+		des[d++] = (byte) (col / 8 );
 		while (true) {
             /*测试连续的1*/
 			while ((src[s] & map) != 0) {
@@ -190,9 +192,9 @@ public class ImageUtil {
 			for (int j = 0; j < pixels[i].length; j++) {
 				byte b = pixels[i][j];
 				if ((b & 0xff) == 255) {
-					tempByte |= index;
-				} else {
 					tempByte |= 0;
+				} else {
+					tempByte |= index;
 				}
 				index >>>= 1;
 				if (index == 0) {
