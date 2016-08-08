@@ -383,7 +383,7 @@ public final class Order {
 
         // 获取二维码的数据
         String code = user != null ? user.getUserQrcode() : "";
-        byte[] codeB = code != null ? code.getBytes() : null;
+        byte[] codeB = (code != null && !code.equals("")) ? code.getBytes() : null;
         int codeL = codeB != null ? codeB.length : 0;
         int fillLengthCODE = (codeL % 4 != 0) ? (4 - codeL % 4) : 0;
 
