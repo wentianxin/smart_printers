@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.Iterator;
@@ -129,8 +130,10 @@ public class PrinterConnector implements Runnable, Lifecycle{
         // ServerSocketChannel 阻塞接收 SocketChannel
         // 将接收到的Socket（长连接），如果是读操作：分发给一个线程去处理。
         // 如果是写操作：写入订单数据，分发给同样的线程去处理 Processor
-        try {
-            while (true) {
+
+        SocketChannel sc = null;
+        while (true) {
+            try {
                 selector.select();
 
                 Iterator<SelectionKey> it = selector.selectedKeys().iterator();
@@ -146,12 +149,14 @@ public class PrinterConnector implements Runnable, Lifecycle{
                             // 当有多个 SocketChannel时, 会自动筛选哪一个SocketChannel 触发了事件
                             // 1. 连接后的一个请求：将打印机id-主控板（用户）id绑定，将打印机id-SocketChannel绑定
                             LOGGER.debug("ServerSocket accpet printer read request");
-                            SocketChannel sc = (SocketChannel) key.channel();
+                            sc = (SocketChannel) key.channel();
                             ByteBuffer byteBuffer = ByteBuffer.allocate(20);
                             byteBuffer.clear();
                             /* 检测socket 客户端是否关闭 */
-                            if ( sc.read(byteBuffer) == -1 ) {
+                            int nRead = sc.read(byteBuffer);
+                            if ( nRead == -1 ) {
                                 sc.close();
+                                break;
                                 // TODO 当打印机关闭连接时, 更新打印机状态, 打印机相关的共享内存对象?
                             }
                             byteBuffer.flip();
@@ -168,9 +173,16 @@ public class PrinterConnector implements Runnable, Lifecycle{
 
                     it.remove();
                 }
+            }catch (IOException e) {
+                LOGGER.log(Level.ERROR, "暂时可忽略的错误 serverSocketChannel ", e);
+                if (sc != null && sc.isOpen()) {
+                    try {
+                        sc.close();
+                    } catch (IOException ee) {
+                        LOGGER.log(Level.ERROR, "socket close exception", ee);
+                    }
+                }
             }
-        } catch (IOException e) {
-            LOGGER.log(Level.ERROR, "serverSocketChannel ", e);
         }
     }
 
