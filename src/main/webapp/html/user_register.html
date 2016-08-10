@@ -3,18 +3,10 @@
 <head>
 	<meta charset="UTF-8">
 	<title>注册</title>
-	<style>
-		form{
-			width: 500px;
-			margin: 0 auto;
-		}
-		label{
-			display: block;
-			margin: 10px 0;
-		}
-	</style>
+	<link rel="stylesheet" href="../css/order.css">
+
 </head>
-<body>
+<body class="login">
 	<form action="/register" method="POST">
 		<label>店主名字<input type="text" name="userName" id="userName"></label>
 		<label>账户<input type="text" name="userAccount" id="userAccount"></label>
@@ -25,6 +17,7 @@
 		<div id="printer">
 			<label>打印机编号<input type="text" name="id" id="id"></label>
 		</div>
+		<button type="button" onclick='javascript:window.location.href="user_login.html"'>返回</button>
 		<button type="submit">确定</button>
 	</form>
 </body>

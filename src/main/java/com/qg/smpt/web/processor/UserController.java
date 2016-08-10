@@ -7,8 +7,10 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.qg.smpt.util.JsonUtil;
 import com.qg.smpt.util.Level;
 import com.qg.smpt.util.Logger;
+import com.qg.smpt.web.model.Constant;
 import com.qg.smpt.web.model.User;
 import com.qg.smpt.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +35,9 @@ public class UserController {
     @ResponseBody
 	public String springUpload(@PathVariable int userId, HttpServletRequest request) throws IllegalStateException, IOException {
         LOGGER.log(Level.DEBUG,"正在上传logo图片");
-		long startTime = System.currentTimeMillis();
+
+		String status = Constant.ERROR;
+		int retcode = Constant.FALSE;
 
 		// 将当前上下文初始化给 CommonsMutipartResolver （多部分解析器）
 		CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
@@ -64,25 +68,31 @@ public class UserController {
                         LOGGER.log(Level.DEBUG, "文件夹创建结果为[{0}]", isCreated);
                     }
 
-//                    String originalFileName = file.getOriginalFilename();
-//                    String suffix = originalFileName.lastIndexOf(".") != -1 ? originalFileName.substring(originalFileName.lastIndexOf(".")) : "";
-                    String filename = "" + userId + UUID.randomUUID() + ".jpg";
+                    String originalFileName = file.getOriginalFilename();
+                    String suffix = originalFileName.lastIndexOf(".") != -1 ? originalFileName.substring(originalFileName.lastIndexOf(".")) : "";
+                    String filename = "" + userId + UUID.randomUUID() + suffix;
                     path = path + File.separator + filename;
                     LOGGER.log(Level.DEBUG, "图片文件路径为 [{0}]" ,path);
 
                     // 执行上传
-					file.transferTo(new File(path));
+					try {
+						file.transferTo(new File(path));
+					}catch (IOException e) {
+						LOGGER.log(Level.ERROR, "上传文件失败");
+						return JsonUtil.jsonToMap(new String[]{"retcode","status"}, new Object[]{retcode,status});
+					}
 
                     // 将数据保存到数据库
-
-				}
-
+                    try {
+                        status = userService.updateLogo(path.substring(path.indexOf("image")), userId);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+					retcode = status.equals(Constant.SUCCESS) ? Constant.TRUE : Constant.FALSE;
+                }
 			}
-
 		}
-		long endTime = System.currentTimeMillis();
-		System.out.println("方法三的运行时间：" + String.valueOf(endTime - startTime) + "ms");
-		return "/success";
-	}
+        return JsonUtil.jsonToMap(new String[]{"retcode","status"}, new Object[]{retcode,status});
+    }
 
 }

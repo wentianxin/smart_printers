@@ -25,5 +25,7 @@ public interface UserMapper {
 
     int updateByPrimaryKey(User record);
 
+    int updateLogo(User user);
+
     User selectUserPrinter(Integer id);
 }

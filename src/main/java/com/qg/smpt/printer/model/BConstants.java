@@ -25,6 +25,9 @@ public final class BConstants {
 
     public static final short photoEnd = (short)0x7EFF;
 
+    public static final short codeStart = (short)0x7FFF;
+
+    public static final short codeEnd = (short)0xFF7F;
 
     /* 请求类型 */
     public static final byte bulkStatus = (byte)0x00;   // 批次状态
