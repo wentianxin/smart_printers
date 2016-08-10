@@ -290,6 +290,7 @@ button{
     border: 9px solid #e5e5e5;
     border-radius: 6px;
     float: left;
+    clear: both;
 }
 .menu li{
     overflow: hidden;
@@ -529,6 +530,28 @@ background: #f75e3a;
 }
 /** end shopping_card **/
 /** clip_picture **/
+.button{
+    padding: 0.7em 0;
+    border: 2px solid #ddd;
+    margin-top: 20px;
+    background:  #868de6;
+    color: white;
+    border-radius: 3px;
+    width: 200px;
+    font-size: 16px;
+    transition: background 1s;
+}
+
+.button:hover{
+    background: #d79bec;
+} 
+
+#model_all .button{
+    float: left;
+    width: 125px;
+    font-size: 14px;
+}
+
 #upload_form{
     margin: 20px 0;
 }
@@ -629,3 +652,51 @@ background: #f75e3a;
     cursor: pointer;
 }
 /** end clip_picture **/
+/** login **/
+
+
+
+.login{
+    background: linear-gradient(to right, #d79bec -36%, #868de6);
+}
+
+.login form{
+    width: 50%;
+    max-width: 750px;
+    min-width: 500px;
+    box-sizing: border-box;
+    margin: 50vh auto 0;
+    transform: translateY(-50%);
+    background: white;
+    padding: 4em 7.5em;
+    outline: 20px solid rgba(255,255,255,0.6);
+}
+
+.login label{
+    display: block;
+}
+.login input{
+    display: block;
+    width: 100%;
+    padding: 5px 0;
+    border-radius: 3px;
+    margin: 5px 0 15px;
+    border: 1px solid #868de6;
+}
+
+.login button{
+    padding: 0.7em 0;
+    border: 2px solid #ddd;
+    margin-top: 20px;
+    background: linear-gradient(to top, #d79bec -99%, #868de6 );
+    color: white;
+    border-radius: 3px;
+    width: 49%;
+    font-size: 16px;
+    transition: background 1s;
+}
+
+.login button:hover{
+    background: #d79bec;
+}
+/** end login **/
