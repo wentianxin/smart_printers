@@ -2,7 +2,11 @@ package com.qg.smpt.web.model;
 
 import com.qg.smpt.printer.model.BConstants;
 import com.qg.smpt.printer.model.BOrder;
+import com.qg.smpt.share.ShareMem;
 import com.qg.smpt.util.BytesConvert;
+import com.qg.smpt.util.DebugUtil;
+import com.qg.smpt.util.Level;
+import com.qg.smpt.util.Logger;
 import com.qg.smpt.web.repository.OrderMapper;
 
 import java.io.UnsupportedEncodingException;
@@ -10,6 +14,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.ibatis.jdbc.Null;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
@@ -21,8 +26,9 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 //	"userAddress", "userTelephone", "orderContent", "company", "expectTime"})
 @JsonSerialize(using=OrderSerializer.class)
 public final class Order {
-    private int mpu;             //主控板id
+    private static final Logger LOGGER = Logger.getLogger(Order.class);
 
+    private int mpu;             //主控板id
     private List<Item> items;  //订单物品
 
     private byte[] data;
@@ -292,7 +298,8 @@ public final class Order {
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append(company + "\n");
+        buffer.append("\n");
+        buffer.append("美团外卖" + "\n");
         buffer.append(userName + "\n");
         buffer.append("订单编号: " + getId() + "\n");
         buffer.append("下单时间: " + getOrderTime() + "\n");
@@ -353,6 +360,15 @@ public final class Order {
 
     //将订单内容转化为字节数组
     private byte[] convertOrder(){
+        // 通过userId获取用户
+        User user = ShareMem.userIdMap.get(userId);
+
+        // 获取图片的字节数据
+        byte[] imageB = user != null? user.getLogoB() : null;
+        // 获取图片内容的长度,以及需要补齐的字节
+        int imageL = imageB != null ? imageB.length : 0;
+        int fillLengthIMA = (imageL % 4) != 0 ? (4 - imageL % 4 ) : 0;
+
         //通过GB2312编码获取订单内容的字节数组
         byte[] orderB = new byte[0];
         try {
@@ -360,33 +376,96 @@ public final class Order {
         } catch (UnsupportedEncodingException e) {
 
         }
-
-        //获取订单内容的长度
-        int length = orderB.length;
-
+        //获取文本内容的长度
+        int textL = orderB.length;
         //因为要字节对齐,以4字节为为单位,所以计算要填充多少位字节
-        int fillLength = 4 - (length % 4);
+        int fillLengthTEXT = (textL % 4) != 0? (4 - (textL % 4)) : 0;
 
-        //创建字节数组,大小为订单数据长度  8主要是文本内容前后要各加4字节的头尾部信息
-        byte[] data = new byte[length + 8 + fillLength];
+        // 获取二维码的数据
+        String code = user != null ? user.getUserQrcode() : "";
+        byte[] codeB = (code != null && !code.equals("")) ? code.getBytes() : null;
+        int codeL = codeB != null ? codeB.length : 0;
+        int fillLengthCODE = (codeL % 4 != 0) ? (4 - codeL % 4) : 0;
+
+        // 计算总数据的长度
+        int size = 0;
+        // 添加图片的长度
+        if(imageB != null && imageL > 0) {
+            size += (imageL + fillLengthIMA + 8);
+        }
+        // 添加文字的长度
+        size += (textL + fillLengthTEXT + 8);
+        // 添加二维码的长度
+        if(codeB != null && codeL > 0) {
+            size += (codeL + fillLengthCODE + 8);
+        }
+
+        //创建字节数组,大小为订单数据长度
+        LOGGER.log(Level.DEBUG, "当前开始转化订单内容，总长度为[{0}]", size);
+        byte[] data = new byte[size];
 
         int pos = 0;
+
+        //填充图片
+        if(imageB != null && imageL > 0) {
+            LOGGER.log(Level.DEBUG, "订单开始包装图片数据，图片长度为[{0}]", imageL);
+            // 填充图片开始字符
+            pos = BytesConvert.fillShort(BConstants.photoStart, data, pos);
+
+            // 填充图片域长度
+            pos = BytesConvert.fillShort((short) (imageL + fillLengthIMA), data, pos);
+
+            // 填充图片数据
+            pos = BytesConvert.fillByte(imageB, data, pos);
+
+            // 填充字节对齐
+            pos += fillLengthIMA;
+
+            // 填充图片内容实际长度
+            pos = BytesConvert.fillShort((short)imageL, data, pos);
+
+            // 填充图片结束字符
+            pos = BytesConvert.fillShort(BConstants.photoEnd, data, pos);
+        }
+
 
         //填充文本开始字符
         pos = BytesConvert.fillShort(BConstants.textStart,data,pos);
 
         //填充文本长度
-        pos = BytesConvert.fillShort((short)(length + fillLength),data,pos);
+        pos = BytesConvert.fillShort((short)(textL + fillLengthTEXT),data,pos);
 
         //填充文本数据
         pos = BytesConvert.fillByte(orderB, data, pos);
 
         //填充填充位
-        pos  += (fillLength + 2);
+        pos  += (fillLengthTEXT + 2);
 
         //填充文本结束字符
         pos = BytesConvert.fillShort(BConstants.textEnd, data, pos);
 
+        // 填充二维码
+        if(codeB != null && codeL > 0) {
+            LOGGER.log(Level.DEBUG, "订单开始包装二维码数据，二维码为[{0}]，二维码长度为[{1}]",code, codeL);
+            // 填充二维码开始字符
+            pos = BytesConvert.fillShort(BConstants.codeStart, data, pos);
+
+            // 填充二维码长度
+            pos = BytesConvert.fillShort((short)(codeL + fillLengthCODE), data, pos);
+
+            // 填充二维码
+            pos = BytesConvert.fillByte(codeB, data, pos);
+
+            // 填充字节对齐
+            pos += fillLengthCODE;
+
+            // 填充填充位
+            pos += 2;
+
+            // 填充二维码结束字符
+            pos = BytesConvert.fillShort(BConstants.codeEnd, data, pos);
+        }
+        DebugUtil.printBytes(data);
         return data;
     }
 
