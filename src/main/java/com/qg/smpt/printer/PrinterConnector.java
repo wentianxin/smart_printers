@@ -132,6 +132,7 @@ public class PrinterConnector implements Runnable, Lifecycle{
         // 如果是写操作：写入订单数据，分发给同样的线程去处理 Processor
 
         SocketChannel sc = null;
+
         while (true) {
             try {
                 selector.select();
