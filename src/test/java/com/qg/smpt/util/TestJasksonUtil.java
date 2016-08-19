@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.qg.smpt.web.model.Order;
@@ -22,7 +23,7 @@ public class TestJasksonUtil {
 	@After
 	public void tearDown() throws Exception {
 	}
-
+	@Ignore
 	@Test
 	public void test() {
 		List<Order> orders = new ArrayList<Order>();
@@ -37,7 +38,7 @@ public class TestJasksonUtil {
 		maps.put("data", orders);
 		System.out.println(JsonUtil.objectToJson(maps));
 	}
-	
+	@Ignore
 	@Test 
 	public void testString() {
 		String status = "SUCCESS";

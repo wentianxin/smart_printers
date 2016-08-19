@@ -17,6 +17,8 @@ public class BPrinterStatus extends AbstactStatus{
 
         BPrinterStatus bps = new BPrinterStatus();
 
+        bps.flag = status.flag;
+
         bps.printerId = status.line1;
 
         bps.seconds = status.line2;

@@ -42,12 +42,12 @@ public class BuildOrderServlet extends HttpServlet {
 
         ReceOrderServlet receOrderServlet = new ReceOrderServlet();
         for (int i = 0; i < orderNumbers; i++) {
-            Order order = OrderBuilder.produceOrder(false);
+            Order order = OrderBuilder.produceOrder(false,false);
             receOrderServlet.doGet(userId, order);
         }
 
         for (int i = 0; i < expeNumbers; i++) {
-            Order order = OrderBuilder.produceOrder(true);
+            Order order = OrderBuilder.produceOrder(true, false);
 
             receOrderServlet.doGet(userId, order);
         }

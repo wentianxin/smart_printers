@@ -16,7 +16,7 @@ public class TestReceOrderServlet {
 
         OrderBuilder orderBuilder = new OrderBuilder();
 
-        Order order = orderBuilder.produceOrder(false);
+        Order order = orderBuilder.produceOrder(false,false);
 
         ReceOrderServlet receOrderServlet = new ReceOrderServlet();
 

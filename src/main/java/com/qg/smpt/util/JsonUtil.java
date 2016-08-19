@@ -17,7 +17,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
 
 import com.qg.smpt.printer.PrinterConnector;
-import com.sun.jdi.Value;  
+
 
 /**
  * Json格式转化工具

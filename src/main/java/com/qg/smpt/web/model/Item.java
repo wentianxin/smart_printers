@@ -32,7 +32,7 @@ public class Item {
 
     @Override
     public String toString() {
-        return getName() +"   " + getCount() + "  " + getCost();
+        return getName() +"   X" + getCount() + "        " + getCost();
     }
 }
 

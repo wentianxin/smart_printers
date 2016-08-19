@@ -16,21 +16,43 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/orders")
 public class OrdersController {
-    @RequestMapping(value="/{userId}/{orderNumbers}", method= RequestMethod.GET)
+    @RequestMapping(value="/{userId}/{orderNumbers}/{expe}", method= RequestMethod.GET)
     @ResponseBody
-    public void buildOrders(@PathVariable int userId, @PathVariable int orderNumbers) {
+    public void buildOrders(@PathVariable int userId, @PathVariable int orderNumbers, @PathVariable int expe) {
 
         Integer expeNumbers = 0;
 
         try {
             ReceOrderServlet receOrderServlet = new ReceOrderServlet();
             for (int i = 0; i < orderNumbers; i++) {
-                Order order = OrderBuilder.produceOrder(false);
+                Order order = OrderBuilder.produceOrder(false,false,4);
                 receOrderServlet.doGet(userId, order);
             }
 
-            for (int i = 0; i < expeNumbers; i++) {
-                Order order = OrderBuilder.produceOrder(true);
+            for (int i = 0; i < expe; i++) {
+                Order order = OrderBuilder.produceOrder(true,false,4);
+                receOrderServlet.doGet(userId, order);
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
+    @RequestMapping(value="/{userId}/{correctNum}/{exceNum}/{index}", method= RequestMethod.GET)
+    @ResponseBody
+    public void buildOrdersExce(@PathVariable int userId,@PathVariable int correctNum, @PathVariable int exceNum, @PathVariable int index) {
+
+        Integer expeNumbers = 0;
+
+        try {
+            ReceOrderServlet receOrderServlet = new ReceOrderServlet();
+            for (int i = 0; i < correctNum; i++) {
+                Order order = OrderBuilder.produceOrder(false,false,4);
+                receOrderServlet.doGet(userId, order);
+            }
+
+            for (int i = 0; i < exceNum; i++) {
+                Order order = OrderBuilder.produceOrder(false,true,index);
                 receOrderServlet.doGet(userId, order);
             }
         } catch (Exception e) {

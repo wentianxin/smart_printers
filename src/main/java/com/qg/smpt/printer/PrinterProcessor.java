@@ -779,7 +779,9 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             LOGGER.log(Level.WARN, "打印机[{0}]未找到内中中对应打印机对象", bPrinterStatus.printerId);
             return ;
         }
-        printer.setPrinterStatus( ( (bPrinterStatus.flag >> 8) & 0xFF ) + "");
+        LOGGER.log(Level.DEBUG, ((bPrinterStatus.flag ) + "" ));
+        LOGGER.log(Level.DEBUG, ((bPrinterStatus.flag ) & 0xFF) + "" ) ;
+        printer.setPrinterStatus( ( (bPrinterStatus.flag ) & 0xFF ) + "");
     }
 
     /* getter 模块 */

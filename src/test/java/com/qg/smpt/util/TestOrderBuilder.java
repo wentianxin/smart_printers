@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.apache.ibatis.javassist.expr.NewArray;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +35,10 @@ public class TestOrderBuilder {
 	public void tearDown() throws Exception {
 	}
 
+	@Ignore
 	@Test
 	public void test() {
-		Order o = orderBuilder.produceOrder(false);
+		Order o = orderBuilder.produceOrder(false,false);
 		String json = JsonUtil.objectToJson(o);
 		System.out.println(json);
 	}

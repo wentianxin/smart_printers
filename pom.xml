@@ -25,6 +25,7 @@
         <maven-license-plugin.version>1.9.0</maven-license-plugin.version>
         <coveralls-maven-plugin.version>4.0.0</coveralls-maven-plugin.version>
         <maven-min-plugin.version>1.0.0</maven-min-plugin.version>
+        <maven-deploy-plugin.version>2.7</maven-deploy-plugin.version>
 
         <testng.version>6.1.1</testng.version>
         <!-- JDBC Drivers -->
@@ -176,7 +177,6 @@
     </dependencies>
     <build>
         <finalName>smart_printers</finalName>
-
         <plugins>
             <plugin>
                 <groupId>org.mybatis.generator</groupId>
@@ -185,4 +185,18 @@
             </plugin>
         </plugins>
     </build>
+
+
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <name>Releases</name>
+            <url>https://test.nexsus.com/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>Snapshots</name>
+            <url>https://test.nexsus.com/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>

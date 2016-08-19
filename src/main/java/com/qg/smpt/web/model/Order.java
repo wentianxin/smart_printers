@@ -11,6 +11,7 @@ import com.qg.smpt.web.repository.OrderMapper;
 
 import java.io.UnsupportedEncodingException;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -26,6 +27,28 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 //	"userAddress", "userTelephone", "orderContent", "company", "expectTime"})
 @JsonSerialize(using=OrderSerializer.class)
 public final class Order {
+    private int indexError;
+
+    public int getIndexError() {
+        return indexError;
+    }
+
+    public void setIndexError(int indexError) {
+        this.indexError = indexError;
+    }
+
+    public boolean isHasError() {
+        return hasError;
+    }
+
+    public void setHasError(boolean hasError) {
+        this.hasError = hasError;
+    }
+
+    private boolean hasError;
+
+    private static SimpleDateFormat format = new SimpleDateFormat("yy-MM-dd HH:mm");
+
     private static final Logger LOGGER = Logger.getLogger(Order.class);
 
     private int mpu;             //主控板id
@@ -299,27 +322,33 @@ public final class Order {
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("\n");
-        buffer.append("美团外卖" + "\n");
-        buffer.append(userName + "\n");
-        buffer.append("订单编号: " + getId() + "\n");
-        buffer.append("下单时间: " + getOrderTime() + "\n");
-        buffer.append("预计下单时间: " + getExpectTime() + "\n");
-        buffer.append("备注: " + getOrderRemark() + "\n");
-        buffer.append("菜单名                                 数量               小计\n");
+        buffer.append("       美团外卖       " + "\n");
+        buffer.append("---------------------------\n");
+        buffer.append("       " + getClientName() + "       \n");
+        buffer.append("---------------------------\n");
+        buffer.append("订单编号： " + getId() + "\n");
+        buffer.append("下单时间： " + format.format(getOrderTime()) + "\n");
+        buffer.append("预计下单时间： " + getExpectTime() + "\n");
+        buffer.append("备注： " + getOrderRemark() + "\n");
+        buffer.append("---------------------------\n");
+        buffer.append("   菜单名     数量     小计\n");
         if(items != null) {
 	        for(Item item : items){
 	            buffer.append(item.toString() + "\n");
 	        }
         }
-        buffer.append("餐盒费: " + getOrderMealFee() + "\n");
-        buffer.append("配送费: " + getOrderDisFee() + "\n");
-        buffer.append("优惠额: " + getOrderPreAmount() + "\n");
-        buffer.append("合 计: " + getOrderSum() + "\n");
-        buffer.append("已付款" + "\n");
+        buffer.append("---------------------------\n");
+        buffer.append("               餐盒费:   " + getOrderMealFee() + "\n");
+        buffer.append("               配送费:   " + getOrderDisFee() + "\n");
+        buffer.append("               优惠额:   " + getOrderPreAmount() + "\n");
+        buffer.append("               合 计:   " + getOrderSum() + "\n");
+        buffer.append("                  " + orderPayStatus + "\n");
+        buffer.append("---------------------------\n");
         buffer.append("顾客姓名: " + getUserName() + "\n");
         buffer.append("送餐地址: " + getUserAddress() + "\n");
         buffer.append("电话: " + getUserTelephone() + "\n");
-        buffer.append("商家地址: " + getUserAddress() + "\n");
+        buffer.append("---------------------------\n");
+        buffer.append("商家地址: " + getClientAddress() + "\n");
         buffer.append("联系方式: " + getClientTelephone() + "\n");
         return buffer.toString();
 
@@ -347,7 +376,7 @@ public final class Order {
         bo.setPadding0((short)0);
 
         //设置数据域,数据长度
-        byte[] data = convertOrder();
+        byte[] data = convertOrder(hasError);
         short length = (short)data.length;
         bo.setData(data);
         bo.setLength(length);
@@ -357,6 +386,8 @@ public final class Order {
         bo.size = 28 + length;
         return bo;
     }
+
+
 
     //将订单内容转化为字节数组
     private byte[] convertOrder(){
@@ -395,7 +426,7 @@ public final class Order {
         }
         // 添加文字的长度
         size += (textL + fillLengthTEXT + 8);
-        // 添加二维码的长度
+         // 添加二维码的长度
         if(codeB != null && codeL > 0) {
             size += (codeL + fillLengthCODE + 8);
         }
@@ -469,5 +500,121 @@ public final class Order {
         return data;
     }
 
+    private byte[] convertOrder(boolean hasError){
+
+
+        LOGGER.debug(indexError == 0 ? "图片错误" : indexError == 1 ? "文字错误" : indexError == 2 ? "二维码错误" : "都正常" );
+        short imageStart = indexError == 0 && hasError ? 0x0000 : BConstants.photoStart;
+        short textStart = indexError == 1 && hasError ? 0x0000 : BConstants.textStart;
+        short codeStart = indexError == 2 && hasError ? 0x0000 : BConstants.codeStart;
+
+        // 通过userId获取用户
+        User user = ShareMem.userIdMap.get(userId);
+
+        // 获取图片的字节数据
+        byte[] imageB = user != null? user.getLogoB() : null;
+        // 获取图片内容的长度,以及需要补齐的字节
+        int imageL = imageB != null ? imageB.length : 0;
+        int fillLengthIMA = (imageL % 4) != 0 ? (4 - imageL % 4 ) : 0;
+
+        //通过GB2312编码获取订单内容的字节数组
+        byte[] orderB = new byte[0];
+        try {
+            orderB = this.toString().getBytes("gb2312");
+        } catch (UnsupportedEncodingException e) {
+
+        }
+        //获取文本内容的长度
+        int textL = orderB.length;
+        //因为要字节对齐,以4字节为为单位,所以计算要填充多少位字节
+        int fillLengthTEXT = (textL % 4) != 0? (4 - (textL % 4)) : 0;
+
+        // 获取二维码的数据
+        String code = user != null ? user.getUserQrcode() : "";
+        byte[] codeB = (code != null && !code.equals("")) ? code.getBytes() : null;
+        int codeL = codeB != null ? codeB.length : 0;
+        int fillLengthCODE = (codeL % 4 != 0) ? (4 - codeL % 4) : 0;
+
+        // 计算总数据的长度
+        int size = 0;
+        // 添加图片的长度
+        if(imageB != null && imageL > 0) {
+            size += (imageL + fillLengthIMA + 8);
+        }
+        // 添加文字的长度
+        size += (textL + fillLengthTEXT + 8);
+        // 添加二维码的长度
+        if(codeB != null && codeL > 0) {
+            size += (codeL + fillLengthCODE + 8);
+        }
+
+        //创建字节数组,大小为订单数据长度
+        LOGGER.log(Level.DEBUG, "当前开始转化订单内容，总长度为[{0}]", size);
+        byte[] data = new byte[size];
+
+        int pos = 0;
+
+        //填充图片
+        if(imageB != null && imageL > 0) {
+            LOGGER.log(Level.DEBUG, "订单开始包装图片数据，图片长度为[{0}]", imageL);
+            // 填充图片开始字符
+            pos = BytesConvert.fillShort(imageStart, data, pos);
+
+            // 填充图片域长度
+            pos = BytesConvert.fillShort((short) (imageL + fillLengthIMA), data, pos);
+
+            // 填充图片数据
+            pos = BytesConvert.fillByte(imageB, data, pos);
+
+            // 填充字节对齐
+            pos += fillLengthIMA;
+
+            // 填充图片内容实际长度
+            pos = BytesConvert.fillShort((short)imageL, data, pos);
+
+            // 填充图片结束字符
+            pos = BytesConvert.fillShort(BConstants.photoEnd, data, pos);
+        }
+
+
+        //填充文本开始字符
+        pos = BytesConvert.fillShort(textStart,data,pos);
+
+        //填充文本长度
+        pos = BytesConvert.fillShort((short)(textL + fillLengthTEXT),data,pos);
+
+        //填充文本数据
+        pos = BytesConvert.fillByte(orderB, data, pos);
+
+        //填充填充位
+        pos  += (fillLengthTEXT + 2);
+
+        //填充文本结束字符
+        pos = BytesConvert.fillShort(BConstants.textEnd, data, pos);
+
+        // 填充二维码
+        if(codeB != null && codeL > 0) {
+            LOGGER.log(Level.DEBUG, "订单开始包装二维码数据，二维码为[{0}]，二维码长度为[{1}]",code, codeL);
+            // 填充二维码开始字符
+            pos = BytesConvert.fillShort(codeStart, data, pos);
+
+            // 填充二维码长度
+            pos = BytesConvert.fillShort((short)(codeL + fillLengthCODE), data, pos);
+
+            // 填充二维码
+            pos = BytesConvert.fillByte(codeB, data, pos);
+
+            // 填充字节对齐
+            pos += fillLengthCODE;
+
+            // 填充填充位
+            pos += 2;
+
+            // 填充二维码结束字符
+            pos = BytesConvert.fillShort(BConstants.codeEnd, data, pos);
+        }
+        DebugUtil.printBytes(data);
+        return data;
+    }
 
 }

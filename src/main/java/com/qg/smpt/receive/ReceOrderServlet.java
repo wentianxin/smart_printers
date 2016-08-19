@@ -14,7 +14,6 @@ import com.qg.smpt.web.model.Printer;
 import com.qg.smpt.web.model.User;
 import com.qg.smpt.web.repository.PrinterMapper;
 import com.qg.smpt.web.repository.UserMapper;
-import com.sun.tools.corba.se.idl.constExpr.Or;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
@@ -24,6 +23,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.swing.border.Border;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -170,7 +170,10 @@ public class ReceOrderServlet extends HttpServlet {
         }
 
         LOGGER.log(Level.DEBUG, "订单数据转化打印机发送数据");
+
+
         BOrder bOrder = order.orderToBOrder((short) printer.getCurrentBulk(), (short) bOrders.getbOrders().size());
+
 
         if (bOrders.getDataSize() + bOrder.size > Constants.MAX_TRANSFER_SIZE) {
             if (bOrders.getbOrders().size() == 0) {
@@ -244,7 +247,7 @@ public class ReceOrderServlet extends HttpServlet {
     private Printer selectPrinter(List<Printer> printers) {
         // TODO 缺少智能分发算法
         for (Printer p : printers) {
-            if (p.isConnected()) {
+            if (p.isConnected() ) {
                 return p;
             }
         }

@@ -127,7 +127,7 @@ public class TestOrderController {
 		
 	}
 	
-	
+	@Ignore
 	@Test
 	public void testBuyOrder() {
 		StringBuffer buffer = new StringBuffer();

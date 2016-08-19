@@ -52,7 +52,7 @@ public class TestUserService {
 		}
 	}
 	
-	
+	@Ignore
 	@Test
 	public void testRegister() {
 		User user = new User();

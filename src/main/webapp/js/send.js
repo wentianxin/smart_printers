@@ -1,5 +1,5 @@
 var id = window.localStorage.getItem('smart_printer');
-var SEND = 'http://localhost:8080/order/'+ id;
+var SEND = '/order/'+ id;
 
 // Mock.mock(SEND,{
 //    status: 'SUCCESS'

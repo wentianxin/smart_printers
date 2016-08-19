@@ -63,7 +63,7 @@ public class OrderBuilder {
 //	private static String contact[] = {"85241523", "84523651", "15521232546", "15622365842"};
 	
 	//菜单
-	private static String dish[] = {"西红柿炒番茄", "葡萄炒木耳", "西瓜炒香蕉", "榴莲鸡蛋", "童子鸡"};
+	private static String dish[] = {"西红柿炒番茄", "葡萄干炒木耳", "西瓜干炒香蕉", "榴莲鸡蛋蛋糕", "最好吃童子鸡"};
 	private static int prices[] = {4, 4, 5, 3, 8};
 	
 	//顾客信息
@@ -80,9 +80,10 @@ public class OrderBuilder {
 	 * @param flag
 	 * @return
      */
-	public static Order produceOrder(boolean flag)  {
+	public static Order produceOrder(boolean flag, boolean hasError)  {
 		Order order = new Order();
-		
+		order.setHasError(hasError);
+
 		int randomNum = 0;
 		
 		//生活公司信息
@@ -122,6 +123,65 @@ public class OrderBuilder {
 		}
 		order.setItems(items);
 		
+		//生成其他付费信息
+		order.setOrderMealFee(getMealCost());
+		order.setOrderDisFee(getdeliveryCost());
+		order.setOrderPreAmount(getRandom(6));
+		order.setOrderPayStatus("已支付");
+
+		// 判断是否设置加急
+		if (flag) {
+			order.setOrderType('1');
+		} else {
+			order.setOrderType('0');
+		}
+		return order;
+	}
+
+	public static Order produceOrder(boolean flag, boolean hasError, int index)  {
+		Order order = new Order();
+		order.setHasError(hasError);
+		order.setIndexError(index);
+
+		int randomNum = 0;
+
+		//生活公司信息
+		randomNum = getRandom(4);
+		order.setCompany(companys[randomNum]);
+
+		//生成商家信息
+//		randomNum = getRandom(4);
+		if(userCount > 0){
+			randomNum = getRandom(userCount);
+			User u = users.get(randomNum);
+			order.setClientName(u.getUserStore());
+			order.setClientAddress(u.getUserAddress());
+			order.setClientTelephone(u.getUserPhone());
+			order.setOrderStatus(String.valueOf(BConstants.orderWait));
+		}
+
+		//获取订单信息
+		order.setId(++ShareMem.currentOrderNum);
+
+		order.setOrderTime((new Date()));
+		order.setExpectTime(expectTimes[getRandom(6)]);
+		order.setOrderRemark(remarks[getRandom(3)]);
+
+		//生成顾客信息
+		randomNum = getRandom(6);
+		order.setUserName(customers[randomNum]);
+		order.setUserAddress(cAddress[randomNum]);
+		order.setUserTelephone(cContact[randomNum]);
+		order.setOrderStatus(Integer.valueOf(BConstants.orderWait).toString());
+
+		//生成菜
+		randomNum = getRandom(5) + 1;
+		List<Item> items = new ArrayList<Item>(randomNum);
+		for(int i = 0; i < randomNum; i++){
+			items.add(createItem(i));
+		}
+		order.setItems(items);
+
 		//生成其他付费信息
 		order.setOrderMealFee(getMealCost());
 		order.setOrderDisFee(getdeliveryCost());
