@@ -618,6 +618,11 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
             /* 组装批次订单 */
             BulkOrder bulkOrder = new BulkOrder(new ArrayList<BOrder>());
+            // 判断该次要求重发的订单是否是故意封装错误的订单，如果是重新封装成正确的订单
+            if(order.getIndexError() >= 0 && order.getIndexError() < 3) {
+                order.setIndexError(4);
+            }
+
             bulkOrder.getOrders().add(order);
             bulkOrder.setBulkType((short) 1);
             bulkOrder.setDataSize(bOrder.size);
