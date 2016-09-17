@@ -38,7 +38,7 @@ public class RegisterController {
 		// true-run register method;
 		// false- return ERROR status
 		try{
-			int retcode = (checkUserInfo(newUser) ?userService.registerUser(newUser) : Constant.FALSE);
+			int retcode = (checkUserInfo(newUser) ? userService.registerUser(newUser) : Constant.FALSE);
 			
 			LOGGER.log(Level.DEBUG, "此次注册结果为 [{0}]", retcode);
 			
