@@ -35,7 +35,7 @@ public class TestOrderMapper {
 	@Ignore
 	@Test
 	public void test() {
-		List<Order> orders = orderService.queryByUser(4); 
+		List<Order> orders = orderService.queryByUser(4);
 		System.out.println(orders.size());
 	}
 

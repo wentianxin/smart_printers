@@ -5,6 +5,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 @JsonIgnoreProperties({"userId", "userName", "currentBulk", "currentOrder",
 		"canAccept","busy", "lastSendTime"})
 public final class Printer {
+    private long okTime;                    // 接收到 ok 请求的时间
 
     private Integer id;
     private String printerStatus;

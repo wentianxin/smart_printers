@@ -1,10 +1,14 @@
 package com.qg.smpt.web.model;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 /**
  * 订单内容
  */
+
 public class Item {
     private String name;
+    @JsonIgnore
     private int price;
     private int count;
     public String getName() {

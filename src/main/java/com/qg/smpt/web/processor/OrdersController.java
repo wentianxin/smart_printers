@@ -6,7 +6,9 @@ import com.qg.smpt.util.Level;
 import com.qg.smpt.util.OrderBuilder;
 import com.qg.smpt.web.model.Constant;
 import com.qg.smpt.web.model.Order;
+import com.qg.smpt.web.model.OrderRequest;
 import com.qg.smpt.web.model.User;
+import com.sun.tools.corba.se.idl.constExpr.Or;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,6 +56,23 @@ public class OrdersController {
             for (int i = 0; i < exceNum; i++) {
                 Order order = OrderBuilder.produceOrder(false,true,index);
                 receOrderServlet.doGet(userId, order);
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
+    @RequestMapping(value="/{userId}", method= RequestMethod.POST)
+    @ResponseBody
+    public void bulidOrderSize(String data, @PathVariable int userId) {
+        OrderRequest[] orderRequests = (OrderRequest[]) JsonUtil.jsonToObject(data, OrderRequest.class);
+        try {
+            ReceOrderServlet receOrderServlet = new ReceOrderServlet();
+            for (int i = 0; i < orderRequests.length; i++) {
+                for (int j = 0; j < orderRequests[i].getNumber(); j++) {
+                    Order order = OrderBuilder.produceOrder(false, false, 4, orderRequests[i].getNumber());
+                    receOrderServlet.doGet(userId, order);
+                }
             }
         } catch (Exception e) {
 

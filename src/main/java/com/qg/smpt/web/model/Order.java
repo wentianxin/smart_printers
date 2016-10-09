@@ -27,7 +27,18 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 //	"userAddress", "userTelephone", "orderContent", "company", "expectTime"})
 @JsonSerialize(using=OrderSerializer.class)
 public final class Order {
-    private int indexError;
+    private int indexError; // 头部错误的地方 0-图片头 1-文字头 2-二维码头
+
+    public int getTextNum() {
+        return textNum;
+    }
+
+    public void setTextNum(int textNum) {
+        this.textNum = textNum;
+    }
+
+    private int textNum = 1;    // 文字要重复多少次
+
 
     public int getIndexError() {
         return indexError;
@@ -92,7 +103,7 @@ public final class Order {
     private String clientAddress;
 
     private String clientTelephone;
-    
+
     private boolean hasCompute = false;	//是否已计算总价
 
     private char orderType;  // 0-非加急; 1-加急
@@ -212,12 +223,12 @@ public final class Order {
     }
 
     public Integer getOrderSum() {
-    	if(!hasCompute){
-			orderSum = getTotalCost();
-			hasCompute = true;
-		}
-		
-		return orderSum;
+        if(!hasCompute){
+            orderSum = getTotalCost();
+            hasCompute = true;
+        }
+
+        return orderSum;
     }
 
     public void setOrderSum(Integer orderSum) {
@@ -303,9 +314,9 @@ public final class Order {
     private int getTotalCost() {
         int c = 0;
         if(items != null) {
-	        for(Item item : items) {
-	            c += item.getCost();
-	        }
+            for(Item item : items) {
+                c += item.getCost();
+            }
         }
 
         c += orderDisFee;
@@ -333,9 +344,9 @@ public final class Order {
         buffer.append("---------------------------\n");
         buffer.append("   菜单名     数量     小计\n");
         if(items != null) {
-	        for(Item item : items){
-	            buffer.append(item.toString() + "\n");
-	        }
+            for(Item item : items){
+                buffer.append(item.toString() + "\n");
+            }
         }
         buffer.append("---------------------------\n");
         buffer.append("               餐盒费:   " + getOrderMealFee() + "\n");
@@ -421,15 +432,15 @@ public final class Order {
         // 计算总数据的长度
         int size = 0;
         // 添加图片的长度
-        if(imageB != null && imageL > 0) {
-            size += (imageL + fillLengthIMA + 8);
-        }
+//        if(imageB != null && imageL > 0) {
+//            size += (imageL + fillLengthIMA + 8);
+//        }
         // 添加文字的长度
         size += (textL + fillLengthTEXT + 8);
-         // 添加二维码的长度
-        if(codeB != null && codeL > 0) {
-            size += (codeL + fillLengthCODE + 8);
-        }
+        // 添加二维码的长度
+//        if(codeB != null && codeL > 0) {
+//            size += (codeL + fillLengthCODE + 8);
+//        }
 
         //创建字节数组,大小为订单数据长度
         LOGGER.log(Level.DEBUG, "当前开始转化订单内容，总长度为[{0}]", size);
@@ -437,27 +448,27 @@ public final class Order {
 
         int pos = 0;
 
-        //填充图片
-        if(imageB != null && imageL > 0) {
-            LOGGER.log(Level.DEBUG, "订单开始包装图片数据，图片长度为[{0}]", imageL);
-            // 填充图片开始字符
-            pos = BytesConvert.fillShort(BConstants.photoStart, data, pos);
-
-            // 填充图片域长度
-            pos = BytesConvert.fillShort((short) (imageL + fillLengthIMA), data, pos);
-
-            // 填充图片数据
-            pos = BytesConvert.fillByte(imageB, data, pos);
-
-            // 填充字节对齐
-            pos += fillLengthIMA;
-
-            // 填充图片内容实际长度
-            pos = BytesConvert.fillShort((short)imageL, data, pos);
-
-            // 填充图片结束字符
-            pos = BytesConvert.fillShort(BConstants.photoEnd, data, pos);
-        }
+//        //填充图片
+//        if(imageB != null && imageL > 0) {
+//            LOGGER.log(Level.DEBUG, "订单开始包装图片数据，图片长度为[{0}]", imageL);
+//            // 填充图片开始字符
+//            pos = BytesConvert.fillShort(BConstants.photoStart, data, pos);
+//
+//            // 填充图片域长度
+//            pos = BytesConvert.fillShort((short) (imageL + fillLengthIMA), data, pos);
+//
+//            // 填充图片数据
+//            pos = BytesConvert.fillByte(imageB, data, pos);
+//
+//            // 填充字节对齐
+//            pos += fillLengthIMA;
+//
+//            // 填充图片内容实际长度
+//            pos = BytesConvert.fillShort((short)imageL, data, pos);
+//
+//            // 填充图片结束字符
+//            pos = BytesConvert.fillShort(BConstants.photoEnd, data, pos);
+//        }
 
 
         //填充文本开始字符
@@ -475,27 +486,27 @@ public final class Order {
         //填充文本结束字符
         pos = BytesConvert.fillShort(BConstants.textEnd, data, pos);
 
-        // 填充二维码
-        if(codeB != null && codeL > 0) {
-            LOGGER.log(Level.DEBUG, "订单开始包装二维码数据，二维码为[{0}]，二维码长度为[{1}]",code, codeL);
-            // 填充二维码开始字符
-            pos = BytesConvert.fillShort(BConstants.codeStart, data, pos);
-
-            // 填充二维码长度
-            pos = BytesConvert.fillShort((short)(codeL + fillLengthCODE), data, pos);
-
-            // 填充二维码
-            pos = BytesConvert.fillByte(codeB, data, pos);
-
-            // 填充字节对齐
-            pos += fillLengthCODE;
-
-            // 填充填充位
-            pos += 2;
-
-            // 填充二维码结束字符
-            pos = BytesConvert.fillShort(BConstants.codeEnd, data, pos);
-        }
+//        // 填充二维码
+//        if(codeB != null && codeL > 0) {
+//            LOGGER.log(Level.DEBUG, "订单开始包装二维码数据，二维码为[{0}]，二维码长度为[{1}]",code, codeL);
+//            // 填充二维码开始字符
+//            pos = BytesConvert.fillShort(BConstants.codeStart, data, pos);
+//
+//            // 填充二维码长度
+//            pos = BytesConvert.fillShort((short)(codeL + fillLengthCODE), data, pos);
+//
+//            // 填充二维码
+//            pos = BytesConvert.fillByte(codeB, data, pos);
+//
+//            // 填充字节对齐
+//            pos += fillLengthCODE;
+//
+//            // 填充填充位
+//            pos += 2;
+//
+//            // 填充二维码结束字符
+//            pos = BytesConvert.fillShort(BConstants.codeEnd, data, pos);
+//        }
         DebugUtil.printBytes(data);
         return data;
     }
@@ -542,7 +553,7 @@ public final class Order {
             size += (imageL + fillLengthIMA + 8);
         }
         // 添加文字的长度
-        size += (textL + fillLengthTEXT + 8);
+        size += (textNum * (textL + fillLengthTEXT) + 8);
         // 添加二维码的长度
         if(codeB != null && codeL > 0) {
             size += (codeL + fillLengthCODE + 8);
@@ -581,13 +592,16 @@ public final class Order {
         pos = BytesConvert.fillShort(textStart,data,pos);
 
         //填充文本长度
-        pos = BytesConvert.fillShort((short)(textL + fillLengthTEXT),data,pos);
+        pos = BytesConvert.fillShort((short)(textNum * (textL + fillLengthTEXT)),data,pos);
 
         //填充文本数据
-        pos = BytesConvert.fillByte(orderB, data, pos);
+        for(int i = 0; i < textNum; i++) {
+            pos = BytesConvert.fillByte(orderB, data, pos);
+            pos += fillLengthTEXT;
+        }
 
         //填充填充位
-        pos  += (fillLengthTEXT + 2);
+        pos  +=  2;
 
         //填充文本结束字符
         pos = BytesConvert.fillShort(BConstants.textEnd, data, pos);

@@ -17,6 +17,16 @@ import java.util.List;
  */
 public final class BulkOrder {
 
+    private long sendtime;          // 订单批次的发送时间
+
+    public long getSendtime() {
+        return sendtime;
+    }
+
+    public void setSendtime(long sendtime) {
+        this.sendtime = sendtime;
+    }
+
     private final static Logger LOGGER = Logger.getLogger(BulkOrder.class);
 
     private int id;

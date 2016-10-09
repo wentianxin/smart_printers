@@ -197,6 +197,66 @@ public class OrderBuilder {
 		return order;
 	}
 
+	public static Order produceOrder(boolean flag, boolean hasError, int index, int textNum)  {
+		Order order = new Order();
+		order.setTextNum(textNum);
+		order.setHasError(hasError);
+		order.setIndexError(index);
+
+		int randomNum = 0;
+
+		//生活公司信息
+		randomNum = getRandom(4);
+		order.setCompany(companys[randomNum]);
+
+		//生成商家信息
+//		randomNum = getRandom(4);
+		if(userCount > 0){
+			randomNum = getRandom(userCount);
+			User u = users.get(randomNum);
+			order.setClientName(u.getUserStore());
+			order.setClientAddress(u.getUserAddress());
+			order.setClientTelephone(u.getUserPhone());
+			order.setOrderStatus(String.valueOf(BConstants.orderWait));
+		}
+
+		//获取订单信息
+		order.setId(++ShareMem.currentOrderNum);
+
+		order.setOrderTime((new Date()));
+		order.setExpectTime(expectTimes[getRandom(6)]);
+		order.setOrderRemark(remarks[getRandom(3)]);
+
+		//生成顾客信息
+		randomNum = getRandom(6);
+		order.setUserName(customers[randomNum]);
+		order.setUserAddress(cAddress[randomNum]);
+		order.setUserTelephone(cContact[randomNum]);
+		order.setOrderStatus(Integer.valueOf(BConstants.orderWait).toString());
+
+		//生成菜
+		randomNum = getRandom(5) + 1;
+		List<Item> items = new ArrayList<Item>(randomNum);
+		for(int i = 0; i < randomNum; i++){
+			items.add(createItem(i));
+		}
+		order.setItems(items);
+
+		//生成其他付费信息
+		order.setOrderMealFee(getMealCost());
+		order.setOrderDisFee(getdeliveryCost());
+		order.setOrderPreAmount(getRandom(6));
+		order.setOrderPayStatus("已支付");
+
+		// 判断是否设置加急
+		if (flag) {
+			order.setOrderType('1');
+		} else {
+			order.setOrderType('0');
+		}
+		return order;
+	}
+
 	private static int getMealCost() {
 		return getRandom(3);
 	}

@@ -6,6 +6,7 @@ import com.qg.smpt.share.ShareMem;
 import com.qg.smpt.util.DebugUtil;
 import com.qg.smpt.util.Level;
 import com.qg.smpt.util.Logger;
+import com.qg.smpt.util.TimeUtil;
 import com.qg.smpt.web.model.BulkOrder;
 import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.Printer;
@@ -14,6 +15,7 @@ import com.qg.smpt.web.repository.OrderMapper;
 import com.qg.smpt.web.repository.PrinterMapper;
 import com.qg.smpt.web.repository.UserMapper;
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.reflection.SystemMetaObject;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
@@ -21,7 +23,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.sql.Time;
 import java.util.*;
+
+import static com.qg.smpt.share.ShareMem.currentOrderNum;
 import static com.qg.smpt.share.ShareMem.priSentQueueMap;
 
 
@@ -421,6 +426,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         }
 
         long requestTime = System.currentTimeMillis();
+        LOGGER.log(Level.INFO, "打印机 [{0}] 在 [{1}] 时间发来订单请求", p.getId(), TimeUtil.timeToString(requestTime));
         LOGGER.log(Level.DEBUG, "当前时间: [{0}] 当前线程 [{1}]", requestTime, this.id);
         try {
             while (!sendAvailable) {
@@ -500,6 +506,9 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             LOGGER.log(Level.ERROR, "打印机 [{0}] 打印机线程 printerProcessor [{1}] 发送订单数据异常", p.getId(), this.id);
         }
 
+        long sendtime = System.currentTimeMillis();
+        LOGGER.log(Level.INFO, "打印机 [{0}] 在 [{1}] 时间发来订单请求,正式发送订单给打印机的时间是[{2}],总共等待时间为 [{3}] ms"
+                , p.getId(), TimeUtil.timeToString(requestTime), TimeUtil.timeToString(sendtime), sendtime - requestTime);
         String orderSent = String.valueOf(BConstants.orderSent);
         for (Order o : bOrders.getOrders()) {
             o.setOrderStatus(orderSent);
@@ -613,8 +622,11 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             bulkOrderF.increaseReceNum();
 
             // TODO 如何获取打印机发来的异常订单被更新后的数据
-            LOGGER.log(Level.INFO, "打印机 [{0}] 打印订单 (订单批次号 [{1}], 批次内序号 [{2}]) 失败 当前线程 [{3}]",
-                    bOrderStatus.printerId, bOrderStatus.bulkId, bOrderStatus.inNumber, this.id);
+            long time = System.currentTimeMillis();
+            LOGGER.log(Level.INFO, "打印机 [{0}] 打印订单 (订单批次号 [{1}], 批次内序号 [{2}]) 失败, 当前线程 [{3}], 当前时间为 [{4}]," +
+                            " 离发送订单相差的时间为 [{5}]",
+                    bOrderStatus.printerId, bOrderStatus.bulkId, bOrderStatus.inNumber, this.id,
+                    TimeUtil.timeToString(time), time - bulkOrderF.getSendtime());
 
             /* 组装批次订单 */
             BulkOrder bulkOrder = new BulkOrder(new ArrayList<BOrder>());
@@ -651,6 +663,11 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                         this.id, e);
             }
 
+
+            long resendTime = System.currentTimeMillis();
+            LOGGER.log(Level.INFO, "打印机 [{0}] 重新发送批次 [{1}] 中的异常订单 [{2}] ，当前时间为 [{3}] 距离接受到异常报告时" +
+                    "所过去的时间为 [{4}] ms", bOrderStatus.printerId, bulkOrderF.getId(),bOrderStatus.inNumber,
+                    TimeUtil.timeToString(resendTime), resendTime - time);
 
         } else if ( flag == BConstants.orderSucc ) {
             bulkOrderF.increaseReceNum();
