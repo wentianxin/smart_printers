@@ -700,3 +700,23 @@ background: #f75e3a;
     background: #d79bec;
 }
 /** end login **/
+
+#order_factory .delect_item, 
+#order_factory .add_item{
+    float: right;
+    padding: 0;
+    width: 20px;
+    margin-left: 20px;
+    background: white;
+    border-radius: 50%;
+    margin-bottom: 5px;
+    color: black;
+}
+
+.clear{
+    overflow: hidden;
+}
+
+#order_factory input{
+    text-indent: 10px;
+}

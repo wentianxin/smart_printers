@@ -1,9 +1,22 @@
-var id = window.localStorage.getItem('smart_printer');
+var id = getCookis('user_id') || window.localStorage.getItem('smart_printer');
 var SEND = '/order/'+ id;
 
-// Mock.mock(SEND,{
-//    status: 'SUCCESS'
-// });
+function getCookis(name){
+	var cookie_name = encodeURIComponent(name) + "=",
+		cookie_start = document.cookie.indexOf(cookie_name),
+		cookie_value = null,
+		cookie_end = null;
+	
+	if(cookie_start > -1){
+		cookie_end = document.cookie.indexOf(';', cookie_start);
+		if(cookie_end == -1){
+			cookie_end = document.cookie.length;
+		}
+		cookie_value = decodeURIComponent(document.cookie.substring(cookie_start + cookie_name.length, cookie_end));
+	}
+	
+	return cookie_value;
+}
 
 /********** end *********/
 

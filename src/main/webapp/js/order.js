@@ -2,9 +2,9 @@ var temp = window.location.search.indexOf('=');
 var id = window.location.search.slice(temp+1);
 window.localStorage.setItem('smart_printer', id);
     
-var ORDER_TYPING = 'http://localhost:8080/order/typing/' + id;  // 正在打印的订单路径接口
-var PRINTER_TYPING = 'http://localhost:8080/printer/' + id;// 打印机状态接口
-var ORDER_TYPED = 'http://localhost:8080/order/typed/' + id; // 打印完的订单路径接口
+var ORDER_TYPING = '/order/typing/' + id;  // 正在打印的订单路径接口
+var PRINTER_TYPING = '/printer/' + id;// 打印机状态接口
+var ORDER_TYPED = '/order/typed/' + id; // 打印完的订单路径接口
 // var PRINTER_TYPING = 'printer'; // 打印机状态接口
 // var ORDER_TYPED = 'orders/typed'; // 打印完的订单路径接口
 
