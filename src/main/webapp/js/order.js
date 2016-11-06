@@ -6,7 +6,6 @@ window.localStorage.setItem('smart_printer', id);
 if(!parseInt(id)){
     alert('你还没登录');
     window.location.href="../html/user_login.html";
-    return ;
 }
 
 var ORDER_TYPING = '/order/typing/' + id;  // 正在打印的订单路径接口

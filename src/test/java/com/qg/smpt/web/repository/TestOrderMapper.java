@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.qg.smpt.util.JsonUtil;
+import com.qg.smpt.web.model.Json.OrderDetail;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -23,7 +25,7 @@ import com.qg.smpt.web.service.OrderService;
 public class TestOrderMapper {
 
 	@Resource
-	private OrderService orderService;
+	private OrderMapper orderMapper;
 	
 	@Before
 	public void setUp() throws Exception {
@@ -32,11 +34,19 @@ public class TestOrderMapper {
 	@After
 	public void tearDown() throws Exception {
 	}
-	@Ignore
+
 	@Test
+	@Ignore
 	public void test() {
-		List<Order> orders = orderService.queryByUser(4);
-		System.out.println(orders.size());
+		Order order = orderMapper.queryByIdAndPrinter(1,1);
+		OrderDetail orderDetail = new OrderDetail(order);
+		System.out.println(JsonUtil.objectToJson(orderDetail));
+	}
+
+	@Test
+	public void testMaxId() {
+		int count = orderMapper.selectMaxOrderId();
+		System.out.println(count);
 	}
 
 }

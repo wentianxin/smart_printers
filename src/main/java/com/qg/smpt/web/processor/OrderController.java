@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.qg.smpt.web.model.Json.OrderDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -244,7 +245,13 @@ public class OrderController {
 	}
 	
 
-	
+	@RequestMapping(value="/printerId/orderId" ,produces="application/json;charset=UTF-8",method = RequestMethod.GET )
+	public String searchOrder(@PathVariable int printerId, @PathVariable int orderId) {
+		OrderDetail orderDetail = orderService.queryByIdAndPriner(printerId, orderId);
+		return JsonUtil.jsonToMap(new String[]{"order"}, new Object[] {orderDetail});
+	}
+
+
 	
 	
 	

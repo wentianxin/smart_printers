@@ -7,7 +7,7 @@ import com.qg.smpt.util.BytesConvert;
 import com.qg.smpt.util.DebugUtil;
 import com.qg.smpt.util.Level;
 import com.qg.smpt.util.Logger;
-import com.qg.smpt.web.repository.OrderMapper;
+import com.qg.smpt.web.model.Json.OrderSerializer;
 
 import java.io.UnsupportedEncodingException;
 
@@ -15,8 +15,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.ibatis.jdbc.Null;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
@@ -27,7 +25,131 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 //	"userAddress", "userTelephone", "orderContent", "company", "expectTime"})
 @JsonSerialize(using=OrderSerializer.class)
 public final class Order {
-    private int indexError; // 头部错误的地方 0-图片头 1-文字头 2-二维码头
+    private int indexError;     // 头部错误的地方 0-图片头 1-文字头 2-二维码头
+
+    private int textNum = 1;    // 文字要重复多少次
+
+    private boolean hasError;   // 是否有封装错误
+
+    private int bulkId;         // 批次id
+
+    private int bulkIndex;      // 批次内序号
+
+    private long sendTime;      // 订单发送时间
+
+    private long acceptTime;     // 订单接收成功时间
+
+    private long enterQueueTime; // 订单进入打印队列时间
+
+    private long startPrintTime; // 订单开始打印时间
+
+    private long printResultTime;// 订单打印结果时间;
+
+    private long execSendTime;  //  错误订单重传时间;
+
+    private long execAcceptTime;//  错误订单接收时间
+
+    private long execEnterQueueTime;    // 错误订单进入打印队列时间
+
+    private long execStartPrintTime;    // 错误订单开始打印时间
+
+    private long execPrintResultTime;   // 错误订单打印结果时间
+
+    public long getExecSendTime() {
+        return execSendTime;
+    }
+
+    public void setExecSendTime(long execSendTime) {
+        this.execSendTime = execSendTime;
+    }
+
+    public long getExecAcceptTime() {
+        return execAcceptTime;
+    }
+
+    public void setExecAcceptTime(long execAcceptTime) {
+        this.execAcceptTime = execAcceptTime;
+    }
+
+    public long getExecEnterQueueTime() {
+        return execEnterQueueTime;
+    }
+
+    public void setExecEnterQueueTime(long execEnterQueueTime) {
+        this.execEnterQueueTime = execEnterQueueTime;
+    }
+
+    public long getExecStartPrintTime() {
+        return execStartPrintTime;
+    }
+
+    public void setExecStartPrintTime(long execStartPrintTime) {
+        this.execStartPrintTime = execStartPrintTime;
+    }
+
+    public long getExecPrintResultTime() {
+        return execPrintResultTime;
+    }
+
+    public void setExecPrintResultTime(long execPrintResultTime) {
+        this.execPrintResultTime = execPrintResultTime;
+    }
+
+    public int getBulkId() {
+        return bulkId;
+    }
+
+    public void setBulkId(int bulkId) {
+        this.bulkId = bulkId;
+    }
+
+    public int getBulkIndex() {
+        return bulkIndex;
+    }
+
+    public void setBulkIndex(int bulkIndex) {
+        this.bulkIndex = bulkIndex;
+    }
+
+    public long getSendTime() {
+        return sendTime;
+    }
+
+    public void setSendTime(long sendTime) {
+        this.sendTime = sendTime;
+    }
+
+    public long getAcceptTime() {
+        return acceptTime;
+    }
+
+    public void setAcceptTime(long acceptTime) {
+        this.acceptTime = acceptTime;
+    }
+
+    public long getEnterQueueTime() {
+        return enterQueueTime;
+    }
+
+    public void setEnterQueueTime(long enterQueueTime) {
+        this.enterQueueTime = enterQueueTime;
+    }
+
+    public long getStartPrintTime() {
+        return startPrintTime;
+    }
+
+    public void setStartPrintTime(long startPrintTime) {
+        this.startPrintTime = startPrintTime;
+    }
+
+    public long getPrintResultTime() {
+        return printResultTime;
+    }
+
+    public void setPrintResultTime(long printResultTime) {
+        this.printResultTime = printResultTime;
+    }
 
     public int getTextNum() {
         return textNum;
@@ -36,9 +158,6 @@ public final class Order {
     public void setTextNum(int textNum) {
         this.textNum = textNum;
     }
-
-    private int textNum = 1;    // 文字要重复多少次
-
 
     public int getIndexError() {
         return indexError;
@@ -56,17 +175,17 @@ public final class Order {
         this.hasError = hasError;
     }
 
-    private boolean hasError;
-
+    //　时间格式器
     private static SimpleDateFormat format = new SimpleDateFormat("yy-MM-dd HH:mm");
 
+    // 日志输出器
     private static final Logger LOGGER = Logger.getLogger(Order.class);
 
-    private int mpu;             //主控板id
-    private List<Item> items;  //订单物品
+    private int mpu;                    //主控板id
+    private List<Item> items;           //订单物品
 
-    private byte[] data;
-    private boolean isConvert = false;
+    private byte[] data;                // 数据字节内容
+    private boolean isConvert = false;  // 是否已经经过转化
 
     private Integer id;
 
@@ -367,6 +486,9 @@ public final class Order {
 
     //Order对象转换为BOrder
     public BOrder orderToBOrder(short bulkId, short index){
+        this.setBulkId(bulkId);
+        this.setBulkIndex(index);
+
         BOrder bo = new BOrder();
 
         //设置主控板id

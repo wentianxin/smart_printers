@@ -70,7 +70,7 @@ new Vue({
                 }
             }
             // 发送请求:修改下面的路劲的路径 -->
-            request.open('POST', '/api/categories');
+            request.open('POST', '/order/' + id);
             request.send(formData);
         }
     }

@@ -7,7 +7,6 @@ var PATH = '/user/image/' + id;
 if(!parseInt(id)){
     alert('你还没登录');
     window.location.href="../html/user_login.html";
-    return ;
 }
 
 function getCookis(name){
