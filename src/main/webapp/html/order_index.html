@@ -64,7 +64,7 @@
         <% for (var i = 0; i < data.length; i++){%>
             <li>
                 <p>
-                    <%=data[i].id %>
+                    <a href="order_sum_show.html?printerId=<%=data[i].id %>"><%=data[i].id %></a>
                 </p>
                 <span></span>
                 <p class="printer_status <%=ptstatus(data[i].printerStatus)%>">

@@ -720,3 +720,8 @@ background: #f75e3a;
 #order_factory input{
     text-indent: 10px;
 }
+/*  订单数量 */
+.order_sum_show{
+    margin: 40px 0;
+    clear: both;
+}

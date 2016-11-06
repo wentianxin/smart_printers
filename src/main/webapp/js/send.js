@@ -1,6 +1,12 @@
 var id = getCookis('user_id') || window.localStorage.getItem('smart_printer');
 var SEND = '/order/'+ id;
 
+if(!parseInt(id)){
+    alert('你还没登录');
+    window.location.href="../html/user_login.html";
+    return ;
+}
+
 function getCookis(name){
 	var cookie_name = encodeURIComponent(name) + "=",
 		cookie_start = document.cookie.indexOf(cookie_name),

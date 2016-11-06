@@ -2,6 +2,14 @@ var WIDTH = 128;
 var HEIGHT = 128;
 var id = getCookis('user_id') || window.localStorage.getItem('smart_printer');
 var PATH = '/user/image/' + id;
+
+
+if(!parseInt(id)){
+    alert('你还没登录');
+    window.location.href="../html/user_login.html";
+    return ;
+}
+
 function getCookis(name){
     var cookie_name = encodeURIComponent(name) + "=",
         cookie_start = document.cookie.indexOf(cookie_name),
@@ -9,7 +17,7 @@ function getCookis(name){
         cookie_end = null;
     
     if(cookie_start > -1){
-        cookie_end = document.cookie.indexOf(;, cookie_start);
+        cookie_end = document.cookie.indexOf(';', cookie_start);
         if(cookie_end == -1){
             cookie_end = document.cookie.length;
         }
