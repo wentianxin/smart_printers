@@ -70,7 +70,7 @@ public class OrdersController {
             ReceOrderServlet receOrderServlet = new ReceOrderServlet();
             for (int i = 0; i < orderRequests.length; i++) {
                 for (int j = 0; j < orderRequests[i].getNumber(); j++) {
-                    Order order = OrderBuilder.produceOrder(false, false, 4, orderRequests[i].getNumber());
+                    Order order = OrderBuilder.produceOrder(orderRequests[i].getOrderType(), false, 4, orderRequests[i].getNumber());
                     receOrderServlet.doGet(userId, order);
                 }
             }

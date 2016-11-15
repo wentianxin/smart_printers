@@ -92,4 +92,9 @@ public class TestJackson {
 	}
 
 
+	@Test
+	public void testBoolean() {
+		boolean a = (boolean)JsonUtil.jsonToObject("0", boolean.class);
+		System.out.println(a);
+	}
 }
