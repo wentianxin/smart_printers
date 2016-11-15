@@ -44,7 +44,7 @@ if(!parseInt(id)){
     function success(data){
         var str = "",
             order = data.order;
-        if(order instanceof 'array'){
+        if(order instanceof Array){
             for(var i = 0; i < order.length; i++){
                 str = str + '<div class="one_status"><h1>订单ID：' + order[i].id +'</h1>' +
                             '<p>是否加急：' + (order[i].orderType === 0?'非加急':'加急') +'</p>' +
