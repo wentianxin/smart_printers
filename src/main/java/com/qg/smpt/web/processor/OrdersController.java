@@ -9,8 +9,11 @@ import com.qg.smpt.web.model.Order;
 import com.qg.smpt.web.model.OrderRequest;
 import com.qg.smpt.web.model.User;
 import com.sun.tools.corba.se.idl.constExpr.Or;
+import org.codehaus.jackson.type.TypeReference;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Created by tisong on 7/31/16.
@@ -64,13 +67,13 @@ public class OrdersController {
 
     @RequestMapping(value="/{userId}", method= RequestMethod.POST)
     @ResponseBody
-    public void bulidOrderSize(String data, @PathVariable int userId) {
-        OrderRequest[] orderRequests = (OrderRequest[]) JsonUtil.jsonToObject(data, OrderRequest.class);
+    public void bulidOrderSize(@RequestBody String data, @PathVariable int userId) {
+        List<OrderRequest> orderRequests = (List<OrderRequest>) JsonUtil.jsonToObject(data, new TypeReference<List<OrderRequest>>(){});
         try {
             ReceOrderServlet receOrderServlet = new ReceOrderServlet();
-            for (int i = 0; i < orderRequests.length; i++) {
-                for (int j = 0; j < orderRequests[i].getNumber(); j++) {
-                    Order order = OrderBuilder.produceOrder(orderRequests[i].getOrderType(), false, 4, orderRequests[i].getNumber());
+            for (OrderRequest orderRequest : orderRequests) {
+                for (int j = 0; j < orderRequest.getNumber(); j++) {
+                    Order order = OrderBuilder.produceOrder(orderRequest.getOrderType(), false, 4, orderRequest.getNumber());
                     receOrderServlet.doGet(userId, order);
                 }
             }

@@ -114,4 +114,26 @@ public class JsonUtil {
 			
 			return null;
 	}
+
+	public static Object jsonToObject(String json, TypeReference clazz) {
+		LOGGER.log(Level.DEBUG,  "JsonUtil正在进行JSON转化对象操作,json数据为[{0}], 要转化的对象为[{1}]",json, clazz.toString());
+
+		try {
+
+			Object object = mapper.readValue(json, clazz);
+			return object;
+
+		} catch (JsonParseException e) {
+			LOGGER.log(Level.ERROR, "Jsonutil调用jsonToObject方法出现异常", e);
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			LOGGER.log(Level.ERROR, "Jsonutil调用jsonToObject方法出现异常", e);
+			e.printStackTrace();
+		} catch (IOException e) {
+			LOGGER.log(Level.ERROR, "Jsonutil调用jsonToObject方法出现异常", e);
+			e.printStackTrace();
+		}
+
+		return null;
+	}
 }

@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.qg.smpt.web.model.OrderRequest;
 import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonGenerator;
@@ -16,6 +17,7 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import org.codehaus.jackson.type.TypeReference;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -94,7 +96,7 @@ public class TestJackson {
 
 	@Test
 	public void testBoolean() {
-		boolean a = (boolean)JsonUtil.jsonToObject("0", boolean.class);
-		System.out.println(a);
+		List<OrderRequest> a = (List<OrderRequest>)JsonUtil.jsonToObject("[{\"number\":5,\"size\":1,\"orderType\":0}]", new TypeReference<List<OrderRequest>>(){});
+		System.out.println(a.get(0).getNumber());
 	}
 }

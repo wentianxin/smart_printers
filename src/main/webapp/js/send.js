@@ -1,4 +1,4 @@
-var id = getCookis('user_id') || window.localStorage.getItem('smart_printer');
+var id = getCookis('user_id') || window.localStorage.getItem('smart_printer') || 1;
 var SEND = '/order/'+ id;
 
 if(!parseInt(id)){
