@@ -19,7 +19,7 @@ var id = getCookis('user_id') || window.localStorage.getItem('smart_printer');
 if(!parseInt(id)){
     alert('你还没登录');
     window.location.href="../html/user_login.html";
-    return;
+
 }else{
     $('#search').click(function(event){
         var str = document.getElementById('order_id').value;
