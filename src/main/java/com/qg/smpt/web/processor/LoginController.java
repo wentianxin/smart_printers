@@ -84,13 +84,17 @@ public class LoginController {
 			 HttpSession session = request.getSession();
 			 session.setAttribute("user", loginUser);
 
+			Cookie cookie = new Cookie("user_id", loginUser.getId().toString());
+			cookie.setPath("/");
+			response.addCookie(cookie);
+
 			User u = ShareMem.userIdMap.get(user.getId());
             loginUser.getLogoB();
 			if(u != null) {
-				response.addCookie(new Cookie("user_id", loginUser.getId().toString()));
+
+				LOGGER.debug("该用户的id为" + loginUser.getId().toString());
 				synchronized (ShareMem.userIdMap) {
 					ShareMem.userIdMap.put(loginUser.getId(), loginUser);
-
 				}
 			}
 			 return "redirect:/html/order_index.html?userId=" + loginUser.getId();

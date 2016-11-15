@@ -245,7 +245,8 @@ public class OrderController {
 	}
 	
 
-	@RequestMapping(value="/printerId/orderId" ,produces="application/json;charset=UTF-8",method = RequestMethod.GET )
+	@RequestMapping(value="/{printerId}/{orderId}" ,produces="application/json;charset=UTF-8",method = RequestMethod.GET )
+	@ResponseBody
 	public String searchOrder(@PathVariable int printerId, @PathVariable int orderId) {
 		OrderDetail orderDetail = orderService.queryByIdAndPriner(printerId, orderId);
 		return JsonUtil.jsonToMap(new String[]{"order"}, new Object[] {orderDetail});

@@ -36,7 +36,7 @@ search = null;
     function success(data){
         var str = "",
             printer = data.printer;
-        if(printer instanceof 'array'){
+        if(printer instanceof Array){
             for(var i = 0; i < printer.length; i++){
                 str = str + '<div class="one_status"><h1>打印机ID：' + printer[i].id +'</h1>' +
                             '<p>订单数量：' + printer[i].orderNum +'</p>' +

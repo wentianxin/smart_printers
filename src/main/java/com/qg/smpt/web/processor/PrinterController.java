@@ -75,6 +75,8 @@ public class PrinterController {
 		PrinterDetail printerDetail = null;
 		if(printer != null) {
 			printerDetail = new PrinterDetail(printer);
+		}else {
+			LOGGER.debug("找不到id为" + printerId + "的打印机");
 		}
 		return JsonUtil.jsonToMap(new String[]{"printer"}, new Object[]{printerDetail});
 	}
