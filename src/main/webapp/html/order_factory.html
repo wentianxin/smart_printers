@@ -39,17 +39,17 @@
     </div>
     <div class="wrapper">
     <!-- 修改完这个之后还要修改factory的路径 -->
-		<form action="xxx.php" id="order_factory">
+		<form  id="order_factory">
 			<div v-for="a in arr">
 				<div class="clear">
 					<button type="button" v-on:click="addItem($index)" class="add_item">+</button>
 					<button type="button" v-on:click="delectItem($index)"  class="delect_item">-</button>
 				</div>
-				<label for="">订单数量：<input type="number" name="order_count{{$index}}" id="" v-model="a.count"></label>
-				<label for=""  id="order_length">订单长度：<input type="number" name="size{{$index}}" style="width: 40px ;display: inline-block; margin: 0 10px;" v-model=" a.length"></label>
+				<label for="">订单数量：<input type="number" name="number{{$index}}" id="" v-model="a.number"></label>
+				<label for=""  id="order_length">订单长度：<input type="number" name="size{{$index}}" style="width: 40px ;display: inline-block; margin: 0 10px;" v-model=" a.size"></label>
 				<label id="jiaji">设置加急：
-					<label><input type="radio" name="orderType{{$index}}" id="" value="true" v-model="a.status">不加急</label>
-					<label><input type="radio" name="orderType{{$index}}" id="" value="false" v-model="a.status"> 加急</label>
+					<label><input type="radio" name="orderType{{$index}}" id="" value="1" v-model="a.orderType">不加急</label>
+					<label><input type="radio" name="orderType{{$index}}" id="" value="0" v-model="a.orderType"> 加急</label>
 				</label>
 			</div>
 			<button type="button" v-on:click="submit_factory()">提交</button>

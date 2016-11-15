@@ -14,24 +14,29 @@ function getCookis(name){
     
     return cookie_value;
 }
+// var id = getCookis('user_id') || window.localStorage.getItem('smart_printer');
+// if(!parseInt(id)){
+//     alert('你还没登录');
+//     window.location.href="../html/user_login.html";
+// }
 
-new Vue({
+var vm = new Vue({
 	el: '#order_factory',
 	data: {
 	    arr: [
 			{
-				count : 5,
-				length: 1,
-				status: "false"
+				number : 5,
+				size: 1,
+				orderType: 0
 			}
 	    ]
 	},
     methods:{
         addItem: function(index){
             this.arr.push({
-                count : 0,
-                length: 1,
-                status: "false"
+                number : 0,
+                size: 1,
+                orderType: 0
             });
         },
         delectItem: function(index){
@@ -42,9 +47,23 @@ new Vue({
             this.arr.splice(index, 1);
         },
         submit_factory: function(){
-            var formData = new FormData(document.getElementById('order_factory'));
-            var id = getCookis('user_id');
-            formData.append('user_id', id);
+
+            var data_object = vm.$get('arr'),
+                data = [],
+                id = getCookis('user_id');
+
+            // 把数据弄进去
+            for(var i = 0; i < data_object.length; i++){
+                data.push({
+                    'number': data_object[i].number,
+                    'size': data_object[i].size,
+                    'orderType': data_object[i].orderType
+                });
+            }
+            data = JSON.stringify(data);
+
+
+
             function success(text) {
                 alert('成功');
             }
@@ -70,8 +89,8 @@ new Vue({
                 }
             }
             // 发送请求:修改下面的路劲的路径 -->
-            request.open('POST', '/api/categories');
-            request.send(formData);
+            request.open('POST', '/orders/' + id);
+            request.send(data);
         }
     }
 });
