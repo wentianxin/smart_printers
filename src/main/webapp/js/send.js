@@ -162,11 +162,11 @@ document.getElementById('send_order').addEventListener('click',function(event){
 		dataType: 'json',
 		success: function(data){
 			console.info(data);
-			alert('success');
+			alert('成功发送信息');
 		},
 		error: function(data){
 			console.info(data);
-			alert('success');
+			alert('成功发送信息');
 		}
 	});		
 });

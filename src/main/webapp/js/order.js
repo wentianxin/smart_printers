@@ -1,8 +1,23 @@
-var temp = window.location.search.indexOf('=');
-var id = window.location.search.slice(temp+1);
-window.localStorage.setItem('smart_printer', id);
+function getCookis(name){
+    var cookie_name = encodeURIComponent(name) + "=",
+        cookie_start = document.cookie.indexOf(cookie_name),
+        cookie_value = null,
+        cookie_end = null;
 
+    if(cookie_start > -1){
+        cookie_end = document.cookie.indexOf(';', cookie_start);
+        if(cookie_end == -1){
+            cookie_end = document.cookie.length;
+        }
+        cookie_value = decodeURIComponent(document.cookie.substring(cookie_start + cookie_name.length, cookie_end));
+    }
 
+    return cookie_value;
+}
+
+var id = getCookis('user_id') || window.localStorage.getItem('smart_printer');
+
+console.log(id);
 if(!parseInt(id)){
     alert('你还没登录');
     window.location.href="../html/user_login.html";
