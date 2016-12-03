@@ -548,6 +548,7 @@ background: #f75e3a;
     margin-top: 20px;
     background:  #868de6;
     color: white;
+    /* float: right; */
     border-radius: 3px;
     width: 200px;
     font-size: 16px;
@@ -736,4 +737,59 @@ background: #f75e3a;
 .order_sum_show{
     margin: 40px 0;
     clear: both;
+    width: 200px;
+}
+
+.order_sum_show {
+    margin: 40px 0;
+    clear: both;
+    width: 100%;
+    /* float: left; */
+    /* width: 200px; */
+}
+
+#order_order_show{
+    /* margin-left: 230px; */
+    clear: right;
+    padding-top: 40px;
+}
+
+.show_order_table{
+    overflow: hidden;
+}
+
+.show_order_tr{
+    border-bottom: 1px solid #ccc;
+    overflow: hidden;
+    padding: 5px 0;
+}
+
+.show_order_th,.show_order_td{
+    width: 11.5%;
+    text-align: center;
+    float: left;
+    padding: 0 0.5%;
+}
+
+.show_order_error{
+   padding-left: 37.5%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.show_here{
+    background: rgba(134, 141, 230, 0.5);
+}
+
+.order_page{
+    text-align: center;
+    margin: 20px auto;
+}
+.order_page_a{
+    color: #ccc;
+    padding: 0 5px;
+}
+
+.order_page_a.show_here{
+    color: white;
 }

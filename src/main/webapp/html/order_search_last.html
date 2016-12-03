@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <title>搜索</title>
     <link rel="stylesheet" href="../css/order.css" />
-            <script src="../js/jquery.min.js"></script>
-        <!-- <script src="../js/mock.js"></script> -->
-    <script src="../js/vue.js"></script>
 </head>
 
 <body>
@@ -18,11 +15,11 @@
         <div class="wrapper" id="get_order_search">
             <div class="subwrapper" id="logo_upload">
                 <button class="button" type="button" onclick='javascript:window.location.href="order_index.html"' style="float: right;">返回订单主页</button>
-               	<div class="order_sum_show">
-               		<label>输入订单id：<input type="text" name="order_id" id="order_id"></label>
-               		<button type="button" id="search" class="button" v-on:click="search_order()">查询</button>
+                <div class="order_sum_show">
+                  <label>输入订单id：<input type="text" name="order_id" id="order_id"></label>
+                  <button type="button" id="search" class="button">查询</button>
                 </div>
-               		<div id="order_order_show">
+                  <div id="order_order_show">
                     <div class="show_order_table">
                       <div class="show_order_tr">
                         <div class="show_order_th">订单ID</div>
@@ -35,7 +32,7 @@
                         <div class="show_order_th">打印时间<br>(再次打印时间)</div>
                       </div>
 
-                      <div class="show_order_tr" id="index{{order.id}}" v-for="order in show_area" v-bind:class="order.className">
+                      <div class="show_order_tr" v-for="order in show_area" >
                           <div class="show_order_td" v-text="order.id"></div>
                           <div class="show_order_td" v-text="order.orderType"></div>
                           <div class="show_order_td" v-text="order.bulkId"></div>
@@ -54,16 +51,19 @@
                       </div>
                     </div>
                     <div class="order_page">
-                      <a class="order_page_a" v-on:click="last_page()" href="javascript:void(0)">上一页</a>
-                      <a class="order_page_a"  v-for="order in orders" href="javascript:void(0)" v-on:click="change_page($index)" v-bind:class="{'show_here': order.page == page}">{{order.page}}</a>
-                      <a class="order_page_a"  v-on:click="next_page()" href="javascript:void(0)">下一页</a>
+                      <a v-on:click="last_page()" href="javascript:void(0)">上一页</a>
+                      <div v-for="order in orders" >
+                      <a href="javascript:void(0)" v-on:click="change_page($index)" v-bind:class="{'show_here': order.page == page}">{{order.page}}</a>
+                      </div>
+                      <a v-on:click="next_page()" href="javascript:void(0)">下一页</a>
                     </div>
-               		</div>
-               	</div>
+                  </div>
+                </div>
             </div>
         </div>
-
-        
+        <script src="../js/jquery.min.js"></script>
+        <script src="../js/mock.js"></script>
+        <script src="../js/vue.js"></script>
         <script src="../js/search.js"></script>
 </body>
 
