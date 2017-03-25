@@ -23,6 +23,7 @@ function getCookis(name){
 var vm = new Vue({
 	el: '#order_factory',
 	data: {
+        id: 0,
 	    arr: [
 			{
 				number : 5,
@@ -50,8 +51,8 @@ var vm = new Vue({
 
             var data_object = vm.$get('arr'),
                 data = [],
-                id = getCookis('user_id');
-
+                // id = getCookis('user_id');
+                id = vm.$get('id');
             // 把数据弄进去
             for(var i = 0; i < data_object.length; i++){
                 data.push({
@@ -61,9 +62,6 @@ var vm = new Vue({
                 });
             }
             data = JSON.stringify(data);
-
-
-
             function success(text) {
                 alert('成功');
             }
