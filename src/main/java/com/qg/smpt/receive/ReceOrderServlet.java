@@ -252,13 +252,18 @@ public class ReceOrderServlet extends HttpServlet {
 
     private Printer selectPrinter(List<Printer> printers) {
         // TODO 缺少智能分发算法
-        for (Printer p : printers) {
-            if (p.isConnected() ) {
-                return p;
+        while (true) {
+            for (Printer p : printers) {
+                if (p.isConnected() && p.isCanAccept()) {
+                    return p;
+                }
+            }
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
-
-        return  null;
     }
 
     private List<BulkOrder> getBulkBuffer(Printer printer) {
