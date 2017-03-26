@@ -1,6 +1,9 @@
 package com.qg.smpt.web.model;
 
+import com.qg.smpt.share.ShareMem;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
+import java.util.List;
 
 @JsonIgnoreProperties({"userId", "userName", "currentBulk", "currentOrder",
 		"canAccept","busy", "lastSendTime"})
@@ -17,6 +20,61 @@ public final class Printer {
     private volatile boolean isBusy;         //true-忙时，false-闲时
     private volatile long lastSendTime;      //上一次发送批次的时间
     private boolean connected = false;       // 是否建立连接
+
+    private int oredrsNum;          // 总数量
+    private int sendedOrdersNum;     // 已发送订单数量
+    private int unsendedOrdersNum;  // 未发送订单数量
+    private int printSuccessNum;    // 打印成功数量
+    private int printErrorNum;      // 打印失败数量
+    private int successRate;        // 成功率
+
+    public int getOredrsNum() {
+        return oredrsNum;
+    }
+
+    public void setOredrsNum(int oredrsNum) {
+        this.oredrsNum = oredrsNum;
+    }
+
+    public int getSendedOrdersNum() {
+        return sendedOrdersNum;
+    }
+
+    public void setSendedOrdersNum(int sendedOrdersNum) {
+        this.sendedOrdersNum = sendedOrdersNum;
+    }
+
+    public int getUnsendedOrdersNum() {
+        return unsendedOrdersNum;
+    }
+
+    public void setUnsendedOrdersNum(int unsendedOrdersNum) {
+        this.unsendedOrdersNum = unsendedOrdersNum;
+    }
+
+    public int getPrintSuccessNum() {
+        return printSuccessNum;
+    }
+
+    public void setPrintSuccessNum(int printSuccessNum) {
+        this.printSuccessNum = printSuccessNum;
+    }
+
+    public int getPrintErrorNum() {
+        return printErrorNum;
+    }
+
+    public void setPrintErrorNum(int printErrorNum) {
+        this.printErrorNum = printErrorNum;
+    }
+
+    public int getSuccessRate() {
+        return successRate;
+    }
+
+    public void setSuccessRate(int successRate) {
+        this.successRate = successRate;
+    }
 
     public Printer() {this.currentBulk = 0;}
     public Printer(int id){this.id = id;this.currentBulk = 0;}
@@ -117,5 +175,30 @@ public final class Printer {
 
     public String getUserName() {
         return userName;
+    }
+
+    public synchronized void reset() {
+        // 清空各队列的打印作业
+        List<BulkOrder> sendedQueue = ShareMem.priSentQueueMap.get(this);
+        if(sendedQueue != null) {
+            sendedQueue.clear();
+        }
+
+        List<BulkOrder> exceQueue = ShareMem.priExceQueueMap.get(this);
+        if(exceQueue != null) {
+            exceQueue.clear();
+        }
+
+        List<BulkOrder> unsendQueue = ShareMem.priBufferMapList.get(this);
+        if(unsendQueue != null) {
+            unsendQueue.clear();
+        }
+
+        // 重置打印机状态
+        oredrsNum = 0;
+        sendedOrdersNum = 0;
+        unsendedOrdersNum = 0;
+        printSuccessNum = 0;
+        printErrorNum = 0;
     }
 }

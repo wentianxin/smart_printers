@@ -15,7 +15,7 @@ public interface OrderMapper {
 
     int insertSelective(Order record);
 
-    int insertUserOrder(Integer userId, Integer orderId);
+    int insertUserOrder(Order order);
 
     Order selectByPrimaryKey(Integer id);
 
@@ -26,10 +26,12 @@ public interface OrderMapper {
 
     int updateByPrimaryKeyWithBLOBs(Order record);
 
-
+    int selectMaxOrderId();
 
 //    int updateByPrimaryKeyWithBLOBs(Order record);
 
 
     int updateByPrimaryKey(Order record);
+
+    Order queryByIdAndPrinter(int userId, int id);
 }

@@ -6,7 +6,7 @@ package com.qg.smpt.web.model;
 public class OrderRequest {
     private int number;
     private int size;
-    private char orderType;
+    private boolean orderType;
 
     public int getNumber() {
         return number;
@@ -24,11 +24,11 @@ public class OrderRequest {
         this.size = size;
     }
 
-    public char getOrderType() {
+    public boolean getOrderType() {
         return orderType;
     }
 
-    public void setOrderType(char orderType) {
+    public void setOrderType(boolean orderType) {
         this.orderType = orderType;
     }
 }

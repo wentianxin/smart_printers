@@ -511,7 +511,15 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                 , p.getId(), TimeUtil.timeToString(requestTime), TimeUtil.timeToString(sendtime), sendtime - requestTime);
         String orderSent = String.valueOf(BConstants.orderSent);
         for (Order o : bOrders.getOrders()) {
+            o.setSendTime(sendtime);
             o.setOrderStatus(orderSent);
+        }
+
+        // 修改打印机已发送、未发送数量
+        int num = bOrders.getOrders().size();
+        synchronized (p) {
+            p.setUnsendedOrdersNum(p.getUnsendedOrdersNum() - num);
+            p.setSendedOrdersNum(p.getSendedOrdersNum() + num);
         }
 
         LOGGER.log(Level.INFO, "打印机 [{0}] 对应 打印机线程 printerProcessor [{1}] 完成订单发送请求; 时间 [{2}]",
@@ -533,43 +541,11 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         LOGGER.log(Level.DEBUG, "打印机id [{0}], 订单标志 : [{1}] , 订单发送时间戳 : [{2}], " +
                 "所属批次[{3}], 批次内序号 [{4}], 校验和 [{5}] 当前线程 [{6}]", bOrderStatus.printerId, bOrderStatus.flag,
                 bOrderStatus.seconds, bOrderStatus.bulkId, bOrderStatus.inNumber, bOrderStatus.checkSum, this.id);
+
         byte flag = (byte)(bOrderStatus.flag  & 0xFF);
 
         Printer printer = ShareMem.printerIdMap.get(bOrderStatus.printerId);
-//        if ( (byte)(bOrderStatus.flag & 0xFF) == BConstants.bulkStatus) {
-//            if ( (byte)((bOrderStatus.flag >> 8) & 0xFF ) == (byte) BConstants.bulkSucc) {
-//                LOGGER.log(Level.DEBUG, "暂无单个订单成功状态");
-//                // 将已发队列中数据删除并放到数据库中
-//                LOGGER.log(Level.INFO, "打印机 [{0}] 接收订单成功");
-//                Printer printer = ShareMem.printerIdMap.get(bOrderStatus.printerId);
-//                // 获取打印机已发订单队列
-//                List<BulkOrder> bulkOrderList = ShareMem.priSentQueueMap.get(printer);
-//
-//                if (bulkOrderList == null || bulkOrderList.size() <= 0) {
-//                    LOGGER.log(Level.WARN, "已发队列数据为空: [{0}]", bOrderStatus.printerId);
-//                    return ;
-//                }
-//
-//                BulkOrder bulkOrder = null;
-//                synchronized (bulkOrderList) {
-//                    // 锁住打印机所对应的已发队列, 删除已发队列中的批次订单
-//                    for (int i = 0; i < bulkOrderList.size(); i++) {
-//                        if (bulkOrderList.get(i).getId() == bOrderStatus.bulkId) {
-//                            bulkOrder = bulkOrderList.get(i);
-//                            bulkOrderList.remove(i);
-//                        }
-//                    }
-//                }
-//                if (bulkOrder != null) {
-//                    // TODO 放入数据库中
-//
-//                }
-//                else {
-//                    LOGGER.log(Level.WARN, "打印机 [{0}] 对应已发队列中未匹配订单批次号 [{1}]", bOrderStatus.printerId, bOrderStatus.bulkId);
-//                    return ;
-//                }
-//            }
-//        } else
+
         /* 获取批次订单队列 flag 0x5 : 获取异常批次订单队列; others : 获取已发送批次订单队列 */
         List<BulkOrder> bulkOrderList = null;
         if ( flag == BConstants.orderInQueue || flag == BConstants.orderFail || flag == BConstants.orderTyping
@@ -600,6 +576,46 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                 bOrder = bulkOrderF.getbOrders().get(bOrderStatus.inNumber - 1);
 
                 order.setOrderStatus(String.valueOf(bOrderStatus.flag & 0xFF));  // 设置订单状态 //
+
+                long time = System.currentTimeMillis();
+                switch (flag) {
+                    case BConstants.orderInQueue :
+                        order.setEnterQueueTime(time);
+                        break;
+
+                    case BConstants.orderTyping :
+                        order.setStartPrintTime(time);
+                        break;
+
+                    case BConstants.orderFail :
+                        order.setPrintResultTime(time);
+                        synchronized (printer) {
+                            printer.setPrintErrorNum(printer.getPrintErrorNum() + 1);
+                        }
+                        break;
+
+                    case BConstants.orderSucc :
+                        synchronized (printer) {
+                            printer.setPrintSuccessNum(printer.getPrintErrorNum() + 1);
+                        }
+                        order.setPrintResultTime(time);
+                        break;
+
+                    case BConstants.orderExcepInQueue:
+                        order.setExecEnterQueueTime(time);
+                        break;
+
+                    case BConstants.orderExcepTyping:
+                        order.setExecStartPrintTime(time);
+                        break;
+
+                    case BConstants.orderExcep:
+                    case BConstants.orderExcepDataW:
+                    case BConstants.orderExcepFail:
+                        order.setExecPrintResultTime(time);
+                        break;
+                }
+
                 LOGGER.log(Level.DEBUG, "订单内容 [{0}] 当前线程 [{1}]", order.toString(), this.id);
 
                 break;
@@ -623,6 +639,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
             // TODO 如何获取打印机发来的异常订单被更新后的数据
             long time = System.currentTimeMillis();
+            order.setExecSendTime(time);
             LOGGER.log(Level.INFO, "打印机 [{0}] 打印订单 (订单批次号 [{1}], 批次内序号 [{2}]) 失败, 当前线程 [{3}], 当前时间为 [{4}]," +
                             " 离发送订单相差的时间为 [{5}]",
                     bOrderStatus.printerId, bOrderStatus.bulkId, bOrderStatus.inNumber, this.id,
@@ -680,6 +697,8 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             }
 
             LOGGER.log(Level.DEBUG, "打印机[{0}] 批次订单处理完毕 [{1}] 当前线程 [{2}]", printer.getId(), bOrderStatus.bulkId, this.id);
+
+            // 将订单保存到数据库
             SqlSession sqlSession = sqlSessionFactory.openSession();
             OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
             try {
@@ -689,7 +708,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                     o = bulkOrderF.getOrders().get(i);
                     if (o.getOrderStatus().equals(succ)) {
                         orderMapper.insert(o);
-                        orderMapper.insertUserOrder(o.getUserId(), o.getId());
+                        orderMapper.insertUserOrder(o);
                     }
                 }
             } finally {
@@ -711,7 +730,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
             try {
                 LOGGER.log(Level.DEBUG, "====再次确认 orderId: {0}, userId: {1}", order.getId(), order.getUserId());
-                orderMapper.insertUserOrder(order.getUserId(), order.getId());
+                orderMapper.insertUserOrder(order);
                 orderMapper.insert(order);
             } finally {
                 sqlSession.commit();

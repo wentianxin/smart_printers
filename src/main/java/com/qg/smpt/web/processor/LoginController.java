@@ -1,8 +1,11 @@
 package com.qg.smpt.web.processor;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.sun.deploy.net.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,7 +62,7 @@ public class LoginController {
 	
 	
 	@RequestMapping(value="/login", method=RequestMethod.POST, produces="application/html;charset=utf-8" )
-	public String login(String userAccount, String userPassword,  HttpServletRequest request) {
+	public String login(String userAccount, String userPassword, HttpServletRequest request, HttpServletResponse response) {
 		User user = installUser(userAccount, userPassword);
 		
 		// check the login infomation is correct
@@ -81,12 +84,17 @@ public class LoginController {
 			 HttpSession session = request.getSession();
 			 session.setAttribute("user", loginUser);
 
+			Cookie cookie = new Cookie("user_id", loginUser.getId().toString());
+			cookie.setPath("/");
+			response.addCookie(cookie);
+
 			User u = ShareMem.userIdMap.get(user.getId());
             loginUser.getLogoB();
 			if(u != null) {
+
+				LOGGER.debug("该用户的id为" + loginUser.getId().toString());
 				synchronized (ShareMem.userIdMap) {
 					ShareMem.userIdMap.put(loginUser.getId(), loginUser);
-
 				}
 			}
 			 return "redirect:/html/order_index.html?userId=" + loginUser.getId();

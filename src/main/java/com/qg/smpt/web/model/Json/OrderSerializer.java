@@ -1,7 +1,8 @@
-package com.qg.smpt.web.model;
+package com.qg.smpt.web.model.Json;
 
 import java.io.IOException;
 
+import com.qg.smpt.web.model.Order;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.JsonSerializer;

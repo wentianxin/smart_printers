@@ -65,11 +65,20 @@ var vm = new Vue({
             function success(text) {
                 alert('成功');
             }
-
             function fail(code) {
                 alert('失败');
             }
-
+            // $.ajax({
+            //     url :'/orders/' + id,
+            //     type: 'post',
+            //     data: data,
+            //     contentType: 'application/json; charset=UTF-8',
+            //     dataType: 'json',
+            //     success: success,
+            //     error: fail
+            //
+            //     }
+            // );
             var request = new XMLHttpRequest(); // 新建XMLHttpRequest对象
 
             request.onreadystatechange = function () { // 状态发生变化时，函数被回调
@@ -87,7 +96,8 @@ var vm = new Vue({
                 }
             }
             // 发送请求:修改下面的路劲的路径 -->
-            request.open('POST', '/orders/' + id);
+            request.open('POST', '/orders/' + id, true);
+            request.setRequestHeader('content-Type','application/json;charset=utf-8');
             request.send(data);
         }
     }

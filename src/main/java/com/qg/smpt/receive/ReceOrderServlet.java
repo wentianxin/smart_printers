@@ -78,6 +78,12 @@ public class ReceOrderServlet extends HttpServlet {
         /* 获取打印机对应缓冲队列　添加数据, 判断是否满足线程唤醒的条件　*/
         setOrderData(printer, userId, order);
 
+        // 添加打印机订单总数量
+        // 添加打印机订单未发送数量
+        synchronized (printer) {
+            printer.setOredrsNum(printer.getOredrsNum() + 1);
+            printer.setUnsendedOrdersNum(printer.getSendedOrdersNum() + 1);
+        }
     }
 
     private User getUser(int userId) {

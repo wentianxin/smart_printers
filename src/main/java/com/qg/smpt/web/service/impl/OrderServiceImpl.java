@@ -1,6 +1,9 @@
 package com.qg.smpt.web.service.impl;
 
 import java.util.List;
+
+import com.qg.smpt.web.model.Json.OrderDetail;
+import com.sun.tools.corba.se.idl.constExpr.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.qg.smpt.receive.ReceOrderServlet;
@@ -43,6 +46,12 @@ public class OrderServiceImpl implements OrderService{
 			return Constant.ERROR;
 		}
 		
+	}
+
+	public OrderDetail queryByIdAndPriner(int printerId, int id) {
+		Order order = orderMapper.queryByIdAndPrinter(printerId,id);
+		OrderDetail orderDetail = new OrderDetail(order);
+		return orderDetail;
 	}
 
 }

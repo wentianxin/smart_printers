@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.qg.smpt.web.model.Json.PrinterDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -65,4 +66,34 @@ public class PrinterController {
 		
 		return json;
 	}
+
+	@RequestMapping(value="/printer/status/{printerId}",  method=RequestMethod.GET, produces="application/json;charset=UTF-8" )
+	@ResponseBody
+	public String queryPrinter(@PathVariable int printerId) {
+		// 根据打印机 id 获取打印机
+		Printer printer = ShareMem.printerIdMap.get(printerId);
+		PrinterDetail printerDetail = null;
+		if(printer != null) {
+			printerDetail = new PrinterDetail(printer);
+		}else {
+			LOGGER.debug("找不到id为" + printerId + "的打印机");
+		}
+		return JsonUtil.jsonToMap(new String[]{"printer"}, new Object[]{printerDetail});
+	}
+
+	@RequestMapping(value="/printer/{printerId}",  method=RequestMethod.DELETE, produces="application/json;charset=UTF-8" )
+	@ResponseBody
+	public String resetPrinter(@PathVariable int printerId) {
+		// 根据打印机 id 获取打印机
+		Printer printer = ShareMem.printerIdMap.get(printerId);
+
+		// 若当前打印机存在，则将打印机的内部打印订单信息全重置
+		if(printer != null) {
+			synchronized (printer) {
+				printer.reset();
+			}
+		}
+		return JsonUtil.jsonToMap(new String[]{"status"}, new Object[]{"SUCCESS"});
+	}
+
 }

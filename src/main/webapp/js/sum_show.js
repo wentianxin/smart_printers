@@ -19,19 +19,19 @@
 var search = window.location.search;
 var id = search.slice(search.indexOf('=') +1 );
 search = null;
+    $.ajax({
+        url: '/printer/status/' + id,
+        type: 'get',
+        dataType: 'json',
+        success: function(data){
+            // 成功处理时间
+            success(data);
+        },
+        error: function(data){
+            alert('系统出错');
+        }
+    });
 
-$.ajax({
-    url: '/printer/status/' + id,
-    type: 'get',
-    dataType: 'json',
-    success: function(data){
-        // 成功处理时间
-        success(data);
-    },
-    error: function(data){
-        alert('系统出错');
-    }
-});
 function success_clear(data){
     // 判断状态是否成功；
     if(data.status === 'success'){
@@ -45,7 +45,7 @@ function success(data){
         printer = data.printer;
     // 如果存在printer这个
     if(printer){
-        if(printer instanceof 'array'){
+        if(printer instanceof Array){
             for(var i = 0; i < printer.length; i++){
                 str = str + '<div class="one_status"><h1>打印机ID：' + printer[i].id +'</h1>' +
                             '<p>订单数量：' + printer[i].orderNum +'</p>' +
@@ -69,7 +69,6 @@ function success(data){
         alert('获取不到打印机信息，请检查是否有开启服务器。');
     }
 }
-
 $('#clear_resord').click(function(event){
     $.ajax({
         url: '/printer/'+ id,

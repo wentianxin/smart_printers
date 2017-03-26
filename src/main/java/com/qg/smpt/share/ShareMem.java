@@ -2,7 +2,15 @@ package com.qg.smpt.share;
 
 import com.qg.smpt.printer.PrinterProcessor;
 import com.qg.smpt.web.model.*;
+import com.qg.smpt.web.repository.OrderMapper;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +22,7 @@ import java.util.Queue;
  * // TODO 何时注销这些对象呢?
  */
 public final class ShareMem {
-	
+
 	public static Integer currentOrderNum = 0;
 
     /**
@@ -49,6 +57,9 @@ public final class ShareMem {
     public static Map<Printer, SocketChannel> priSocketMap = null;          // 打印机-socket
 
     static {
+        // 初始化订单ID
+        initOrderId();
+
         userIdMap = new HashMap<Integer, User>();
 
         printerIdMap = new HashMap<Integer, Printer>();
@@ -66,5 +77,24 @@ public final class ShareMem {
         priPriProcessMap = new HashMap<Printer, PrinterProcessor>();
 
         priSocketMap = new HashMap<Printer, SocketChannel>();
+    }
+
+    private static void initOrderId() {
+        String resource = "mybatis/mybatis-config.xml";
+        Reader reader = null;
+        try {
+            reader = Resources.getResourceAsReader(resource);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+
+        }
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        OrderMapper orderMapper = sqlSession.getMapper(OrderMapper.class);
+        try {
+            currentOrderNum = orderMapper.selectMaxOrderId();
+        }finally {
+            sqlSession.close();
+        }
     }
 }

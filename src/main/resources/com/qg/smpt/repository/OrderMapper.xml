@@ -205,8 +205,12 @@
       </if>
     </trim>
   </insert>
-  <insert id="insertUserOrder" parameterType="java.lang.Integer">
-    insert into user_order (user_id, order_id) values (#{0, jdbcType=INTEGER}, #{1, jdbcType=INTEGER})
+  <insert id="insertUserOrder" parameterType="com.qg.smpt.web.model.Order">
+    insert into user_order (user_id, order_id,send_time,accept_time,enter_queue_time,start_print_time,
+    print_result_time,bulkid,bulkindex,exec_send_time,exec_enter_queue_time,exec_start_time,exec_print_result_time,
+    exec_accept_time) values (#{userId, jdbcType=INTEGER}, #{id, jdbcType=INTEGER},#{sendTime}, #{acceptTime},
+    #{enterQueueTime}, #{startPrintTime}, #{printResultTime}, #{bulkId}, #{bulkIndex}, #{execSendTime}, #{execEnterQueueTime},
+    #{execStartPrintTime}, #{execPrintResultTime}, #{execAcceptTime})
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.qg.smpt.web.model.Order" >
     <!--
@@ -311,4 +315,32 @@
       client_telephone = #{clientTelephone,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <resultMap id="orderDetail" type="com.qg.smpt.web.model.Order">
+    <id column="id" property="id"/>
+    <result column="order_status" property="orderStatus"/>
+    <result column="bulkid" property="bulkId" />
+    <result column="bulkindex" property="bulkIndex" />
+    <result column="send_time" property="sendTime" />
+    <result column="accept_time" property="acceptTime" />
+    <result column="enter_queue_time" property="enterQueueTime" />
+    <result column="start_print_time" property="startPrintTime" />
+    <result column="exec_send_time" property="execSendTime" />
+    <result column="exec_accept_time" property="execAcceptTime" />
+    <result column="exec_enter_queue_time" property="execEnterQueueTime" />
+    <result column="exec_start_print_time" property="execStartPrintTime" />
+    <result column="exec_print_result_time" property="execPrintResultTime" />
+  </resultMap>
+
+  <select id="queryByIdAndPrinter" parameterType="java.lang.Integer" resultMap="orderDetail">
+    SELECT o.id, bulkid, bulkindex,send_time,accept_time,enter_queue_time,
+	  start_print_time,print_result_time, exec_send_time,exec_enter_queue_time,
+	  exec_start_time,exec_print_result_time,exec_accept_time,o.order_status
+	  FROM user_order AS uo INNER JOIN orders AS o ON o.id = uo.order_id
+	  WHERE uo.user_id = #{0} AND uo.order_id = #{1}
+  </select>
+
+  <select id="selectMaxOrderId" resultType="java.lang.Integer">
+    select count(id) from orders;
+  </select>
 </mapper>
