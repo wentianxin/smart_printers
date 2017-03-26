@@ -21,16 +21,17 @@ function getCookis(name){
 // }
 
 var vm = new Vue({
-	el: '#order_factory',
-	data: {
-	    arr: [
-			{
-				number : 5,
-				size: 1,
-				orderType: 0
-			}
-	    ]
-	},
+    el: '#order_factory',
+    data: {
+        id: 0,
+        arr: [
+            {
+                number : 5,
+                size: 1,
+                orderType: 0
+            }
+        ]
+    },
     methods:{
         addItem: function(index){
             this.arr.push({
@@ -50,8 +51,8 @@ var vm = new Vue({
 
             var data_object = vm.$get('arr'),
                 data = [],
-                id = getCookis('user_id');
-
+                // id = getCookis('user_id');
+                id = vm.$get('id');
             // 把数据弄进去
             for(var i = 0; i < data_object.length; i++){
                 data.push({
@@ -101,5 +102,3 @@ var vm = new Vue({
         }
     }
 });
-
-	
