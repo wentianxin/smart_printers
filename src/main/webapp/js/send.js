@@ -141,7 +141,7 @@ document.getElementById('send_order').addEventListener('click',function(event){
 		"orderPreAmount": 0,
 		"orderPayStatus": '已付款',
 		"userName"      : '梁朝伟',
-		"userAddress"   : '广东省广州市广州大学城广东工业大学工学一号馆',
+		"userAddress"   : '爱心大道',
 		"userTelephone" : '15521190833'
 	}
 	for(var i = 0,len = dishes.length; i < len; i++){

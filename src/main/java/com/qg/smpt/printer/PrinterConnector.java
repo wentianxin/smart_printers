@@ -66,7 +66,7 @@ public class PrinterConnector implements Runnable, Lifecycle{
             LOGGER.log(Level.ERROR, "PrinterConnector already initizlize");
         }
 
-        LOGGER.log(Level.DEBUG, "PrinterConnector initizlize, create serversocketchannel");
+        //LOGGER.log(Level.DEBUG, "PrinterConnector initizlize, create serversocketchannel");
         try {
             ssc = ServerSocketChannel.open();
 
@@ -113,7 +113,7 @@ public class PrinterConnector implements Runnable, Lifecycle{
      */
     private void threadStart() {
 
-        LOGGER.log(Level.DEBUG, "printerConnector daemon thread starting");
+      //  LOGGER.log(Level.DEBUG, "printerConnector daemon thread starting");
 
         Thread thread = new Thread(this, threadName);
 
@@ -144,7 +144,7 @@ public class PrinterConnector implements Runnable, Lifecycle{
                         case SelectionKey.OP_ACCEPT:
                             LOGGER.debug("ServerSocket accpet printer connection");
                             acceptSocket(key);
-                            LOGGER.log(Level.DEBUG, "SocketChannel [{0}}",key.channel().toString());
+                          //  LOGGER.log(Level.DEBUG, "SocketChannel [{0}}",key.channel().toString());
                             break;
                         case SelectionKey.OP_READ:
                             // 当有多个 SocketChannel时, 会自动筛选哪一个SocketChannel 触发了事件
@@ -162,10 +162,10 @@ public class PrinterConnector implements Runnable, Lifecycle{
                             }
                             byteBuffer.flip();
 
-                            LOGGER.log(Level.DEBUG, "SocketChannel [{0}}",key.channel().toString());
+                         //   LOGGER.log(Level.DEBUG, "SocketChannel [{0}}",key.channel().toString());
                             PrinterProcessor processor = createProcessor();
                             processor.assign((SocketChannel)key.channel(), byteBuffer);
-                            LOGGER.log(Level.DEBUG, "ServerSocket accpet read requestion， alloate a printerProcessor thread id [{0}]", processor.getId());
+                           // LOGGER.log(Level.DEBUG, "ServerSocket accpet read requestion， alloate a printerProcessor thread id [{0}]", processor.getId());
                             break;
                         default: // something was wrong
                             LOGGER.log(Level.ERROR, "ServerSocket 出现未知情况");
@@ -234,10 +234,10 @@ public class PrinterConnector implements Runnable, Lifecycle{
 
             sc.register(selector, SelectionKey.OP_READ);
 
-            LOGGER.log(Level.DEBUG, "监听到新的打印机接入");
+         //   LOGGER.log(Level.DEBUG, "监听到新的打印机接入");
 
         } catch (final IOException e) {
-
+            e.printStackTrace();
         }
 
     }

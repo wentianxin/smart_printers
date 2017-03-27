@@ -47,52 +47,57 @@ public class RegisterController {
 		}catch(Exception e){
 			return JsonUtil.jsonToMap(new String[]{"retcode"}, new Object[]{Constant.FALSE});
 		}
-	}	
-		
-	@RequestMapping(value="/register", method=RequestMethod.POST, produces="application/html;charset=utf-8" )
-	public String register(HttpServletRequest request) {
-		User newUser = installUser(request);
-		
-		// 检查用户信息是否正确,正确则执行注册用户方法,错误则返回错误状态
-		// check the user information is correct
-		// true-run register method;
-		// false- return ERROR status
-		int status = (checkUserInfo(newUser) ? userService.registerUser(newUser) : Constant.FALSE);
-		
-		String url = (status == Constant.TRUE) ? "redirect:/html/user_login.html" : "redirect:/html/register.html";
-		
-		return url;
-	}	
-	
-	private User installUser(HttpServletRequest request) {
-		User user = new User();
-		
-		String name = request.getParameter("userName");
-		String account = request.getParameter("userAccount");
-		String password = request.getParameter("userPassword");
-		String store = request.getParameter("userStore");
-		String address = request.getParameter("userAddress");
-		String phone = request.getParameter("userPhone");
-		
-		user.setUserName(name);
-		user.setUserAccount(account);
-		user.setUserPassword(password);
-		user.setUserStore(store);
-		user.setUserAddress(address);
-		user.setUserPhone(phone);
-		
-		String[] printerIds = request.getParameterValues("id");
-		List<Printer> printers = new ArrayList<>();
-		for(int i = 0; i < printerIds.length; i++) {
-			Printer p = new Printer();
-			p.setId(Integer.parseInt(printerIds[i]));
-			printers.add(p);
-		}
-		user.setPrinters(printers);
-		
-		return user;
 	}
-	
+
+	/**
+	 * 不提供注册功能
+	// * @param request
+	 * @return
+	 */
+//	@RequestMapping(value="/register", method=RequestMethod.POST, produces="application/html;charset=utf-8" )
+//	public String register(HttpServletRequest request) {
+//		User newUser = installUser(request);
+//
+//		// 检查用户信息是否正确,正确则执行注册用户方法,错误则返回错误状态
+//		// check the user information is correct
+//		// true-run register method;
+//		// false- return ERROR status
+//		int status = (checkUserInfo(newUser) ? userService.registerUser(newUser) : Constant.FALSE);
+//
+//		String url = (status == Constant.TRUE) ? "redirect:/html/user_login.html" : "redirect:/html/register.html";
+//
+//		return url;
+//	}
+//
+//	private User installUser(HttpServletRequest request) {
+//		User user = new User();
+//
+//		String name = request.getParameter("userName");
+//		String account = request.getParameter("userAccount");
+//		String password = request.getParameter("userPassword");
+//		String store = request.getParameter("userStore");
+//		String address = request.getParameter("userAddress");
+//		String phone = request.getParameter("userPhone");
+//
+//		user.setUserName(name);
+//		user.setUserAccount(account);
+//		user.setUserPassword(password);
+//		user.setUserStore(store);
+//		user.setUserAddress(address);
+//		user.setUserPhone(phone);
+//
+//		String[] printerIds = request.getParameterValues("id");
+//		List<Printer> printers = new ArrayList<>();
+//		for(int i = 0; i < printerIds.length; i++) {
+//			Printer p = new Printer();
+//			p.setId(Integer.parseInt(printerIds[i]));
+//			printers.add(p);
+//		}
+//		user.setPrinters(printers);
+//
+//		return user;
+//	}
+//
 	private boolean checkUserInfo(User user) {
 		user.setUserLogo("");
 		user.setUserQrcode("");

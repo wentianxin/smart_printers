@@ -3,14 +3,13 @@ package com.qg.smpt.web.processor;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.qg.smpt.printer.util.database.DatabaseUtil;
+import com.qg.smpt.printer.util.exception.DataNotFoundException;
 import com.qg.smpt.web.model.Json.OrderDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -130,7 +129,7 @@ public class OrderController {
 	 */
 	@RequestMapping(value = "/typing/{userId}",produces="application/json;charset=UTF-8",method = RequestMethod.GET)
 	@ResponseBody
-	public String queryTpyingOrders(@PathVariable Integer userId) {
+	public String queryTpyingOrders(@PathVariable Integer userId) throws DataNotFoundException {
 		// 从session中获取用户
 //		HttpSession session = request.getSession();
 //		User user = (User)session.getAttribute("user");
@@ -142,7 +141,7 @@ public class OrderController {
 		
 		// get printers by userId
 		User user = ShareMem.userIdMap.get(userId);
-		List<Printer> printers = null;
+		Queue<Printer> printers = null;
 		if(user != null) {
 			printers = user.getPrinters();
 		}
@@ -175,7 +174,7 @@ public class OrderController {
 	 * @param printers 打印机集合
 	 * @return 空-false 有-true
 	 */
-	private boolean checkNormal(List<Printer> printers) {
+	private boolean checkNormal(Queue<Printer> printers) {
 		if(printers == null || printers.isEmpty())
 			return false;
 		
@@ -187,27 +186,21 @@ public class OrderController {
 	 * @param printers 打印机集合
 	 * @return	未打印/正在打印的订单集合
 	 */
-	private List<Order> installOrders(int userId, List<Printer> printers) {
+	private List<Order> installOrders(int userId, Queue<Printer> printers) throws DataNotFoundException {
 		List<Order> orderList = new ArrayList<Order>();
 
-		List<Order> orderUnsend = null;
-		List<BulkOrder> bulkUnsend = null;	//未发送的批次集合
-		List<BulkOrder> bulkHasSend = null;	//已发送的批次集合
-		List<BulkOrder> bulkError = null;	//异常批次
-		List<Order> ordersNotTyping = null;	//未打印订单
-		List<Order> ordersTyping = null;	//正在打印的订单集合
-		List<Order> OrdersError = null;		//异常订单
 
-		orderUnsend = ShareMem.userOrderBufferMap.get(userId);
-		if(orderUnsend != null) {
-			fillOrders(orderUnsend, orderList);
-		}
+		Deque<BulkOrder> bulkUnsend = DatabaseUtil.getSafeUser(userId).getNonSendBulkOrder();	//未发送的批次集合
+		List<BulkOrder> bulkHasSend = null;	//已发送的批次集合
+
+		Queue<Order> ordersNotTyping = null;	//未打印订单
+		Queue<Order> ordersTyping = null;	//正在打印的订单集合
+
 
 		// foreach printers to install orderList
 		for(Printer p : printers) {
-			bulkUnsend = ShareMem.priBufferMapList.get(p);
-			bulkHasSend = ShareMem.priSentQueueMap.get(p);
-			bulkError = ShareMem.priExceQueueMap.get(p);
+			bulkHasSend = p.getSendedBulkOrder();
+
 
 			if (bulkUnsend != null) {
 				// filling not typing orders
@@ -224,11 +217,7 @@ public class OrderController {
 					fillOrders(ordersTyping, orderList);
 				}
 			}
-//			for(BulkOrder bulk : bulkError) {
-//				OrdersError = bulk.getOrders();
-//				fillOrders(OrdersError, orderList);
-//			}
-			
+
 		}
 		
 		return orderList;
@@ -240,7 +229,7 @@ public class OrderController {
 	 * @param srcList	源订单集合
 	 * @param descList	目的订单集合
 	 */
-	private void fillOrders(List<Order> srcList, List<Order> descList) {
+	private void fillOrders(Queue<Order> srcList, List<Order> descList) {
 		descList.addAll(srcList);
 	}
 	

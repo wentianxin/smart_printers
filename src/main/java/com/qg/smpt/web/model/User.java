@@ -1,9 +1,15 @@
 package com.qg.smpt.web.model;
 
+import com.qg.smpt.printer.OrderToPrinter;
 import com.qg.smpt.util.ImageUtil;
 
 import java.io.File;
+import java.util.Deque;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class User {
 
@@ -27,9 +33,83 @@ public class User {
 
     private String userPhone;
 
-    private List<Printer> printers;
 
     private byte[] logoB;
+
+
+    /**
+     * 接下来的批次ID
+     */
+    private AtomicInteger currentBulkOrderId;
+
+    private AtomicReference<OrderToPrinter> orderToPrinter;
+
+    private Thread orderToPrinterThread;
+
+    private Deque<BulkOrder> nonSendBulkOrder; // 待发送的批次队列
+
+    private AtomicReference<BulkOrder> packingBulkOrder; // 正在组装的批次队列
+
+    private Queue<Printer> printers = null;
+
+    public User() {
+        currentBulkOrderId = new AtomicInteger();
+        nonSendBulkOrder = new ConcurrentLinkedDeque<>();
+        packingBulkOrder = new AtomicReference<>(new BulkOrder());
+        printers = new ConcurrentLinkedDeque<>();
+        orderToPrinter = new AtomicReference<>(new OrderToPrinter(this));
+    }
+
+    public void setOrderToPrinterThread(Thread orderToPrinterThread) {
+        this.orderToPrinterThread = orderToPrinterThread;
+    }
+
+    public void setCurrentBulkOrderId(AtomicInteger currentBulkOrderId) {
+        this.currentBulkOrderId = currentBulkOrderId;
+    }
+
+    public int getCurrentBulkOrderId() {
+        return currentBulkOrderId.incrementAndGet();
+    }
+
+    public Thread getOrderToPrinterThread() {
+        return orderToPrinterThread;
+    }
+
+    private boolean inited; // user 的声明周期, 是否已经初始化
+
+    public void setInited(boolean inited) {
+        this.inited = inited;
+    }
+
+    public boolean isInited() {
+        return inited;
+    }
+
+    public void setNonSendBulkOrder(Deque<BulkOrder> nonSendBulkOrder) {
+        this.nonSendBulkOrder = nonSendBulkOrder;
+    }
+
+    public Deque<BulkOrder> getNonSendBulkOrder() {
+        return nonSendBulkOrder;
+    }
+
+    public void setPackingBulkOrder(AtomicReference<BulkOrder> packingBulkOrder) {
+        this.packingBulkOrder = packingBulkOrder;
+    }
+
+    public AtomicReference<BulkOrder> getPackingBulkOrder() {
+        return packingBulkOrder;
+    }
+
+    public void setOrderToPrinter(AtomicReference<OrderToPrinter> orderToPrinter) {
+        this.orderToPrinter = orderToPrinter;
+    }
+
+
+    public AtomicReference<OrderToPrinter>getOrderToPrinter() {
+        return orderToPrinter;
+    }
 
     public boolean isConvert() {
         return isConvert;
@@ -41,11 +121,11 @@ public class User {
 
     private boolean isConvert = false;
 
-    public void setPrinters(List<Printer> printers) {
+    public void setPrinters(Queue<Printer> printers) {
         this.printers = printers;
     }
 
-    public List<Printer> getPrinters() {
+    public Queue<Printer> getPrinters() {
         return printers;
     }
 

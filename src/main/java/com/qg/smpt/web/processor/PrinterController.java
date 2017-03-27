@@ -3,6 +3,7 @@ package com.qg.smpt.web.processor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -46,7 +47,7 @@ public class PrinterController {
 		
 		// 根据用户id获取打印机
 		User user = ShareMem.userIdMap.get(userId);
-		List<Printer> printers = null;
+		Queue<Printer> printers = null;
 		// 若内存中没有用户，则去数据库中获取,并放进内存
 		if(user == null) {
 			user = userService.queryUserPrinter(userId);

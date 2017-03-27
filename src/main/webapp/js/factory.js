@@ -27,7 +27,7 @@ var vm = new Vue({
 			{
 				number : 5,
 				size: 1,
-				orderType: 0
+				orderType: true
 			}
 	    ]
 	},
@@ -36,7 +36,7 @@ var vm = new Vue({
             this.arr.push({
                 number : 0,
                 size: 1,
-                orderType: 0
+                orderType: true
             });
         },
         delectItem: function(index){
