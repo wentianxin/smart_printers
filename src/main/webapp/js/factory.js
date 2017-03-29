@@ -21,17 +21,16 @@ function getCookis(name){
 // }
 
 var vm = new Vue({
-    el: '#order_factory',
-    data: {
-        id: 0,
-        arr: [
-            {
-                number : 5,
-                size: 1,
-                orderType: true
-            }
-        ]
-    },
+	el: '#order_factory',
+	data: {
+	    arr: [
+			{
+				number : 5,
+				size: 1,
+				orderType: true
+			}
+	    ]
+	},
     methods:{
         addItem: function(index){
             this.arr.push({
@@ -102,3 +101,5 @@ var vm = new Vue({
         }
     }
 });
+
+	
