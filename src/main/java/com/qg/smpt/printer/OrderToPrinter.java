@@ -4,6 +4,7 @@ import com.qg.smpt.printer.model.BBulkOrder;
 import com.qg.smpt.printer.model.BConstants;
 import com.qg.smpt.printer.model.BOrder;
 import com.qg.smpt.share.ShareMem;
+import com.qg.smpt.util.DebugUtil;
 import com.qg.smpt.util.Level;
 import com.qg.smpt.util.Logger;
 import com.qg.smpt.web.model.BulkOrder;
@@ -34,7 +35,7 @@ public class OrderToPrinter implements Runnable{
 
     public OrderToPrinter(User user) {
         this.user = user;
-        printerQueue = new ConcurrentLinkedQueue<>();
+        printerQueue = user.getCanUsePrinters();
     }
 
     public void setSendAvailable(boolean sendAvailable) {
@@ -77,7 +78,7 @@ public class OrderToPrinter implements Runnable{
 
                 if (count >= 6) {
                     count = 0;
-                    if (user.getPackingBulkOrder().get().getOrders().size() > 0 && user.getNonSendBulkOrder().size() > 0) {
+                    if (user.getPackingBulkOrder().get().getOrders().size() > 0 && printerQueue.size() > 0) {
                         BulkOrder bulkOrder = user.getPackingBulkOrder().get();
                         user.getPackingBulkOrder().set(new BulkOrder());
                         user.getNonSendBulkOrder().add(bulkOrder);
@@ -87,7 +88,8 @@ public class OrderToPrinter implements Runnable{
             }
         }
 
-        LOGGER.log(Level.INFO, "商家等待时间达到, 发送正在包装的订单; 商家: {0}", user.getId());
+        LOGGER.log(Level.INFO, "商家等待时间达到, 发送正在包装的订单; 商家: {0}; 打印机数: {1}; 待发送订单数: {2}",
+                user.getId(), user.getCanUsePrinters().size(), user.getNonSendBulkOrder().size());
     }
 
     private Printer selectPrinter() {
@@ -97,7 +99,7 @@ public class OrderToPrinter implements Runnable{
     private void send(Printer printer) {
         printer.setCanAccept(false);
 
-        BulkOrder bulkOrder = user.getNonSendBulkOrder().pop();
+        BulkOrder bulkOrder = user.getNonSendBulkOrder().poll();
 
         for(Order order: bulkOrder.getOrders()) {
             order.setMpu(printer.getId());
@@ -111,11 +113,10 @@ public class OrderToPrinter implements Runnable{
 
         ByteBuffer byteBuffer = ByteBuffer.wrap(bBulkOrderBytes);
         try {
-            printer.getSocketChannel().write(byteBuffer);
+            int n = printer.getSocketChannel().write(byteBuffer);
         } catch (final IOException e) {
             e.printStackTrace();
         }
-
 
         final long sendtime = System.currentTimeMillis();
         final String orderSent = String.valueOf(BConstants.orderSent);
@@ -126,6 +127,8 @@ public class OrderToPrinter implements Runnable{
 
         printer.getSendedBulkOrder().add(bulkOrder);
         printer.setSendedOrdersNum(printer.getSendedOrdersNum() + bulkOrder.getOrders().size());
+
+       // DebugUtil.printBytes(byteBuffer.array());
 
         LOGGER.log(Level.INFO, "发送成功");
     }

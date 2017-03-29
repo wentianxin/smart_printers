@@ -47,16 +47,10 @@ public class PrinterController {
 		
 		// 根据用户id获取打印机
 		User user = ShareMem.userIdMap.get(userId);
-		Queue<Printer> printers = null;
+		List<Printer> printers = null;
 		// 若内存中没有用户，则去数据库中获取,并放进内存
 		if(user == null) {
 			user = userService.queryUserPrinter(userId);
-
-			if(user != null && user.getPrinters() != null){
-                synchronized (ShareMem.userIdMap) {
-                    ShareMem.userIdMap.put(user.getId(), user);
-                }
-			}
 		}
 
 		printers = user.getPrinters();

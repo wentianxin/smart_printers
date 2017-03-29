@@ -141,7 +141,7 @@ public class OrderController {
 		
 		// get printers by userId
 		User user = ShareMem.userIdMap.get(userId);
-		Queue<Printer> printers = null;
+		List<Printer> printers = null;
 		if(user != null) {
 			printers = user.getPrinters();
 		}
@@ -174,7 +174,7 @@ public class OrderController {
 	 * @param printers 打印机集合
 	 * @return 空-false 有-true
 	 */
-	private boolean checkNormal(Queue<Printer> printers) {
+	private boolean checkNormal(List<Printer> printers) {
 		if(printers == null || printers.isEmpty())
 			return false;
 		
@@ -186,7 +186,7 @@ public class OrderController {
 	 * @param printers 打印机集合
 	 * @return	未打印/正在打印的订单集合
 	 */
-	private List<Order> installOrders(int userId, Queue<Printer> printers) throws DataNotFoundException {
+	private List<Order> installOrders(int userId, List<Printer> printers) throws DataNotFoundException {
 		List<Order> orderList = new ArrayList<Order>();
 
 

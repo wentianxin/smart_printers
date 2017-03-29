@@ -5,6 +5,7 @@ import com.qg.smpt.util.ImageUtil;
 
 import java.io.File;
 import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -36,6 +37,7 @@ public class User {
 
     private byte[] logoB;
 
+    private List<Printer> printers;
 
     /**
      * 接下来的批次ID
@@ -50,14 +52,23 @@ public class User {
 
     private AtomicReference<BulkOrder> packingBulkOrder; // 正在组装的批次队列
 
-    private Queue<Printer> printers = null;
+    private Queue<Printer> canUsePrinters = null;
 
     public User() {
-        currentBulkOrderId = new AtomicInteger();
+        currentBulkOrderId = new AtomicInteger(1);
         nonSendBulkOrder = new ConcurrentLinkedDeque<>();
         packingBulkOrder = new AtomicReference<>(new BulkOrder());
-        printers = new ConcurrentLinkedDeque<>();
+        printers = new LinkedList<>();
+        canUsePrinters = new ConcurrentLinkedDeque<>();
         orderToPrinter = new AtomicReference<>(new OrderToPrinter(this));
+    }
+
+    public Queue<Printer> getCanUsePrinters() {
+        return canUsePrinters;
+    }
+
+    public void setCanUsePrinters(Queue<Printer> canUsePrinters) {
+        this.canUsePrinters = canUsePrinters;
     }
 
     public void setOrderToPrinterThread(Thread orderToPrinterThread) {
@@ -86,25 +97,17 @@ public class User {
         return inited;
     }
 
-    public void setNonSendBulkOrder(Deque<BulkOrder> nonSendBulkOrder) {
-        this.nonSendBulkOrder = nonSendBulkOrder;
-    }
 
     public Deque<BulkOrder> getNonSendBulkOrder() {
         return nonSendBulkOrder;
     }
 
-    public void setPackingBulkOrder(AtomicReference<BulkOrder> packingBulkOrder) {
-        this.packingBulkOrder = packingBulkOrder;
-    }
+
 
     public AtomicReference<BulkOrder> getPackingBulkOrder() {
         return packingBulkOrder;
     }
 
-    public void setOrderToPrinter(AtomicReference<OrderToPrinter> orderToPrinter) {
-        this.orderToPrinter = orderToPrinter;
-    }
 
 
     public AtomicReference<OrderToPrinter>getOrderToPrinter() {
@@ -121,11 +124,11 @@ public class User {
 
     private boolean isConvert = false;
 
-    public void setPrinters(Queue<Printer> printers) {
+    public void setPrinters(List<Printer> printers) {
         this.printers = printers;
     }
 
-    public Queue<Printer> getPrinters() {
+    public List<Printer> getPrinters() {
         return printers;
     }
 

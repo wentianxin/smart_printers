@@ -3,7 +3,7 @@ function getCookis(name){
         cookie_start = document.cookie.indexOf(cookie_name),
         cookie_value = null,
         cookie_end = null;
-    
+
     if(cookie_start > -1){
         cookie_end = document.cookie.indexOf(';', cookie_start);
         if(cookie_end === -1){
@@ -11,7 +11,7 @@ function getCookis(name){
         }
         cookie_value = decodeURIComponent(document.cookie.substring(cookie_start + cookie_name.length, cookie_end));
     }
-    
+
     return cookie_value;
 }
 // var id = getCookis('user_id') || window.localStorage.getItem('smart_printer');
@@ -21,22 +21,23 @@ function getCookis(name){
 // }
 
 var vm = new Vue({
-	el: '#order_factory',
-	data: {
-	    arr: [
-			{
-				number : 5,
-				size: 1,
-				orderType: true
-			}
-	    ]
-	},
+    el: '#order_factory',
+    data: {
+        id: 0,
+        arr: [
+            {
+                number : 5,
+                size: 1,
+                orderType: true
+            }
+        ]
+    },
     methods:{
         addItem: function(index){
             this.arr.push({
                 number : 0,
                 size: 1,
-                orderType: true
+                orderType: 0
             });
         },
         delectItem: function(index){
@@ -50,8 +51,8 @@ var vm = new Vue({
 
             var data_object = vm.$get('arr'),
                 data = [],
-                id = getCookis('user_id');
-
+                // id = getCookis('user_id');
+                id = vm.$get('id');
             // 把数据弄进去
             for(var i = 0; i < data_object.length; i++){
                 data.push({
@@ -101,5 +102,3 @@ var vm = new Vue({
         }
     }
 });
-
-	

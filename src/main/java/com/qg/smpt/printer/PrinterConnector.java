@@ -89,7 +89,6 @@ public class PrinterConnector implements Runnable, Lifecycle{
             throw new LifecycleException("printerConnector alreadyStarted");
         }
 
-
         started = true;
 
         threadName = "PrinterConnector[" + port + "]";
@@ -233,8 +232,6 @@ public class PrinterConnector implements Runnable, Lifecycle{
             sc.configureBlocking(false);
 
             sc.register(selector, SelectionKey.OP_READ);
-
-         //   LOGGER.log(Level.DEBUG, "监听到新的打印机接入");
 
         } catch (final IOException e) {
             e.printStackTrace();

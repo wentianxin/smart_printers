@@ -71,8 +71,8 @@ public class UserServiceImpl implements UserService{
 		try{
 			//执行插入用户
 			int userId = userMapper.insert(user);
-			
-			Queue<Printer> printers = user.getPrinters();
+
+			List<Printer> printers = user.getPrinters();
 //			for(Printer p : printers) {
 //				p.setUserId(userId);
 //				p.setPrinterStatus(String.valueOf((int)(Constant.PRINTER_HEATHY)));
@@ -109,7 +109,6 @@ public class UserServiceImpl implements UserService{
 	
 	
 	public User queryUserPrinter(int userId) {
-		LOGGER.log(Level.DEBUG, "正在查询用户[{0}]的打印机", userId);
 		
 		User user = userMapper.selectUserPrinter(userId);
 

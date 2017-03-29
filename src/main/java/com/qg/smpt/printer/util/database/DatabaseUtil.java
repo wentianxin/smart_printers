@@ -141,7 +141,7 @@ public class DatabaseUtil {
 //                }
 //            }
             for (Order order : bulkOrder.getOrders()) {
-                if (o.getOrderStatus().equals(succ)) {
+                if (order.getOrderStatus() != null && order.getOrderStatus().equals(BConstants.bulkSucc)) {
                     orderMapper.insert(o);
                     orderMapper.insertUserOrder(o);
                 }

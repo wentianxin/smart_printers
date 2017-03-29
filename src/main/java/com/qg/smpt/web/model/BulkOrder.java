@@ -193,6 +193,7 @@ public final class BulkOrder {
      * @param bOrder
      */
     public void addOrders(Order order, BOrder bOrder) {
+        setId(bOrder.getBulkId());
         bOrders.add(bOrder);
         orders.add(order);
         setDataSize(getDataSize() + bOrder.size);

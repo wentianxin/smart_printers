@@ -54,8 +54,17 @@ public class ReceOrderServlet {
         BulkOrder bOrders = user.getPackingBulkOrder().get();
         BOrder bOrder = order.orderToBOrder((short) user.getCurrentBulkOrderId(), (short) bOrders.getbOrders().size());
 
-        LOGGER.log(Level.INFO, "用户ID: {0}; 已组装批次大小: {1}; 该订单大小: {2}; 阈值: {3}", user.getId(),
-                bOrders.getDataSize(), bOrder.size, Constants.MAX_TRANSFER_SIZE);
+        LOGGER.log(Level.INFO, "用户ID: {0}; 已组装批次大小: {1}; 该订单大小: {2}; 阈值: {3}; 待发送批次订单数: {4}", user.getId(),
+                bOrders.getDataSize(), bOrder.size, Constants.MAX_TRANSFER_SIZE, user.getNonSendBulkOrder().size());
+
+
+        if (bOrders.getOrders().size() == 0) {
+            bOrders.addOrders(order, bOrder);
+            if (bOrder.size > Constants.MAX_TRANSFER_SIZE) {
+                notifyOrderToPrinter(user);
+            }
+            return ;
+        }
 
         if (bOrders.getDataSize() + bOrder.size > Constants.MAX_TRANSFER_SIZE) {
             user.getNonSendBulkOrder().add(bOrders);
@@ -69,8 +78,6 @@ public class ReceOrderServlet {
         }
 
         bOrders.addOrders(order, bOrder);
-        bOrders.setId(bOrder.getBulkId());
-
     }
 
 

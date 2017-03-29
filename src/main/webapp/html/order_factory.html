@@ -40,6 +40,7 @@
     <div class="wrapper">
     <!-- 修改完这个之后还要修改factory的路径 -->
 		<form  id="order_factory">
+			<label for="">用户ID：<input type="number" name="id	" id="" v-model="id"></label>
 			<div v-for="a in arr">
 				<div class="clear">
 					<button type="button" v-on:click="addItem($index)" class="add_item">+</button>

@@ -1,6 +1,7 @@
 package com.qg.smpt.printer;
 
 import com.qg.smpt.printer.model.*;
+import com.qg.smpt.printer.util.FormatUtil;
 import com.qg.smpt.printer.util.database.DatabaseUtil;
 import com.qg.smpt.printer.util.exception.DataNotFoundException;
 import com.qg.smpt.share.ShareMem;
@@ -240,7 +241,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             p.getUser().getOrderToPrinter().get().notifyAll();
         }
 
-        LOGGER.log(Level.INFO, "打印机已发送OK状态; 打印机: {0}", printerId);
+        LOGGER.log(Level.INFO, "打印机收到OK状态; 打印机: {0}", printerId);
     }
 
     /**
@@ -261,6 +262,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             return ;
         }
 
+        LOGGER.log(Level.INFO, "订单状态; 订单: {0}; 状态: {1}", bOrderStatus.inNumber, FormatUtil.getOrderStatus(flag));
 
         /* 获取批次订单队列 flag 0x5 : 获取异常批次订单队列; others : 获取已发送批次订单队列 */
         List<BulkOrder> bulkOrderList = printer.getSendedBulkOrder();
@@ -273,7 +275,6 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         for (position = 0; position < bulkOrderList.size(); position++) {
             bulkOrderF = bulkOrderList.get(position);
             if (bulkOrderF.getId() == bOrderStatus.bulkId) { // TODO
-                LOGGER.log(Level.INFO, "收到订单状态; 批次: [0]; 内序号: [1]; 状态: [2]", bOrderStatus.bulkId, bOrderStatus.inNumber, flag);
                 if (bulkOrderF.getbOrders().size() < bOrderStatus.inNumber) {
                     LOGGER.log(Level.ERROR, "批次 [{2}] 批次内序号 [{0}] 超出批次订单范围", bOrderStatus.bulkId, bOrderStatus.inNumber);
                     return;
@@ -306,10 +307,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                     break;
                 }
             }
-        } else {
-            LOGGER.log(Level.WARN, "打印机 [{0}] 无g该状态 当前线程 [{1}]", bOrderStatus.printerId, this.id);
         }
-
 
         switch (flag) {
             case BConstants.orderInQueue: LOGGER.log(Level.DEBUG, "订单进入打印队列; 订单: [0]", order.getId());
@@ -318,6 +316,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
             case BConstants.orderTyping : LOGGER.log(Level.DEBUG, "订单正在打印; 订单: [0]", order.getId());
                                           order.setOrderStatus(Integer.valueOf(BConstants.orderTyping).toString());
                                           break;
+            default: LOGGER.log(Level.WARN, "打印机 [{0}] 无g该状态 当前线程 [{1}]", bOrderStatus.printerId, this.id);
         }
     }
 
@@ -423,6 +422,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         printer.setSendedBulkOrder(new CopyOnWriteArrayList<>());
         printer.setExceptionBulkOrder(new CopyOnWriteArrayList<>());
         printer.setUser(user);
+        user.getCanUsePrinters().add(printer);
     }
 
     private Printer checkConnectionHappersBeforeOK(int printerId) throws DataNotFoundException {
@@ -477,6 +477,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
 
         BulkOrder bulkOrder = packFailedOrder(order, bOrder, printer, printer.getUserId(), flag);
+        order.setOrderStatus(String.valueOf(flag));
         bulkOrder.setBulkType((short)2);
         printer.getExceptionBulkOrder().add(bulkOrder);
         printer.getUser().getNonSendBulkOrder().addFirst(bulkOrder);

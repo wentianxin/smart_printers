@@ -203,7 +203,7 @@ public final class Order {
 
     private Integer orderSum;
 
-    private String orderStatus;
+    private volatile String orderStatus;
 
     private String userName;
 
@@ -359,6 +359,9 @@ public final class Order {
     }
 
     public void setOrderStatus(String orderStatus) {
+        if (this.orderStatus != null && Integer.parseInt(this.orderStatus) >= Integer.parseInt(orderStatus)) {
+            return ;
+        }
         this.orderStatus = orderStatus == null ? null : orderStatus.trim();
     }
 
