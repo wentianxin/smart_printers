@@ -72,6 +72,7 @@ public class ReceOrderServlet {
             newBulkOrder.addOrders(order, bOrder);
             user.getPackingBulkOrder().set(newBulkOrder);
 
+            // 为每一个商家从线程池中分配一个线程, 标记该商家是否已分配线程， 若该线程长时间未得到OK状态, 则进行心跳检测
             notifyOrderToPrinter(user);
 
             return ;

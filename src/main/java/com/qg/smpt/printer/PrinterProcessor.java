@@ -31,7 +31,6 @@ public class PrinterProcessor implements Runnable, Lifecycle{
 
     private int id;                 // 当前线程id
 
-    private long waitTime = 20000;  // 普通订单通道睡眠时间
 
     // TODO 关于字节数组分配过下,而导致需要两次调用的问题
     private ByteBuffer byteBuffer;
@@ -203,6 +202,7 @@ public class PrinterProcessor implements Runnable, Lifecycle{
         int printerId = bRequest.printerId;
 
         if (checkPrinter(printerId)) {
+            // TODO bug
             LOGGER.log(Level.WARN, "打印机已在内存（可能是断开后立刻重连)");
             return ;
         }
