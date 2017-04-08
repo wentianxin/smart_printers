@@ -63,6 +63,8 @@ public class ReceOrderServlet extends HttpServlet {
         order.setUserId(userId);
 
         Printer printer = selectPrinter(user.getPrinters());
+
+        // 若当前未有打印机准备好，则放入用户的订单队列里面
         if (printer == null) {
             synchronized (ShareMem.userOrderBufferMap) {
                 List<Order> orders = ShareMem.userOrderBufferMap.get(userId);

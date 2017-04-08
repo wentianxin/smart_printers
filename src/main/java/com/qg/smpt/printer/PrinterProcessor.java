@@ -238,6 +238,9 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                     break;
                 case BConstants.okStatus:
                     LOGGER.log(Level.DEBUG, "打印机 发送过来可以请求数据 thread [{0}] ", this.getId());
+
+
+
                     parseOkStatus(bytes, socketChannel);
                     break;
                 case BConstants.orderStatus:
@@ -406,9 +409,19 @@ public class PrinterProcessor implements Runnable, Lifecycle{
                 request.checkSum, this.id);
 
         Printer p = ShareMem.printerIdMap.get(printerId);
-        if (p == null) {
+
+        int i = 0;
+        while (p == null && i < 5) {
             LOGGER.log(Level.ERROR, "共享内存中并未找到打印机id[{0}]对应printer对象 当前线程 [{1}]", printerId, this.id);
-            return ;
+
+            try {
+                wait(5000);
+                i++;
+                p = ShareMem.printerIdMap.get(printerId);
+            } catch (InterruptedException e) {
+                LOGGER.log(Level.INFO, "找不到对应的打印机[{0}]", printerId);
+                return;
+            }
         }
 
         if (!p.isConnected()) {
