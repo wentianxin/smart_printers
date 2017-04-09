@@ -12,12 +12,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by tisong on 4/8/17.
+ * 1. OrderId - Order信息(包括Order状态)
+ *  Key = order:orderId
+ *  Value = orderTime : xxx
+ *  Value = orderContent : xxx
+ *  Value = orderStatus : xxx
+ *
+ * 2. OrderId - Value (子增)
  */
 @Repository
 public class OrderRedis {
 
     private Jedis jedis;
+
+    private static final String KEY = "order:";
 
     /**
      * 加入订单
@@ -36,7 +44,7 @@ public class OrderRedis {
         if (orderId == null) {
             return null;
         }
-        List<String> result = jedis.hmget("orderState", orderId.toString());
+        List<String> result = jedis.hmget(KEY + orderId, "orderStatus");
         return result.size() > 0 ? OrderStatus.valueOf(result.get(0)) : null;
     }
 
@@ -50,7 +58,11 @@ public class OrderRedis {
         return null;
     }
 
-
+    /**
+     * 将Order对象转化为Map
+     * @param order
+     * @return
+     */
     private Map<String, String> getOrderMap(Order order) {
         Map<String, String> map = new HashMap<>();
         try {
@@ -63,13 +75,21 @@ public class OrderRedis {
         return map;
     }
 
+    /**
+     * 更新状态字段
+     * @param orderId
+     * @param state
+     */
     public void updateOrderState(Long orderId, OrderStatus state) {
         Map<String, String> map = new HashMap<>();
-        map.put(orderId.toString(), state.toString());
-        jedis.hmset("orderState", map);
+        map.put("orderStatus", state.toString());
+        jedis.hmset(KEY + orderId, map);
     }
 
-
+    /**
+     * OrderId 子增
+     * @return
+     */
     public long buildOrderId() {
         return jedis.incr("orderIdNumber");
     }
