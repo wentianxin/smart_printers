@@ -3,7 +3,6 @@ package com.qg.smpt.repository.redis;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 
-import java.util.List;
 import java.util.Set;
 
 /**
