@@ -23,7 +23,7 @@ public final class DebugUtil {
 
             //System.out.print(stringBuffer.toString());
 
-            LOGGER.log(Level.DEBUG, "第[{0}]字节 ： [{1}]", i, stringBuffer.toString());
+            LOGGER.log(Level.INFO, "第[{0}]字节 ： [{1}]", i, stringBuffer.toString());
         }
 
 

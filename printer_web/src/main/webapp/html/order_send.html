@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Access-Control-Allow-Origin" content="*" />
+    <link rel="stylesheet" href="../css/order.css" />
+    <title>订单展示系统</title>
+</head>
+
+<body>
+    <div id="nav" class="wrapper" >
+        <div class="user subwrapper">
+            <a href="order_send.html"></a>
+            <span class="user_name">用户名字</span>
+        </div>
+    </div>
+    <div class="wrapper" id="send_main">
+        <div class="subwrapper" id="model_all">
+            <h1>下单</h1>
+            <button class="button" type="button" onclick='javascript:window.location.href="order_index.html"'>返回订单主页</button>
+            <ul class="menu">
+                <li class="head">
+                    <p class="dish_name">菜名</p>
+                    <p class="dish_price">价格</p>
+                    <p class="count">数量</p>
+                </li>
+                <li v-for="dish in dishes">
+                    <p class="dish_name">{{dish.name}} </p>
+                    <p class="dish_price dollar">{{dish.price}}</p>
+                    <p class="dish_status" v-if="dish.count === 0">
+                        <span class="add_dish" v-on:click='changeDishStatus($index)'>+</span>
+                    </p>
+                    <p class="dish_status" v-else>
+                        <span class="change_dish nml" v-on:click='reduceDishCount($index)'>-</span>
+                        <span class="dish_count">{{dish.count}} </span>
+                        <span class="change_dish" v-on:click='addDishCount($index)'>+</span>
+                    </p>
+                </li>
+            </ul>
+            <div id="shoppong_cart">
+                <div id="sc_area">
+                    <div class="sc_head">
+                        <h2>购物车</h2>
+                        <span>></span>
+                    </div>
+                    <ul>
+                        
+                        <li v-for="dish in dishes" v-if="dish.count !== 0">
+                            <p class="dish_name">{{dish.name}} <span class="dollar">{{dish.price}}</span></p>
+                            <p class="dish_status">
+                                <span class="change_dish nml" v-on:click='reduceDishCount($index)'>-</span>
+                                <span class="dish_count">{{dish.count}} </span>
+                                <span class="change_dish" v-on:click='addDishCount($index)'>+</span>
+                            </p>
+                        </li>
+                        <li class="sum">
+                            <span>共<span id="dish_cou">{{sum}}</span>份</span>
+                            <!-- 这里添加一个触发状态的东西，一旦数目发生改变，这里的单价发生改变 -->
+                            <span class="dollar" id="sum">{{ sum }}</span>
+                            <button type="button" id="send_order">确定</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="shooping_button">
+                    <button id="toggle_card" type="button"></button>
+                    <div id="counter_num"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="ware"></div>
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="../js/send.js"></script>
+</body>
+
+</html>

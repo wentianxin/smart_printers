@@ -10,6 +10,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 批次订单
@@ -33,22 +36,23 @@ public final class BulkOrder {
 
     private int userId;
 
-    private List<BOrder> bOrders = null;
+    /**
+     * 两个队列需要线程安全
+     */
+    private Queue<BOrder> bOrders = null;
+    private Queue<Order> orders = null;
 
-    private List<Order> orders = null;
+    private volatile int dataSize = 0;       //批次订单数据的总大小
 
-    private int dataSize = 0;       //批次订单数据的总大小
+    private short bulkType = 0;    //0-普通 1-加急; 2-异常加急
 
-    private short bulkType = 0;    //0-普通 1-加急
+    private AtomicInteger receNum = new AtomicInteger(0);       // 从打印机中接收到的订单数
 
-    private int receNum = 0;       // 从打印机中接收到的订单数
-
-    public BulkOrder(List<BOrder> bOrders) {
+    public BulkOrder() {
         this.dataSize = 0;
-        this.bOrders = bOrders;
-        this.orders = new ArrayList<Order>();
+        this.bOrders = new ConcurrentLinkedQueue<>();
+        this.orders = new ConcurrentLinkedQueue<>();
         this.bulkType = 0;
-        //this.userId = userId;
     }
 
     public static BBulkOrder convertBBulkOrder(BulkOrder bulkOrder, boolean isExcep) {
@@ -99,7 +103,7 @@ public final class BulkOrder {
 
 
     public static void convertBulkOrder(BBulkOrder bBulkOrder) {
-        BulkOrder bulkOrder = new BulkOrder(new ArrayList<>());
+        BulkOrder bulkOrder = new BulkOrder();
 
         bulkOrder.id = bBulkOrder.bulkId;
         bulkOrder.dataSize = bBulkOrder.size - 20;
@@ -137,11 +141,7 @@ public final class BulkOrder {
         this.id = id;
     }
 
-    public void setbOrders(List<BOrder> bOrders) {
-        this.bOrders = bOrders;
-    }
-
-    public List<BOrder> getbOrders() {
+    public Queue<BOrder> getbOrders() {
         return bOrders;
     }
 
@@ -170,24 +170,34 @@ public final class BulkOrder {
     public void setBulkType(short bulkType) {
         this.bulkType = bulkType;
     }
-
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
-    }
-
-    public List<Order> getOrders() {
+    
+    public Queue<Order> getOrders() {
         return orders;
     }
 
-    public void setReceNum(int receNum) {
+    public void setReceNum(AtomicInteger receNum) {
         this.receNum = receNum;
     }
 
-    public int getReceNum() {
+    public AtomicInteger getReceNum() {
         return receNum;
     }
 
-    public synchronized void increaseReceNum() {
-        receNum++;
+    public void increaseReceNum() {
+        receNum.incrementAndGet();
+    }
+
+    /**
+     * TODO order 与 bOrder可能顺序会非一致
+     * @param order
+     * @param bOrder
+     */
+    public void addOrders(Order order, BOrder bOrder) {
+        setId(bOrder.getBulkId());
+        bOrders.add(bOrder);
+        orders.add(order);
+        setDataSize(getDataSize() + bOrder.size);
+        bOrder.bulkId = (short)getId();
+        bOrder.inNumber = (short)getOrders().size();
     }
 }

@@ -2,6 +2,7 @@ package com.qg.smpt.web.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 import javax.annotation.Resource;
 import javax.print.attribute.standard.NumberUp;
@@ -70,15 +71,15 @@ public class UserServiceImpl implements UserService{
 		try{
 			//执行插入用户
 			int userId = userMapper.insert(user);
-			
+
 			List<Printer> printers = user.getPrinters();
-			for(Printer p : printers) {
-				p.setUserId(userId);
-				p.setPrinterStatus(String.valueOf((int)(Constant.PRINTER_HEATHY)));
-			}
-			
-			printerMapper.insertPrinterBatch(printers);
-			printerMapper.addUserPrinterBatch(printers);
+//			for(Printer p : printers) {
+//				p.setUserId(userId);
+//				p.setPrinterStatus(String.valueOf((int)(Constant.PRINTER_HEATHY)));
+//			}
+//
+//			printerMapper.insertPrinterBatch(printers);
+//			printerMapper.addUserPrinterBatch(printers);
 			
 			return Constant.TRUE;
 		}catch(Exception e) {
@@ -108,7 +109,6 @@ public class UserServiceImpl implements UserService{
 	
 	
 	public User queryUserPrinter(int userId) {
-		LOGGER.log(Level.DEBUG, "正在查询用户[{0}]的打印机", userId);
 		
 		User user = userMapper.selectUserPrinter(userId);
 

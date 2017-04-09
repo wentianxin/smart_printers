@@ -203,7 +203,7 @@ public final class Order {
 
     private Integer orderSum;
 
-    private String orderStatus;
+    private volatile String orderStatus;
 
     private String userName;
 
@@ -359,6 +359,9 @@ public final class Order {
     }
 
     public void setOrderStatus(String orderStatus) {
+        if (this.orderStatus != null && Integer.parseInt(this.orderStatus) >= Integer.parseInt(orderStatus)) {
+            return ;
+        }
         this.orderStatus = orderStatus == null ? null : orderStatus.trim();
     }
 
@@ -565,7 +568,7 @@ public final class Order {
 //        }
 
         //创建字节数组,大小为订单数据长度
-        LOGGER.log(Level.DEBUG, "当前开始转化订单内容，总长度为[{0}]", size);
+   //     LOGGER.log(Level.DEBUG, "当前开始转化订单内容，总长度为[{0}]", size);
         byte[] data = new byte[size];
 
         int pos = 0;
@@ -629,14 +632,14 @@ public final class Order {
 //            // 填充二维码结束字符
 //            pos = BytesConvert.fillShort(BConstants.codeEnd, data, pos);
 //        }
-        DebugUtil.printBytes(data);
+        //DebugUtil.printBytes(data);
         return data;
     }
 
     private byte[] convertOrder(boolean hasError){
 
 
-        LOGGER.debug(indexError == 0 ? "图片错误" : indexError == 1 ? "文字错误" : indexError == 2 ? "二维码错误" : "都正常" );
+    //    LOGGER.debug(indexError == 0 ? "图片错误" : indexError == 1 ? "文字错误" : indexError == 2 ? "二维码错误" : "都正常" );
         short imageStart = indexError == 0 && hasError ? 0x0000 : BConstants.photoStart;
         short textStart = indexError == 1 && hasError ? 0x0000 : BConstants.textStart;
         short codeStart = indexError == 2 && hasError ? 0x0000 : BConstants.codeStart;
@@ -682,14 +685,14 @@ public final class Order {
         }
 
         //创建字节数组,大小为订单数据长度
-        LOGGER.log(Level.DEBUG, "当前开始转化订单内容，总长度为[{0}]", size);
+    //    LOGGER.log(Level.DEBUG, "当前开始转化订单内容，总长度为[{0}]", size);
         byte[] data = new byte[size];
 
         int pos = 0;
 
         //填充图片
         if(imageB != null && imageL > 0) {
-            LOGGER.log(Level.DEBUG, "订单开始包装图片数据，图片长度为[{0}]", imageL);
+       //     LOGGER.log(Level.DEBUG, "订单开始包装图片数据，图片长度为[{0}]", imageL);
             // 填充图片开始字符
             pos = BytesConvert.fillShort(imageStart, data, pos);
 
@@ -730,7 +733,7 @@ public final class Order {
 
         // 填充二维码
         if(codeB != null && codeL > 0) {
-            LOGGER.log(Level.DEBUG, "订单开始包装二维码数据，二维码为[{0}]，二维码长度为[{1}]",code, codeL);
+           // LOGGER.log(Level.DEBUG, "订单开始包装二维码数据，二维码为[{0}]，二维码长度为[{1}]",code, codeL);
             // 填充二维码开始字符
             pos = BytesConvert.fillShort(codeStart, data, pos);
 
@@ -749,7 +752,7 @@ public final class Order {
             // 填充二维码结束字符
             pos = BytesConvert.fillShort(BConstants.codeEnd, data, pos);
         }
-        DebugUtil.printBytes(data);
+        //DebugUtil.printBytes(data);
         return data;
     }
 

@@ -3,7 +3,10 @@ package com.qg.smpt.web.model;
 import com.qg.smpt.share.ShareMem;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import java.nio.channels.SocketChannel;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @JsonIgnoreProperties({"userId", "userName", "currentBulk", "currentOrder",
 		"canAccept","busy", "lastSendTime"})
@@ -14,19 +17,60 @@ public final class Printer {
     private String printerStatus;
     private int userId;                      //用户id
     private String userName;                 // 商家名
-    private volatile int currentBulk;        //当前已发送批次的最大id
+    private AtomicInteger currentBulk;        //当前已发送批次的最大id
     private volatile int currentOrder;       //当前已接受订单的最大id
     private volatile boolean canAccept;      //能否接收数据
     private volatile boolean isBusy;         //true-忙时，false-闲时
     private volatile long lastSendTime;      //上一次发送批次的时间
-    private boolean connected = false;       // 是否建立连接
+    private volatile boolean connected = false;       // 是否建立连接
 
-    private int oredrsNum;          // 总数量
-    private int sendedOrdersNum;     // 已发送订单数量
-    private int unsendedOrdersNum;  // 未发送订单数量
-    private int printSuccessNum;    // 打印成功数量
-    private int printErrorNum;      // 打印失败数量
-    private int successRate;        // 成功率
+    private volatile int oredrsNum;          // 总数量
+    private volatile int sendedOrdersNum;     // 已发送订单数量
+    private volatile int unsendedOrdersNum;  // 未发送订单数量
+
+    private volatile int printSuccessNum;    // 打印成功数量
+    private volatile int printErrorNum;      // 打印失败数量
+    private volatile int successRate;        // 成功率
+
+    private User user;
+
+    private List<BulkOrder> sendedBulkOrder; // 已发送订单
+
+    private List<BulkOrder> exceptionBulkOrder; // 异常订单
+
+    public void setExceptionBulkOrder(List<BulkOrder> exceptionBulkOrder) {
+        this.exceptionBulkOrder = exceptionBulkOrder;
+    }
+
+    public List<BulkOrder> getExceptionBulkOrder() {
+        return exceptionBulkOrder;
+    }
+
+    public void setSendedBulkOrder(List<BulkOrder> sendedBulkOrder) {
+        this.sendedBulkOrder = sendedBulkOrder;
+    }
+
+    public List<BulkOrder> getSendedBulkOrder() {
+        return sendedBulkOrder;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    private SocketChannel socketChannel; // 打印机关联的socketChannel
+
+    public void setSocketChannel(SocketChannel socketChannel) {
+        this.socketChannel = socketChannel;
+    }
+
+    public SocketChannel getSocketChannel() {
+        return socketChannel;
+    }
 
     public int getOredrsNum() {
         return oredrsNum;
@@ -76,8 +120,8 @@ public final class Printer {
         this.successRate = successRate;
     }
 
-    public Printer() {this.currentBulk = 0;}
-    public Printer(int id){this.id = id;this.currentBulk = 0;}
+    public Printer() {this.currentBulk = new AtomicInteger(0);}
+    public Printer(int id){this(); this.id = id;}
 
     @Override
     public boolean equals(Object obj) {
@@ -109,11 +153,11 @@ public final class Printer {
         this.userId = userId;
     }
 
-    public int getCurrentBulk() {
+    public AtomicInteger getCurrentBulk() {
         return currentBulk;
     }
 
-    public void setCurrentBulk(int currentBulk) {
+    public void setCurrentBulk(AtomicInteger currentBulk) {
         this.currentBulk = currentBulk;
     }
 
@@ -121,8 +165,8 @@ public final class Printer {
         return currentOrder;
     }
 
-    public synchronized void increaseBulkId() {
-        currentBulk++;
+    public void increaseBulkId() {
+        currentBulk.incrementAndGet();
     }
 
     public void setCurrentOrder(int currentOrder) {
@@ -179,21 +223,8 @@ public final class Printer {
 
     public synchronized void reset() {
         // 清空各队列的打印作业
-        List<BulkOrder> sendedQueue = ShareMem.priSentQueueMap.get(this);
-        if(sendedQueue != null) {
-            sendedQueue.clear();
-        }
-
-        List<BulkOrder> exceQueue = ShareMem.priExceQueueMap.get(this);
-        if(exceQueue != null) {
-            exceQueue.clear();
-        }
-
-        List<BulkOrder> unsendQueue = ShareMem.priBufferMapList.get(this);
-        if(unsendQueue != null) {
-            unsendQueue.clear();
-        }
-
+        sendedBulkOrder.clear();
+        exceptionBulkOrder.clear();
         // 重置打印机状态
         oredrsNum = 0;
         sendedOrdersNum = 0;

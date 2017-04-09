@@ -67,8 +67,8 @@ public class OrderBuilder {
 	private static int prices[] = {4, 4, 5, 3, 8};
 	
 	//顾客信息
-	private static String customers[] = {"陈俊铭", "温天信", "张诗婷", "李伟淙", "许艺茂", "方锐"};
-	private static String cAddress[] = {"广工西三736", "广工西四612", "广工东十三xxx", "广工西三741", "广工西三747", "广工西三2xx"};
+	private static String customers[] = {"小明", "小张", "小红", "小智", "小聪", "小芳"};
+	private static String cAddress[] = {"爱心大道101", "爱心大道101", "爱心大道102", "爱心大道103", "爱心大道104", "爱心大道105"};
 	private static String cContact[] = {"15521256251", "18852423652", "13432252452", "15622365455", "18819255400", "15695542562"};
 	
 	private static String remarks[] = {"加饭", "晚点来", "加菜"};

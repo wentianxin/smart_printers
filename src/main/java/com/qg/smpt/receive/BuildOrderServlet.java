@@ -40,18 +40,21 @@ public class BuildOrderServlet extends HttpServlet {
 
         LOGGER.log(Level.DEBUG, "生成订单请求 : 用户标志 [{0}}， 生成订单数 [{1}]", userId, orderNumbers);
 
-        ReceOrderServlet receOrderServlet = new ReceOrderServlet();
-        for (int i = 0; i < orderNumbers; i++) {
-            Order order = OrderBuilder.produceOrder(false,false);
-            receOrderServlet.doGet(userId, order);
+        try {
+            ReceOrderServlet receOrderServlet = new ReceOrderServlet();
+            for (int i = 0; i < orderNumbers; i++) {
+                Order order = OrderBuilder.produceOrder(false, false);
+                receOrderServlet.doGet(userId, order);
+            }
+
+            for (int i = 0; i < expeNumbers; i++) {
+                Order order = OrderBuilder.produceOrder(true, false);
+
+                receOrderServlet.doGet(userId, order);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        for (int i = 0; i < expeNumbers; i++) {
-            Order order = OrderBuilder.produceOrder(true, false);
-
-            receOrderServlet.doGet(userId, order);
-        }
-
 
    }
 }

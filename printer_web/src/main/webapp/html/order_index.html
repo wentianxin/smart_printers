@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Access-Control-Allow-Origin" content="*" />
+    <link rel="stylesheet" href="../css/order.css" />
+    <title>订单展示系统</title>
+</head>
+
+<body>
+    <div id="nav" class="wrapper">
+        <div class="user subwrapper">
+            <a href="#"></a>
+            <span class="user_name">用户名字</span>
+        </div>
+    </div>
+    <div class="wrapper mh of">
+        <div class="subwrapper of">
+            <div class="sidebar">
+                <!-- 打印机列表（显示状态） -->
+                <ul class="sb_printer">
+                </ul>
+            </div>
+            <div class="section">
+                <ul class="sb_order">
+                    <li id="ab_od_typing">正在打印订单</li>
+                    <li id="ab_od_typed">打印完成订单</li>
+                    <li id="ab_od_search"><a href="order_search.html">查询订单</a></li>
+                    <li id="ab_od_now"><a href="order_send.html">下单</a></li>
+                </ul>
+                <div class="typing_up">
+                    <div class="typing_up_main">
+                        <div class="order head">
+                            <p class="order_number">订单编号</p>
+                            <p class="order_status">状态</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="ware"></div>
+    <script id="order_template" type="text/html">
+        <% if( (!data) || data.length === 0){%>
+            <div class="order">
+                <p class='ct'> 当前没有订单</p>
+            </div>
+            <%}else{%>
+                <% for (var i = 0; i < data.length; i++){%>
+                    <div class="order <%=odstatus(data[i].orderStatus)%>">
+                        <p class="order_number">
+                            <%=data[i].id %>
+                        </p>
+                        <p class="order_status  <%=odstatus(data[i].orderStatus)%>">
+                            <%=odstatusFormat(data[i].orderStatus) %>
+                        </p>
+                    </div>
+                    <%}}%>
+    </script>
+    <script id="printer_template" type="text/html">
+        <% if( (!data) || data.length === 0){%>
+            <p> 当前没有打印机</p>
+            <%}else{%>
+                <% for (var i = 0; i < data.length; i++){%>
+                    <li>
+                        <p>
+                            <a href="order_sum_show.html?printerId=<%=data[i].id %>">
+                                <%=data[i].id %>
+                            </a>
+                        </p>
+                        <span></span>
+                        <p class="printer_status <%=ptstatus(data[i].printerStatus)%>">
+                            <%=ptstatusFormat(data[i].printerStatus)%>
+                        </p>
+                    </li>
+                    <%}}%>
+    </script>
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="../js/template-native.js"></script>
+    <script src="../js/order.js"></script>
+</body>
+
+</html>

@@ -3,6 +3,7 @@ package com.qg.smpt.web.processor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -50,12 +51,6 @@ public class PrinterController {
 		// 若内存中没有用户，则去数据库中获取,并放进内存
 		if(user == null) {
 			user = userService.queryUserPrinter(userId);
-
-			if(user != null && user.getPrinters() != null){
-                synchronized (ShareMem.userIdMap) {
-                    ShareMem.userIdMap.put(user.getId(), user);
-                }
-			}
 		}
 
 		printers = user.getPrinters();
