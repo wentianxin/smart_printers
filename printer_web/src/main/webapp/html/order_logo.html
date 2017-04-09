@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>上传图片logo</title>
+    <link rel="stylesheet" href="../css/order.css" />
+</head>
+
+<body>
+    <div id="nav" class="wrapper">
+        <div class="user subwrapper">
+            <a href="#"></a>
+            <span class="user_name">用户名字</span>
+        </div>
+        <div class="wrapper">
+            <div class="subwrapper" id="logo_upload">
+                    <button class="button" type="button" onclick='javascript:window.location.href="order_index.html"'>返回订单主页</button>
+                <div class="beautify">
+                    <p>选择文件</p>
+                    <input type="file" name="logo_file" id="logo_file"  accept="image/png,image/gif,image/jpeg">
+                </div>
+                <form id="upload_form" enctype="multipart/form-data">
+                    <div id="show_area">
+                        <p>你选择的文件是</p>
+
+                    </div>
+                    <button type="button" id="save_file">确认上传</button>
+                </form>
+                <div id="logo_clip_area">
+                <!-- 　<progress id="uploadprogress" min="0" max="100" value="0">0</progress> -->
+                </div>
+            </div>
+            <script src="../js/jquery.min.js"></script>
+            <!-- <script src="../js/mock.js"></script> -->
+            <!-- <script src="../js/canvas2Image.js"></script> -->
+            <script src="../js/logo.js"></script>
+</body>
+
+</html>

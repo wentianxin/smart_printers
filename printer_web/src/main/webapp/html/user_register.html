@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta charset="UTF-8">
+	<title>注册</title>
+	<link rel="stylesheet" href="../css/order.css">
+
+</head>
+<body class="login">
+	<form action="/register" method="POST">
+		<label>店主名字<input type="text" name="userName" id="userName"></label>
+		<label>账户<input type="text" name="userAccount" id="userAccount"></label>
+		<label>密码<input type="password" name="userPassword" id="userPassword"></label>
+		<label>商店名<input type="text" name="userStore" id="userStore"></label>
+		<label>商家地址<input type="text" name="userAddress" id="userAddress"></label>
+		<label>商家电话<input type="text" name="userPhone" id="userPhone"></label>
+		<div id="printer">
+			<label>打印机编号<input type="text" name="id" id="id"></label>
+		</div>
+		<button type="button" onclick='javascript:window.location.href="user_login.html"'>返回</button>
+		<button type="submit">确定</button>
+	</form>
+</body>
+</html>
